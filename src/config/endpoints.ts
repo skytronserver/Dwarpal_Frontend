@@ -3,13 +3,15 @@ export const API_ENDPOINTS = {
       list: '/api/departments/',
       create: '/api/departments/create/',  
       update: (id: string | number) => `/department/edit/${id}/`,
-      delete: (id: string | number) => `/api/department/${id}/`
+      delete: (id: string | number) => `/department/delete/${id}/`,
+      getById: (id: string | number) => `/department/edit/${id}/`,
     },
     organizations: {
       list: '/api/organizations/',
       create: '/api/organizations/create/',
       update: (id: string) => `/organization/edit/${id}/`,
       delete: (id: number) => `/organization/delete/${id}/`,
+      getById: (id: string) => `/organization/edit/${id}/`,
     },
     auth: {
       login: '/login/',
@@ -20,5 +22,13 @@ export const API_ENDPOINTS = {
       update: (id: string) => `/api/users/${id}/update/`,
       delete: (id: string) => `/api/users/${id}/delete/`,
       getById: (id: string) => `/api/users/${id}/`,
+    },
+    shifts: {
+      list: '/api/shifts/',
+      create: '/api/shifts/create/',
+      assign: (id: string) => `/api/shifts/assignments/create/${id}/`,
+      update: (id: string) => `/api/shifts/${id}/update/`,
+      delete: (id: string) => `/api/shifts/${id}/delete/`,
+      getById: (id: string) => `/api/shifts/${id}/`,
     },
   };

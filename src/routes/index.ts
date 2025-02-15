@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Building } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Building, Clock, Calendar } from 'lucide-react';
 import { lazy } from 'react';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
@@ -10,7 +10,11 @@ const ViewDepartment = lazy(() => import('../pages/departments/ViewDepartments')
 const ManageUsers = lazy(() => import('../pages/user/ManageUsers'));
 const UserForm = lazy(() => import('../pages/user/UserForm'));        
 const DepartmentForm = lazy(() => import('../pages/departments/DepartmentForm'));
-
+const Shifts = lazy(() => import('../pages/workShifts/Shifts'));
+const ShiftForm = lazy(() => import('../pages/workShifts/ShiftForm'));
+const ViewShift = lazy(() => import('../pages/workShifts/ViewShift'));
+const AssignShiftForm = lazy(() => import('../pages/workShifts/AssignShiftForm'));
+const Holidays = lazy(() => import('../pages/holidays/Holidays'));
 export interface RouteConfig {
     path: string;
     element: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -76,15 +80,36 @@ const adminRoutes:RouteConfig[] = [
         icon: Users,
         allowedRoles: ['SUPERADMIN', 'ADMIN'],
         group: 'create'
-    },          
-]
-
-const hiddenRoutes:RouteConfig[] = [
+    },       
+    {
+        path: '/shifts',
+        element: Shifts,
+        title: 'Manage Shifts',
+        icon: Clock,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'],
+        group: 'manage'
+    },
+    {
+        path: '/shifts/new/:id',
+        element: ShiftForm,
+        title: 'Create Shift',
+        icon: Clock,
+        allowedRoles: ['ADMIN'],
+        group: 'create'
+    },
     {
         path: '/departments/:id',
         element: ViewDepartment,
         title: 'Department',
         icon: Building,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'],
+        group: 'manage'
+    },
+    {
+        path: '/shifts/:id',
+        element: ViewShift,
+        title: 'Shift',
+        icon: Clock,
         allowedRoles: ['SUPERADMIN', 'ADMIN'],
         group: 'manage'
     },
@@ -96,6 +121,23 @@ const hiddenRoutes:RouteConfig[] = [
         allowedRoles: ['SUPERADMIN', 'ADMIN'],
         group: 'manage'
     },
-];
+    {
+        path: '/shifts/assign/:id',
+        element: AssignShiftForm,
+        title: 'Assign Shift',
+        icon: Clock,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'],
+        group: 'manage'
+    },
+    {
+        path: '/holidays',
+        element: Holidays,
+        title: 'Holidays',
+        icon: Calendar,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'],
+        group: 'manage'
+    }
+]
 
-export { adminRoutes, hiddenRoutes }; 
+
+export { adminRoutes }; 

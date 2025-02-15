@@ -10,23 +10,33 @@ import {
   Checkbox,
   Radio,
   RadioGroup,
-  FormLabel
+  FormLabel,
+  InputLabel,
+  Select,
+  SelectChangeEvent
 } from "@mui/material";
 import { DynamicFormProps, Field } from "../../types/form.types";
 
 const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
   const [formData, setFormData] = useState<Record<string, any>>(initialValues || {});
 
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked, files } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === "checkbox" 
-        ? checked 
+        ? (e.target as HTMLInputElement).checked
         : type === "file" 
-          ? files?.[0] || null 
+          ? (e.target as HTMLInputElement).files?.[0] || null 
           : value
+    }));
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent<any>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
     }));
   };
 
@@ -39,21 +49,22 @@ const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
     switch (field.type) {
       case "select":
         return (
-          <TextField
-            select
-            fullWidth
-            name={field.name}
-            label={field.label}
-            value={formData[field.name] || field.defaultValue || ""}
-            onChange={handleChange}
-            required={field.required}
-          >
-            {field.options?.map((option: { label: string; value: any }) => (
-              <MenuItem key={String(option.value)} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
+          <FormControl fullWidth>
+            <InputLabel>{field.label}</InputLabel>
+            <Select
+              name={field.name}
+              value={formData[field.name] || field.defaultValue || ""}
+              onChange={handleSelectChange}
+              required={field.required}
+              label={field.label}
+            >
+              {field.options?.map((option) => (
+                <MenuItem key={String(option.value)} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         );
 
       case "checkbox":
@@ -63,7 +74,7 @@ const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
               <Checkbox
                 name={field.name}
                 checked={formData[field.name] || false}
-                onChange={handleChange}
+                onChange={handleInputChange}
               />
             }
             label={field.label}
@@ -77,7 +88,7 @@ const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
             <RadioGroup
               name={field.name}
               value={formData[field.name] || field.defaultValue || ""}
-              onChange={handleChange}
+              onChange={handleInputChange}
             >
               {field.options?.map((option: { label: string; value: any }) => (
                 <FormControlLabel
@@ -98,7 +109,7 @@ const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
             type="file"
             name={field.name}
             label={field.label}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required={field.required}
             InputLabelProps={{ shrink: true }}
             inputProps={{
@@ -106,6 +117,27 @@ const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
             }}
           />
         );
+
+        case "multiselect":
+          return (
+            <FormControl fullWidth>
+              <InputLabel>{field.label}</InputLabel>
+              <Select
+                multiple
+                name={field.name}
+                value={formData[field.name] || field.defaultValue || []}
+                onChange={handleSelectChange}
+                required={field.required}
+                label={field.label}
+              >
+                {field.options?.map((option) => (
+                  <MenuItem key={String(option.value)} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
 
       default:
         return (
@@ -115,7 +147,7 @@ const DynamicForm = ({fields, onSubmit ,initialValues}: DynamicFormProps) => {
             label={field.label}
             type={field.type}
             value={formData[field.name] || field.defaultValue || ""}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required={field.required}
           />
         );

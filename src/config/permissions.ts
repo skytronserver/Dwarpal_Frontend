@@ -15,7 +15,12 @@ export const ROLE_PERMISSIONS = {
     'delete:department',
     'create:user',
     'edit:user',
-    'delete:user'
+    'delete:user',
+    'manage:shifts',
+    'edit:shift',
+    'delete:shift',
+    'assign:shift',
+    'manage:holidays'
   ],
   ADMIN: [
     'view:dashboard',

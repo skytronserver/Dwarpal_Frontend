@@ -9,6 +9,7 @@ export interface Field {
     validation?: Yup.Schema;
     defaultValue?: any;
     accept?: string;
+    multiple?: boolean;
 }
 export interface DynamicFormProps {    
     fields: Field[];
