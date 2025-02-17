@@ -7,7 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useGetHolidaysQuery } from "../../services/holidayApi";
 import { enUS } from 'date-fns/locale/en-US';
 import { useState } from 'react';
-import { Box, Typography, Paper, Modal, Button, List, ListItem } from '@mui/material';
+import { Box, Typography, Paper, Modal, Button, List, ListItem, CircularProgress } from '@mui/material';
 
 const locales = {
     'en-US': enUS
@@ -61,7 +61,7 @@ const Holidays = () => {
         setSelectedEvent(event);
         setIsModalOpen(true);
     };
-
+    
     const handleCloseModal = () => {
         setSelectedEvent(null);
         setIsModalOpen(false);
@@ -70,7 +70,8 @@ const Holidays = () => {
     if (isLoading) {
         return (
             <Box sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography variant="h5">Loading holidays...</Typography>
+                <CircularProgress />
+                <Typography variant="h6" sx={{ ml: 2 }}>Loading holidays...</Typography>
             </Box>
         );
     }
@@ -124,34 +125,109 @@ const Holidays = () => {
                             width: 400, 
                             maxHeight: '90vh', 
                             overflow: 'auto',
-                            p: 3,
+                            p: 4,
+                            borderRadius: 2,
+                            outline: 'none',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             '&:focus': { outline: 'none' }
                         }}>
-                            <Typography variant="h5" sx={{ mb: 2 }}>Holiday Details</Typography>
-                            <Box sx={{ mb: 2 }}>
-                                <Box sx={{ display: 'flex', mb: 2 }}>
-                                    <Typography sx={{ fontWeight: 600, width: 100 }}>Created by:</Typography>
-                                    <Typography>{selectedEvent.createdBy || 'Unknown'}</Typography>
+                            <Typography 
+                                variant="h5" 
+                                sx={{ 
+                                    mb: 3,
+                                    color: 'primary.main',
+                                    fontWeight: 600,
+                                    borderBottom: '2px solid',
+                                    borderColor: 'primary.main',
+                                    pb: 1
+                                }}
+                            >
+                                Holiday Details
+                            </Typography>
+                            
+                            <Box sx={{ mb: 3 }}>
+                                <Box sx={{ 
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    mb: 2,
+                                    p: 2,
+                                    bgcolor: 'grey.50',
+                                    borderRadius: 1
+                                }}>
+                                    <Typography sx={{ fontWeight: 600, width: 100, color: 'text.secondary' }}>
+                                        Created by:
+                                    </Typography>
+                                    <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                                        {selectedEvent.createdBy || 'Unknown'}
+                                    </Typography>
                                 </Box>
-                                <Typography sx={{ fontWeight: 600, mb: 1 }}>Date(s):</Typography>
-                                <List>
+
+                                <Typography sx={{ 
+                                    fontWeight: 600, 
+                                    mb: 2,
+                                    color: 'text.secondary'
+                                }}>
+                                    Date(s):
+                                </Typography>
+                                <List sx={{ 
+                                    bgcolor: 'grey.50',
+                                    borderRadius: 1,
+                                    mb: 2
+                                }}>
                                     {selectedEvent.dates.split(',').map((date, index) => (
-                                        <ListItem key={index}>
-                                            {format(new Date(date.trim()), 'MMMM do, yyyy')}
+                                        <ListItem 
+                                            key={index}
+                                            sx={{
+                                                borderBottom: index !== selectedEvent.dates.split(',').length - 1 ? '1px solid' : 'none',
+                                                borderColor: 'grey.200',
+                                                py: 1
+                                            }}
+                                        >
+                                            <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                                                {format(new Date(date.trim()), 'MMMM do, yyyy')}
+                                            </Typography>
                                         </ListItem>
                                     ))}
                                 </List>
-                                <Box sx={{ display: 'flex' }}>
-                                    <Typography sx={{ fontWeight: 600, width: 100 }}>Status:</Typography>
-                                    <Typography>
-                                        {selectedEvent.isVerified ? 'Verified' : 'Pending Verification'}
+
+                                <Box sx={{ 
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    p: 2,
+                                    bgcolor: 'grey.50',
+                                    borderRadius: 1
+                                }}>
+                                    <Typography sx={{ fontWeight: 600, width: 100, color: 'text.secondary' }}>
+                                        Status:
+                                    </Typography>
+                                    <Typography sx={{
+                                        color: selectedEvent.isVerified ? 'success.main' : 'warning.main',
+                                        fontWeight: 600,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1
+                                    }}>
+                                        {selectedEvent.isVerified ? '✓ Verified' : '⏳ Pending Verification'}
                                     </Typography>
                                 </Box>
                             </Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
+
+                            <Box sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'flex-end', 
+                                gap: 2, 
+                                mt: 3,
+                                borderTop: '1px solid',
+                                borderColor: 'grey.200',
+                                pt: 3
+                            }}>
                                 <Button
                                     variant="outlined"
                                     onClick={handleCloseModal}
+                                    sx={{ 
+                                        borderRadius: 2,
+                                        px: 3
+                                    }}
                                 >
                                     Close
                                 </Button>
@@ -161,6 +237,10 @@ const Holidays = () => {
                                         onClick={() => {
                                             // TODO: Implement edit functionality
                                             console.log('Edit holiday:', selectedEvent);
+                                        }}
+                                        sx={{ 
+                                            borderRadius: 2,
+                                            px: 3
                                         }}
                                     >
                                         Edit

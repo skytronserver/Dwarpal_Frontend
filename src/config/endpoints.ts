@@ -31,4 +31,11 @@ export const API_ENDPOINTS = {
       delete: (id: string) => `/api/shifts/${id}/delete/`,
       getById: (id: string) => `/api/shifts/${id}/`,
     },
+    holidays: {
+      list: '/api/holidays/',
+      create: '/api/holidays/create/',
+      update: (id: string) => `/api/holidays/${id}/update/`,
+      delete: (id: string) => `/api/holidays/${id}/delete/`,
+      getById: (id: string) => `/api/holidays/${id}/`,
+    },
   };

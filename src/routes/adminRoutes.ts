@@ -1,12 +1,11 @@
-import { FC } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { ElementType } from 'react';
 import { UserRole } from '../types/auth.types';
 
 export interface RouteConfig {
   path: string;
-  element: FC;
+  element: ElementType;
   title: string;
-  icon?: LucideIcon;
+  icon?: ElementType;
   allowedRoles: UserRole[];
   permission?: string;
   showInNav?: boolean;
