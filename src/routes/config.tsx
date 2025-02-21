@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { LayoutDashboardIcon, Building2Icon, UsersIcon, BuildingIcon, ClockIcon, CalendarIcon } from "lucide-react";
+import { LayoutDashboardIcon, Building2Icon, UsersIcon, BuildingIcon, ClockIcon, CalendarIcon, DoorClosed as DoorClosedIcon } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 interface NavigationHeader {
@@ -59,6 +59,12 @@ export const useNavigation = () => {
       show: hasPermission('create:shift'),
     },
     {
+      segment: 'gate-passes/new/:id',
+      title: 'Create Gate Pass',
+      icon: <DoorClosedIcon />,
+      show: hasPermission('create:gate-pass'),
+    },
+    {
       kind: 'header',
       title: 'Manage',
     },
@@ -91,6 +97,12 @@ export const useNavigation = () => {
       title: 'Manage Holidays',
       icon: <CalendarIcon />,
       show: hasPermission('manage:holidays'),
+    },
+    {
+      segment: 'gate-passes',
+      title: 'Manage Gate Passes',
+      icon: <DoorClosedIcon />,
+      show: hasPermission('manage:gate-passes'),
     },
   ];
 

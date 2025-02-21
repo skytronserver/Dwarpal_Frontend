@@ -10,6 +10,7 @@ const RoleRoute = ({ children, allowedRoles }: RoleRouteProps) => {
   const userData = JSON.parse(localStorage.getItem('user_data') || sessionStorage.getItem('user_data') || '{}');
   
   if (!allowedRoles.includes(userData.role)) {
+    console.log(userData.role, allowedRoles,"oooooo");
     return <Navigate to="/unauthorized" replace />;
   }
 

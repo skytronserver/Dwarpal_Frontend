@@ -20,7 +20,12 @@ export const ROLE_PERMISSIONS = {
     'edit:shift',
     'delete:shift',
     'assign:shift',
-    'manage:holidays'
+    'manage:holidays',
+    'manage:gate-passes',
+    'create:gate-pass',
+    'edit:gate-pass',
+    'delete:gate-pass',
+    'view:gate-pass'
   ],
   ADMIN: [
     'view:dashboard',

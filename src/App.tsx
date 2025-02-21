@@ -6,7 +6,6 @@ import { adminRoutes } from './routes/index';
 import MainLayout from './layout/MainLayout';
 import Authentication from './pages/authentication/Authentication';
 import Unauthorized from './pages/Unauthorized';
-// import Loading from './components/Loading';
 import { RouteConfig } from './routes/adminRoutes';
 import ErrorBoundary from './components/ErrorBoundary';
 import { CircularProgress } from '@mui/material';

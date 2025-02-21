@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Building, Clock, Calendar } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClosed as Gate } from 'lucide-react';
 import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
 
@@ -16,6 +16,9 @@ const ShiftForm = lazy(() => import('../pages/workShifts/ShiftForm'));
 const ViewShift = lazy(() => import('../pages/workShifts/ViewShift'));
 const AssignShiftForm = lazy(() => import('../pages/workShifts/AssignShiftForm'));
 const Holidays = lazy(() => import('../pages/holidays/Holidays'));
+const GatePasses = lazy(() => import('../pages/gatepass/GatePasses'));
+const GatePassForm = lazy(() => import('../pages/gatepass/GatePassForm'));
+const ViewGatePass = lazy(() => import('../pages/gatepass/ViewGatePass'));
 export interface RouteConfig {
     path: string;
     element: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -31,7 +34,7 @@ const adminRoutes:RouteConfig[] = [
         element: Dashboard,
         title: 'Dashboard',
         icon: LayoutDashboard,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR'] as UserRole[],
         group: 'dashboard'
     },
     {
@@ -71,7 +74,7 @@ const adminRoutes:RouteConfig[] = [
         element: ManageUsers,
         title: 'Manage Users',
         icon: Users,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR','ACCOUNTS'] as UserRole[],
         group: 'manage'
     },  
     {
@@ -79,7 +82,7 @@ const adminRoutes:RouteConfig[] = [
         element: UserForm,
         title: 'Create User',
         icon: Users,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR'] as UserRole[],
         group: 'create'
     },       
     {
@@ -87,7 +90,7 @@ const adminRoutes:RouteConfig[] = [
         element: Shifts,
         title: 'Manage Shifts',
         icon: Clock,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR'] as UserRole[],
         group: 'manage'
     },
     {
@@ -95,7 +98,7 @@ const adminRoutes:RouteConfig[] = [
         element: ShiftForm,
         title: 'Create Shift',
         icon: Clock,
-        allowedRoles: ['ADMIN'] as UserRole[],
+        allowedRoles: ['HR'] as UserRole[],
         group: 'create'
     },
     {
@@ -137,7 +140,31 @@ const adminRoutes:RouteConfig[] = [
         icon: Calendar,
         allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
         group: 'manage'
-    }
+    },
+    {
+        path: '/gate-passes',
+        element: GatePasses,
+        title: 'Gate Passes',
+        icon: Gate,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/gate-passes/new/:id',
+        element: GatePassForm,
+        title: 'Create Gate Pass',
+        icon: Gate,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/gate-passes/:id',
+        element: ViewGatePass,
+        title: 'View Gate Pass',
+        icon: Gate,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'manage'
+    }   
 ]
 
 

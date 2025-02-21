@@ -71,10 +71,40 @@ const Authentication = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen flex bg-gray-50"
+      className="min-h-screen flex bg-gray-50 relative"
     >
-      <div className={`hidden lg:flex lg:flex-1 lg:h-screen ${!isActive ? 'rounded-r-[10rem]' : 'rounded-l-[10rem]'} overflow-hidden relative ${isActive ? 'order-2' : 'order-1'}`}>
-        <img src="/assets/bg.png" alt="Horizon UI Logo" className="h-full w-full object-cover absolute" />
+      <motion.div 
+        className="absolute left-1/2 -translate-x-1/2 top-8 z-10 flex flex-row items-center gap-1
+          lg:left-20 lg:transform-none"
+        animate={{
+          x: window.innerWidth >= 1024 
+            ? (isActive ? 0 : 'calc(100vw - 160px)')
+            : 0
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        <img 
+          src="/assets/logo.png" 
+          alt="Company Logo" 
+          className="h-20 w-auto lg:h-12" 
+        />
+        <h2 className="text-lg font-bold text-gray-900 mt-2 lg:mt-0">
+          Dwarpal
+        </h2>
+      </motion.div>
+      <div className={`hidden lg:flex lg:flex-1 lg:h-screen ${!isActive ? 'rounded-r-[10rem]' : 'rounded-l-[10rem]'} 
+        overflow-hidden relative ${isActive ? 'order-2' : 'order-1'} transition-all duration-300`}>
+        <motion.div 
+          className="absolute inset-0"
+          initial={false}
+          animate={{
+            x: isActive ? '0%' : '0%',
+            scale: isActive ? 1 : 1
+          }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+        >
+          <img src="/assets/bg.png" alt="Horizon UI Logo" className="h-full w-full object-cover" />
+        </motion.div>
 
         <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-center">
           <h1 className="text-4xl font-bold mb-4">
