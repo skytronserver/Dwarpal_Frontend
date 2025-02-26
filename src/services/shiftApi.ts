@@ -46,13 +46,17 @@ export const shiftApi = createApi({
     }),
     deleteShift: builder.mutation<Shift, number>({
       query: (shiftId) => ({
-        url: API_ENDPOINTS.shifts.delete(shiftId.toString()),
+        url: API_ENDPOINTS.shifts.delete(shiftId),
         method: 'DELETE',
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
       }),
+      invalidatesTags: [{ type: 'shifts' }],
     }),
     editShift: builder.mutation<Shift, { id: number, data: FormData }>({
       query: ({ id, data }) => ({
-        url: API_ENDPOINTS.shifts.update(id.toString()),
+        url: API_ENDPOINTS.shifts.update(id),
         method: 'PUT',
         body: data,
         headers: {
@@ -62,9 +66,17 @@ export const shiftApi = createApi({
     }),
     assignShift: builder.mutation<Shift, { id: number, data: ShiftFormValues }>({
       query: ({ id, data }) => ({
-        url: API_ENDPOINTS.shifts.assign(id.toString()),
+        url: API_ENDPOINTS.shifts.assign(id),
         method: 'POST',
         body: data,
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      }),
+    }),
+    getShiftById: builder.query<Shift, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.shifts.getById(id),
         headers: {
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
@@ -73,4 +85,4 @@ export const shiftApi = createApi({
   }),
 });
 
-export const { useGetShiftsQuery, useCreateShiftMutation, useDeleteShiftMutation, useEditShiftMutation, useAssignShiftMutation } = shiftApi;
+export const { useGetShiftsQuery, useCreateShiftMutation, useDeleteShiftMutation, useEditShiftMutation, useAssignShiftMutation, useGetShiftByIdQuery   } = shiftApi;

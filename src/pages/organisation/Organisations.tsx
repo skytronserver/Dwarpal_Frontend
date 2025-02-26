@@ -67,10 +67,8 @@ const Organisations = () => {
     const orgId = modalData?.id;
     try {
       await deleteOrganisation(orgId).unwrap();
-      // You might want to show a success message here
     } catch (error) {
       console.error('Error deleting organisation:', error);
-      // You might want to show an error message here
     }
   };
 

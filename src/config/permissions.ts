@@ -4,58 +4,53 @@ export const ROLE_PERMISSIONS = {
   SUPERADMIN: [
     'view:dashboard',
     'manage:organizations',
-    'manage:departments',
-    'manage:users',
-    'manage:settings',
     'create:organization',
     'edit:organization',
     'delete:organization',
+    'manage:departments',
     'create:department',
     'edit:department',
     'delete:department',
-    'create:user',
-    'edit:user',
-    'delete:user',
-    'manage:shifts',
-    'edit:shift',
-    'delete:shift',
-    'assign:shift',
-    'manage:holidays',
-    'manage:gate-passes',
-    'create:gate-pass',
-    'edit:gate-pass',
-    'delete:gate-pass',
-    'view:gate-pass'
+    'manage:admin-users',
+    'create:admin-user',
+    'edit:admin-user',
+    'delete:admin-user'
   ],
   ADMIN: [
     'view:dashboard',
     'view:organizations',
-    'manage:departments',
-    'manage:users',
-    'create:department',
-    'edit:department',
-    'create:user',
-    'edit:user'
-  ],
-  HR: [
-    'view:dashboard',
     'view:departments',
-    'manage:users',
+    'manage:user',
     'create:user',
-    'edit:user'
+    'manage:users',
+    'edit:user',
+    'delete:user',
+    'manage:holidays',
+    'create:holiday',
+    'edit:holiday',
+    'delete:holiday',
+    'manage:shifts',
+    'create:shift',
+    'edit:shift',
+    'delete:shift',
+    'manage:gate-passes',
+    'approve:gate-pass'
   ],
-  ACCOUNTS: [
+  EMPLOYEE: [
     'view:dashboard',
-    'view:users'
-  ],
-  FRONTDESK: ['view:dashboard'],
-  HELPDESK: ['view:dashboard'],
-  SECURITY: ['view:dashboard'],
-  OTHERS: ['view:dashboard']
+    'view:holidays',
+    'view:shifts',
+    'view:gate-passes',
+    'create:gate-pass',
+    'view:profile'
+  ]
 } as const;
 
 export type Permission = keyof typeof ROLE_PERMISSIONS;
 
-export const hasPermission = (userRole: UserRole, requiredPermission: string): boolean => {
-  return ROLE_PERMISSIONS[userRole]?.includes(requiredPermission as any) ?? false;
+export const hasPermission = (userRole: UserRole, requiredPermission: string, userPermissions?: string[]): boolean => {
+  const roleHasPermission = ROLE_PERMISSIONS[userRole]?.includes(requiredPermission as any);
+  const userHasPermission = userPermissions?.includes(requiredPermission);
+  
+  return roleHasPermission || !!userHasPermission;
 }; 

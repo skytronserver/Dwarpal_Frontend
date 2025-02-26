@@ -19,6 +19,7 @@ interface Department {
 export const departmentApi = createApi({
     reducerPath: "departmentApi",
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
+    tagTypes: ['Department'],
     endpoints: (builder) => ({
         getDepartments: builder.query<DepartmentResponse, { search?: string; page?: number; page_size?: number }>({
             query: (params) => ({
@@ -29,6 +30,7 @@ export const departmentApi = createApi({
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
             }),
+            providesTags: ['Department'],
         }),
         createDepartment: builder.mutation<Department, FormData>({
             query: (formData) => ({
@@ -40,7 +42,7 @@ export const departmentApi = createApi({
                 }
             }),
         }), 
-        updateDepartment: builder.mutation<Department, { id: string; data: FormData }>({
+        updateDepartment: builder.mutation<Department, { id: number; data: FormData }>({
             query: ({ id, data }) => ({
                 url: API_ENDPOINTS.departments.update(id),
                 method: "PUT",
@@ -60,7 +62,15 @@ export const departmentApi = createApi({
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
             }),
-
+            invalidatesTags: ['Department'],
+        }),
+        getDepartmentById: builder.query<Department, number>({
+            query: (id) => ({
+                url: API_ENDPOINTS.departments.getById(id),
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
         }),
     }),
 });
@@ -70,4 +80,5 @@ export const {
     useCreateDepartmentMutation,
     useUpdateDepartmentMutation,
     useDeleteDepartmentMutation,
+    useGetDepartmentByIdQuery
  } = departmentApi;

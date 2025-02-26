@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { Field } from '../../types/form.types';
+import { ToggleButton } from '@mui/material';
 
 export const UserFormFields: Field[] = [
   {
@@ -72,5 +73,27 @@ export const UserFormFields: Field[] = [
       .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
         'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character')
       .required('Password is required')
+  },
+  {
+    name: 'canCreateAdmin',
+    label: 'Can Create Admin',
+    type: 'switch',
+    required: false,
+    validation: Yup.boolean().required('Can create admin is required')
+  },
+  {
+    name: 'canManageEmployees',
+    label: 'Can Manage Employees',
+    type: 'switch',
+    required: false,
+    validation: Yup.boolean().required('Can manage employees is required')
+  },
+  {
+    name: 'canViewReports',
+    label: 'Can View Reports',
+    type: 'switch',
+    required: false,
+    validation: Yup.boolean().required('Can view reports is required')
   }
+
 ]; 

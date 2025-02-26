@@ -74,8 +74,8 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
             
             if (initialData && departmentId) {
                 const response = await editDepartment({ 
-                    id: departmentId, 
-                    data: formData  // Use FormData instead of JSON
+                    id: parseInt(departmentId), 
+                    data: formData 
                 }).unwrap();
                 console.log('Department updated successfully:', response);
                 onSuccess?.();

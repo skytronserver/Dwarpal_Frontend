@@ -10,6 +10,17 @@ import { RootState } from '../../features/store';
 import { ModalState } from "../../features/slices/modalSlice";
 import { useDeleteShiftMutation, useGetShiftsQuery } from "../../services/shiftApi";
 
+// Add type for shift data
+interface ShiftData {
+  id: number;
+  shift_name: string;
+  shift_start_time: string;
+  shift_end_time: string;
+  total_work_time: string;
+  created_by: string;
+  [key: string]: any;
+}
+
 const Shifts = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,6 +49,9 @@ const Shifts = () => {
 
   const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
 
+  // Add the delete mutation hook at component level
+  const [deleteShift, { isLoading: isDeleting }] = useDeleteShiftMutation();
+
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
     setPage(0);
@@ -52,11 +66,11 @@ const Shifts = () => {
     navigate(`/shifts/${row.id}`, { state: { shift: row } });
   };
 
-  const handleEdit = (row: any) => {
+  const handleEdit = (row: ShiftData) => {
     navigate(`/shifts/new/${row.id}`, { state: { shiftData: row } });
   }
 
-  const handleDelete = (row: any) => {
+  const handleDelete = (row: ShiftData) => {
     dispatch(
       openModal({
         type: 'DELETE_SHIFT',
@@ -67,9 +81,11 @@ const Shifts = () => {
 
   const handleConfirmDelete = async () => {
     const shiftId = modalData?.id;
+    if (!shiftId) return;
+    
     try {
-      const response = useDeleteShiftMutation(shiftId);
-      console.log(response);  
+      await deleteShift(shiftId).unwrap();
+      // The RTK Query cache will automatically update
     } catch (error) {
       console.error('Error deleting shift:', error);
     }

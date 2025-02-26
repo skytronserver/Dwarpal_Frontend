@@ -15,8 +15,8 @@ interface OrganisationFormValues {
 }
 
 const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
-    const { orgId } = useParams();
-    console.log(orgId,'orgId');
+    const { id } = useParams();
+    console.log(id,'id');
     const location = useLocation();
     const initialData = location.state?.organisationData;
     console.log(initialData,'initialData');
@@ -26,6 +26,8 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
         
 
     const handleSubmit = async (values: OrganisationFormValues) => {
+        console.log('Submit triggered with values:', values);
+        
         const orgs = new FormData();
         Object.keys(values).forEach(key => {
             if (values[key] !== null && values[key] !== undefined) {
@@ -38,13 +40,15 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
         });
         
         try {
-            if (initialData && orgId) {
+            if (id) {
+                console.log('Executing edit operation with ID:', id);
                 await editOrganisation({ 
-                    id: orgId, 
+                    id: parseInt(id), 
                     data: orgs 
                 }).unwrap();
                 onSuccess?.();
             } else {
+                console.log('Executing create operation');
                 await createOrganisation(orgs).unwrap();
                 navigate('/organisations');
             }

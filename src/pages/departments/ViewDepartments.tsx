@@ -7,6 +7,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 const ViewDepartment = () => {
     const location = useLocation();
     const department = location.state?.department;
+    console.log(department,'department');
 
 
     return (
@@ -39,7 +40,7 @@ const ViewDepartment = () => {
                                         Organisation Name
                                     </Typography>
                                     <Typography variant="body1">
-                                        {department.organization}
+                                        {department.organization.name}
                                     </Typography>
                                 </Box>
                             </Box>

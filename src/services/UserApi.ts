@@ -25,7 +25,7 @@ export const userApi = createApi({
         }
       })
     }),
-    updateUser: builder.mutation<User, { id: string; formData: FormData }>({
+    updateUser: builder.mutation<User, { id: number; formData: FormData }>({
       query: ({ id, formData }) => ({
         url: API_ENDPOINTS.users.update(id),
         method: 'PUT',
@@ -35,7 +35,7 @@ export const userApi = createApi({
         }
       })
     }),
-    deleteUser: builder.mutation<void, string>({
+    deleteUser: builder.mutation<void, number>({
       query: (id) => ({
         url: API_ENDPOINTS.users.delete(id),
         method: 'DELETE',
@@ -43,7 +43,15 @@ export const userApi = createApi({
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
       })
-    })
+    }),
+    getUserById: builder.query<User, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.users.getById(id),
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      }),
+    }),
   })
 });
 
@@ -51,5 +59,6 @@ export const {
   useGetUsersQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
-  useDeleteUserMutation
+  useDeleteUserMutation,
+  useGetUserByIdQuery
 } = userApi; 

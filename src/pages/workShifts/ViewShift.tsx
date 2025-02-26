@@ -1,19 +1,28 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { AccessTime, Person, Schedule, Timer } from "@mui/icons-material";
 import { Box, Paper, Typography, Button, Grid } from "@mui/material";
 import { useAuth } from "../../hooks/useAuth";
+import { useGetShiftByIdQuery } from "../../services/shiftApi";
 
 const ViewShift = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const shift = useLocation().state.shift;
+    const { data: shift, isLoading } = useGetShiftByIdQuery(Number(id));
     const { hasPermission } = useAuth();
 
     const handleApprove = () => {
         navigate(`/shifts/assign/${id}`);
         console.log('Shift approved:', id);
     };
+
+    if (isLoading) {
+        return <Box sx={{ p: 3 }}>Loading...</Box>;
+    }
+
+    if (!shift) {
+        return <Box sx={{ p: 3 }}>Shift not found</Box>;
+    }
 
     return (
         <Box sx={{ p: 3, maxWidth: 1200 }}>
@@ -57,7 +66,7 @@ const ViewShift = () => {
                                         Total Hours
                                     </Typography>
                                     <Typography variant="body1">
-                                        {Math.round(parseFloat(shift.total_work_time) / 3600)} hours
+                                        {Math.round(parseFloat(shift.total_work_time.toString()) / 3600)} hours
                                     </Typography>
                                 </Box>
                             </Box>

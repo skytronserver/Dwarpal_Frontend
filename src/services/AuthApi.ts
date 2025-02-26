@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from "../config/endpoints";
 
 export const authApiSlice = createApi({
    reducerPath: 'authApi',
-   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}/api` }),
+   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
    tagTypes: ['Auth'],
 
    endpoints: (builder) => ({
@@ -22,7 +22,18 @@ export const authApiSlice = createApi({
             }
          })
       }),
+      logout: builder.mutation<void, void>({
+         query: () => ({
+            url: API_ENDPOINTS.auth.logout,
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'Accept': 'application/json',
+               'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+            }
+         })
+      })
       })
    })
 
-export const { useGetLoginMutation } = authApiSlice
+export const { useGetLoginMutation, useLogoutMutation } = authApiSlice

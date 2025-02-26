@@ -16,6 +16,8 @@
     "@mui/icons-material": "^6.4.3",
     "@mui/material": "^6.4.3",
     "@mui/x-data-grid": "^7.25.0",
+    "@mui/x-date-pickers": "^7.27.1",
+    "@mui/x-date-pickers-pro": "^7.27.1",
     "@reduxjs/toolkit": "^2.5.0",
     "@tailwindcss/vite": "^4.0.0",
     "@toolpad/core": "^0.12.0",

@@ -3,11 +3,32 @@ import * as Yup from 'yup';
 
 const ShiftFormFields: Field[] = [
     {
-        name: 'name',
-        label: 'Name',
+        name: 'shift_name',
+        label: 'Shift Name',
         type: 'text',
         required: true,
-        validation: Yup.string().required('Name is required'),
+        validation: Yup.string().required('Shift name is required'),
+    },
+    {
+        name: 'shift_start_time',
+        label: 'Start Time',
+        type: 'time',
+        required: true,
+        validation: Yup.string().required('Start time is required'),
+    },
+    {
+        name: 'shift_end_time',
+        label: 'End Time',
+        type: 'time',
+        required: true,
+        validation: Yup.string().required('End time is required'),
+    },
+    {
+        name: 'total_work_time',
+        label: 'Total Work Time',
+        type: 'text',
+        required: true,
+        validation: Yup.string().required('Total work time is required'),
     },
     {
         name: 'description',
@@ -15,20 +36,6 @@ const ShiftFormFields: Field[] = [
         type: 'text',
         required: true,
         validation: Yup.string().required('Description is required'),
-    },
-    {
-        name: 'start_time',
-        label: 'Start Time',
-        type: 'time',
-        required: true,
-        validation: Yup.string().required('Start Time is required'),
-    },
-    {
-        name: 'end_time',
-        label: 'End Time',
-        type: 'time',
-        required: true,
-        validation: Yup.string().required('End Time is required'),
     },
     {
         name: 'is_active',

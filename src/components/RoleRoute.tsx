@@ -1,16 +1,21 @@
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { UserRole } from '../types/auth.types';
 
 interface RoleRouteProps {
   children: React.ReactNode;
   allowedRoles: UserRole[];
+  requiredPermission?: string;
 }
 
-const RoleRoute = ({ children, allowedRoles }: RoleRouteProps) => {
-  const userData = JSON.parse(localStorage.getItem('user_data') || sessionStorage.getItem('user_data') || '{}');
+const RoleRoute = ({ children, allowedRoles, requiredPermission }: RoleRouteProps) => {
+  const { hasRole, hasPermission } = useAuth();
   
-  if (!allowedRoles.includes(userData.role)) {
-    console.log(userData.role, allowedRoles,"oooooo");
+  if (!hasRole(allowedRoles)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  if (requiredPermission && !hasPermission(requiredPermission)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

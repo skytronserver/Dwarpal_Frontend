@@ -8,6 +8,7 @@ import { useGetHolidaysQuery } from "../../services/holidayApi";
 import { enUS } from 'date-fns/locale/en-US';
 import { useState } from 'react';
 import { Box, Typography, Paper, Modal, Button, List, ListItem, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const locales = {
     'en-US': enUS
@@ -22,40 +23,39 @@ const localizer = dateFnsLocalizer({
 });
 
 interface Holiday {
-  id: number;
-  created_by: string;
-  holiday_dates: string;
-  is_verified: boolean;
+    id: number;
+    holiday_from_date: string;
+    holiday_to_date: string;
+    holiday_name: string;
+    is_active: boolean;
+    created_by: number;
 }
 
 interface CalendarEvent {
-  id: number;
-  title: string;
-  start: Date;
-  end: Date;
-  isVerified: boolean;
-  createdBy: string;
-  dates: string;
+    id: number;
+    title: string;
+    start: Date;
+    end: Date;
+    isVerified: boolean;
+    createdBy: number;
+    name: string;
 }
 
 const Holidays = () => {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { data, isLoading, error } = useGetHolidaysQuery({search: '', page: 1, page_size: 10});
+    const navigate = useNavigate();
 
-    const events: CalendarEvent[] = data?.results.flatMap((holiday: Holiday) => 
-        holiday.holiday_dates.split(',').map(date => ({
-            id: holiday.id,
-            title: holiday.created_by 
-                ? `Holiday by ${holiday.created_by}`
-                : 'Unnamed Holiday',
-            start: new Date(date.trim()),
-            end: new Date(date.trim()),
-            isVerified: holiday.is_verified,
-            createdBy: holiday.created_by,
-            dates: holiday.holiday_dates
-        }))
-    ) || [];
+    const events: CalendarEvent[] = data?.results.map((holiday: Holiday) => ({
+        id: holiday.id,
+        title: `${holiday.holiday_name} ${holiday.is_active ? '✓' : '⏳'}`,
+        start: new Date(holiday.holiday_from_date),
+        end: new Date(holiday.holiday_to_date),
+        isVerified: holiday.is_active,
+        createdBy: holiday.created_by,
+        name: holiday.holiday_name
+    })) || [];
 
     const handleEventClick = (event: CalendarEvent) => {
         setSelectedEvent(event);
@@ -65,6 +65,11 @@ const Holidays = () => {
     const handleCloseModal = () => {
         setSelectedEvent(null);
         setIsModalOpen(false);
+    };
+
+    const handleEditClick = (id: number) => {
+        navigate(`/holidays/new/${id}`);
+        handleCloseModal();
     };
 
     if (isLoading) {
@@ -88,7 +93,7 @@ const Holidays = () => {
     return (
         <Box sx={{ height: '100vh', p: 2 }}>
             <Typography variant="h4" sx={{ mb: 2 }}>Holidays Calendar</Typography>
-            <Paper sx={{ height: 600 }}>
+            <Paper sx={{ height: 600, p: 2 }}>
                 <Calendar
                     localizer={localizer}
                     events={events}
@@ -104,6 +109,8 @@ const Holidays = () => {
                             color: '#fff',
                             border: 'none',
                             borderRadius: '3px',
+                            padding: '2px 4px',
+                            cursor: 'pointer',
                         },
                     })}
                 />
@@ -142,7 +149,7 @@ const Holidays = () => {
                                     pb: 1
                                 }}
                             >
-                                Holiday Details
+                                {selectedEvent.name}
                             </Typography>
                             
                             <Box sx={{ mb: 3 }}>
@@ -158,7 +165,7 @@ const Holidays = () => {
                                         Created by:
                                     </Typography>
                                     <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
-                                        {selectedEvent.createdBy || 'Unknown'}
+                                        {`User ${selectedEvent.createdBy}` || 'Unknown'}
                                     </Typography>
                                 </Box>
 
@@ -174,20 +181,16 @@ const Holidays = () => {
                                     borderRadius: 1,
                                     mb: 2
                                 }}>
-                                    {selectedEvent.dates.split(',').map((date, index) => (
-                                        <ListItem 
-                                            key={index}
-                                            sx={{
-                                                borderBottom: index !== selectedEvent.dates.split(',').length - 1 ? '1px solid' : 'none',
-                                                borderColor: 'grey.200',
-                                                py: 1
-                                            }}
-                                        >
-                                            <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
-                                                {format(new Date(date.trim()), 'MMMM do, yyyy')}
-                                            </Typography>
-                                        </ListItem>
-                                    ))}
+                                    <ListItem sx={{ py: 1 }}>
+                                        <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                                            From: {format(selectedEvent.start, 'MMMM do, yyyy')}
+                                        </Typography>
+                                    </ListItem>
+                                    <ListItem sx={{ py: 1 }}>
+                                        <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                                            To: {format(selectedEvent.end, 'MMMM do, yyyy')}
+                                        </Typography>
+                                    </ListItem>
                                 </List>
 
                                 <Box sx={{ 
@@ -231,21 +234,16 @@ const Holidays = () => {
                                 >
                                     Close
                                 </Button>
-                                {!selectedEvent.isVerified && (
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => {
-                                            // TODO: Implement edit functionality
-                                            console.log('Edit holiday:', selectedEvent);
-                                        }}
-                                        sx={{ 
-                                            borderRadius: 2,
-                                            px: 3
-                                        }}
-                                    >
-                                        Edit
-                                    </Button>
-                                )}
+                                <Button
+                                    variant="contained"
+                                    onClick={() => handleEditClick(selectedEvent.id)}
+                                    sx={{ 
+                                        borderRadius: 2,
+                                        px: 3
+                                    }}
+                                >
+                                    Edit
+                                </Button>
                             </Box>
                         </Paper>
                     )}

@@ -50,13 +50,19 @@ export const useNavigation = () => {
       segment: 'users/new/:id',
       title: 'Create User',
       icon: <UsersIcon />,
-      show: hasPermission('create:user'),
+      show: hasPermission('create:user') || hasPermission('create:admin-user'),
     },
     {
       segment: 'shifts/new/:id',
       title: 'Create Shift',
       icon: <ClockIcon />,
       show: hasPermission('create:shift'),
+    },
+    {
+      segment: 'holidays/new/:id',
+      title: 'Create Holiday',
+      icon: <CalendarIcon />,
+      show: hasPermission('create:holiday'),
     },
     {
       segment: 'gate-passes/new/:id',
@@ -84,7 +90,7 @@ export const useNavigation = () => {
       segment: 'users',
       title: 'Manage Users',
       icon: <UsersIcon />,
-      show: hasPermission('manage:users'),
+      show: hasPermission('manage:users') || hasPermission('manage:admin-users'),
     },
     {
       segment: 'shifts',

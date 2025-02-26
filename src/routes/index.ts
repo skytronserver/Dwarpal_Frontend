@@ -2,6 +2,7 @@ import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClose
 import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
 
+
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Organisations = lazy(() => import('../pages/organisation/Organisations'));
 const ViewOrganisation = lazy(() => import('../pages/organisation/ViewOrganisation'));
@@ -19,6 +20,9 @@ const Holidays = lazy(() => import('../pages/holidays/Holidays'));
 const GatePasses = lazy(() => import('../pages/gatepass/GatePasses'));
 const GatePassForm = lazy(() => import('../pages/gatepass/GatePassForm'));
 const ViewGatePass = lazy(() => import('../pages/gatepass/ViewGatePass'));
+const HolidayForm = lazy(() => import('../pages/holidays/HolidaysForm'))
+const ViewUser = lazy(() => import('../pages/user/ViewUser'));
+
 export interface RouteConfig {
     path: string;
     element: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -82,15 +86,23 @@ const adminRoutes:RouteConfig[] = [
         element: UserForm,
         title: 'Create User',
         icon: Users,
-        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
         group: 'create'
+    },  
+    {
+        path: '/users/:id',
+        element: ViewUser,
+        title: 'View User',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'manage'
     },       
     {
         path: '/shifts',
         element: Shifts,
         title: 'Manage Shifts',
         icon: Clock,
-        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
         group: 'manage'
     },
     {
@@ -98,7 +110,7 @@ const adminRoutes:RouteConfig[] = [
         element: ShiftForm,
         title: 'Create Shift',
         icon: Clock,
-        allowedRoles: ['HR'] as UserRole[],
+        allowedRoles: ['ADMIN'] as UserRole[],
         group: 'create'
     },
     {
@@ -140,6 +152,14 @@ const adminRoutes:RouteConfig[] = [
         icon: Calendar,
         allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
         group: 'manage'
+    },
+    {
+        path: '/holidays/new/:id',
+        element: HolidayForm,
+        title: 'Create Holiday',
+        icon: Calendar,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
     },
     {
         path: '/gate-passes',

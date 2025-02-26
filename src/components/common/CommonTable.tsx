@@ -12,22 +12,25 @@ import { styled, useTheme } from '@mui/material/styles';
 import { IconButton } from '@mui/material';
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 
-interface CommonTableProps {
-  data: {
+interface TableData {
     columns: any[];
     rows: any[];
     rowCount: number;
     loading: boolean;
     pageSize: number;
     page: number;
-  };
-  visibleFields?: string[];
-  useServerSearch?: boolean;
-  onSearchChange?: (searchQuery: string) => void;
-  onPaginationChange?: (page: number, pageSize: number) => void;
-  onView?: (row: any) => void;
-  onEdit?: (row: any) => void;
-  onDelete?: (row: any) => void;
+    getRowId?: (row: any) => string;
+}
+
+interface CommonTableProps {
+    data: TableData;
+    visibleFields?: string[];
+    useServerSearch?: boolean;
+    onSearchChange?: (searchQuery: string) => void;
+    onPaginationChange?: (page: number, pageSize: number) => void;
+    onView?: (row: any) => void;
+    onEdit?: (row: any) => void;
+    onDelete?: (row: any) => void;
 }
 const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
     border: 'none',

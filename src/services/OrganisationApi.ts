@@ -19,6 +19,7 @@ interface OrganisationResponse {
 export const organisationApi = createApi({
   reducerPath: 'organisationApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
+  tagTypes: ['Organisations'],
   endpoints: (builder) => ({
     getOrganisations: builder.query<OrganisationResponse, { search?: string; page?: number; page_size?: number }>({
       query: (params) => ({
@@ -28,8 +29,8 @@ export const organisationApi = createApi({
           'Content-Type': 'application/json',
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
-      })
-
+      }),
+      providesTags: ['Organisations']
     }),
     createOrganisation: builder.mutation<Organisation, FormData>({
       query: (formData) => ({
@@ -43,7 +44,7 @@ export const organisationApi = createApi({
 
 
     }),
-    editOrganisation: builder.mutation<Organisation, { id: string; data: Record<string, any> }>({
+    editOrganisation: builder.mutation<Organisation, { id: number; data: Record<string, any> }>({
       query: ({ id, data }) => ({
         url: API_ENDPOINTS.organizations.update(id),
         method: 'PUT',
@@ -53,16 +54,24 @@ export const organisationApi = createApi({
         }
       })
     }),
-    deleteOrganisation: builder.mutation<Organisation, number>({
+    deleteOrganisation: builder.mutation<Organisation,number  >({
       query: (id) => ({
         url: API_ENDPOINTS.organizations.delete(id),
         method: 'DELETE',
         headers: {
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
-      })
-
-    })
+      }),
+      invalidatesTags: ['Organisations']
+    }),
+    getOrganisationById: builder.query<Organisation, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.organizations.getById(id),
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      }),
+    }),
   })
 });
 
@@ -71,5 +80,6 @@ export const {
   useGetOrganisationsQuery,
   useCreateOrganisationMutation,
   useEditOrganisationMutation,
-  useDeleteOrganisationMutation
+  useDeleteOrganisationMutation,
+  useGetOrganisationByIdQuery
 } = organisationApi;

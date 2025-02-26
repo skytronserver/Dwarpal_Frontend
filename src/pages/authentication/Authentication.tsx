@@ -24,7 +24,7 @@ const Authentication = () => {
       console.log('Making API call with data:', data);
       console.log('API URL:', import.meta.env.VITE_BASE_URL);
       const response = await getLogin(data).unwrap();
-      console.log('API Response:', response);
+      console.log('API Response:', response.data.token);
       
       if (keepLoggedIn) {
         localStorage.setItem('auth_token', response.data.token);

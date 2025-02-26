@@ -3,7 +3,7 @@ export type LoginTypes = {
     password: string;
 }
 
-export type UserRole = 'SUPERADMIN' | 'ADMIN' | 'HR' | 'ACCOUNTS' | 'FRONTDESK' | 'HELPDESK' | 'SECURITY' | 'OTHERS';
+export type UserRole = 'SUPERADMIN' | 'ADMIN' | 'EMPLOYEE';
 
 export interface User {
   id: string;
@@ -12,6 +12,10 @@ export interface User {
   email: string;
   role: UserRole;
   permissions: string[];
+  organization?: { name: string };
+  department?: { name: string };
+  can_create_gatepass?: boolean;
+  can_manage_shifts?: boolean;
 }
 
 export interface LoginResponseTypes {

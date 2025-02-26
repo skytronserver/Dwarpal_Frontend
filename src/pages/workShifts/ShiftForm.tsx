@@ -1,8 +1,8 @@
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress } from '@mui/material';
-import { useCreateShiftMutation, useEditShiftMutation } from '../../services/shiftApi';
+import { useCreateShiftMutation, useEditShiftMutation, useGetShiftByIdQuery } from '../../services/shiftApi';
 import ShiftFormFields from '../../components/shift/ShiftFormFeilds';
 
 
@@ -16,13 +16,16 @@ interface ShiftFormValues {
 }
 
 const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
-    const { shiftId } = useParams();
-    const location = useLocation();
-    const initialData = location.state?.shiftData;
+    const { id } = useParams();
+    const navigate = useNavigate();
+    
+    const { data: shiftData, isLoading: isLoadingShift } = useGetShiftByIdQuery(
+        parseInt(id!),
+        { skip: !id }
+    );
+    
     const [editShift, { isLoading: isEditLoading }] = useEditShiftMutation();
     const [createShift, { isLoading: isCreateLoading }] = useCreateShiftMutation();
-    const navigate = useNavigate();
-        
 
     const handleSubmit = async (values: ShiftFormValues) => {
         const shifts = new FormData();
@@ -37,9 +40,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
         });
         
         try {
-            if (initialData && shiftId) {
+                if (id) {
                 await editShift({ 
-                    id: parseInt(shiftId), 
+                    id: parseInt(id), 
                     data: shifts 
                 }).unwrap();
                 onSuccess?.();
@@ -55,9 +58,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
-                {initialData ? 'Edit Shift' : 'Create Shift'}
+                {id ? 'Edit Shift' : 'Create Shift'}
             </Typography>
-            {isEditLoading || isCreateLoading ? (
+            {(isEditLoading || isCreateLoading || isLoadingShift) ? (
                 <Box display="flex" justifyContent="center" my={4}>
                     <CircularProgress />
                 </Box>
@@ -65,7 +68,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
                 <DynamicForm    
                     fields={ShiftFormFields} 
                     onSubmit={handleSubmit}
-                    initialValues={initialData} 
+                    initialValues={shiftData} 
                 />
             )}
         </Box>

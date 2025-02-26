@@ -22,15 +22,27 @@ const ManageDepartments = () => {
     page_size: pageSize,
   });
 
+  const columns = data?.results?.[0]
+    ? Object.keys(data.results[0]).map((key) => {
+        
+        const column: any = {
+          field: key,
+          headerName: formatFieldName(key),
+          width: 150,
+        };
 
-  console.log(data,'uuuujujujuj');
+        if (key === 'organization') {
+          column.renderCell = (params: any) => params.row.organization?.name;
+        }
 
-  const columns = data?.results?.[0] 
-    ? Object.keys(data.results[0]).map((key) => ({
-        field: key,
-        headerName: formatFieldName(key),
-        width: 150,
-      }))
+        if (key === 'integrate_with_ai_camera') {
+          column.renderCell = (params: any) => {
+            return params.row.integrate_with_ai_camera === true ? 'Yes' : 'No';
+          };
+        }
+
+        return column;
+      })
     : [];
 
   const visibleFields = ['name', 'organization', 'integrate_with_ai_camera']; 
