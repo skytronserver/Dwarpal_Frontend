@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { openModal } from '../../features/slices/modalSlice';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { RootState } from '../../features/store';
+import { ModalState } from '../../features/slices/modalSlice';
 
 
 const ManageDepartments = () => {
@@ -51,7 +52,7 @@ const ManageDepartments = () => {
   const [deleteDepartment] = useDeleteDepartmentMutation  ();
 
 
-  const modalData = useSelector((state: RootState) => state.modal.data);
+  const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
@@ -69,7 +70,7 @@ const ManageDepartments = () => {
 
 
   const handleEdit = (row: any) => {
-    navigate(`/departments/new/${row.id}`, { state: { departmentData: row } });
+    navigate(`/departments/new/${row.id}`);
   }
 
 
@@ -94,41 +95,74 @@ const ManageDepartments = () => {
   };
 
   return (
-    <div>
-      { error ? (
-        <div>Error loading organisations</div>
-      ) : (
-        <Box  sx={{ p: 3 }}>
-          <Typography variant="h4" sx={{ mb: 3 }}>
-            Manage Departments
+    <Box sx={{ height: '100%', bgcolor: 'background.default' }}>
+      {error ? (
+        <Box sx={{ 
+          p: 3, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          gap: 2 
+        }}>
+          <Typography variant="h6" color="error">
+            Error loading departments
           </Typography>
-          <CommonTable
+          <Typography variant="body2" color="text.secondary">
+            Please try again later or contact support if the problem persists.
+          </Typography>
+        </Box>
+      ) : (
+        <Box sx={{ 
+          p: 3,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3
+        }}>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                fontWeight: 'medium',
+                color: 'text.primary'
+              }}
+            >
+              Manage Departments
+            </Typography>
+          </Box>
 
-            data={{
-              columns: columns,
-              rows: data?.results || [],
-              rowCount: data?.count || 0,
-              loading: isLoading,
-            pageSize: pageSize,
-            page: page,
-          }}
-          onView={(row) => handleView(row)}
-          onEdit={(row) => handleEdit(row)}
-          onDelete={(row) => handleDelete(row)}
-          visibleFields={visibleFields}
-          useServerSearch={true}
-          onSearchChange={handleSearchChange}
-          onPaginationChange={handlePaginationChange}
-        />
-        <ConfirmationModal
-          title="Delete Department"
-          message="Are you sure you want to delete this department? This action cannot be undone."
-          onConfirm={handleConfirmDelete}
-        />
+          <Box sx={{ flexGrow: 1 }}>
+            <CommonTable
+              data={{
+                columns: columns,
+                rows: data?.results || [],
+                rowCount: data?.count || 0,
+                loading: isLoading,
+                pageSize: pageSize,
+                page: page,
+              }}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              visibleFields={visibleFields}
+              useServerSearch={true}
+              onSearchChange={handleSearchChange}
+              onPaginationChange={handlePaginationChange}
+            />
+          </Box>
 
+          <ConfirmationModal
+            title="Delete Department"
+            message="Are you sure you want to delete this department? This action cannot be undone."
+            onConfirm={handleConfirmDelete}
+          />
         </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

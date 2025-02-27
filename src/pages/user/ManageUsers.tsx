@@ -79,19 +79,15 @@ const ManageUsers = () => {
   };
 
   const handleView = (row: any) => {
-    console.log('View row data:', row);
-    const userId = row.id || `${row.name}-${row.emergency_contact}-${row.blood_group}`;
-    navigate(`/users/${userId}`);
+    console.log(row,"pppp");
+    navigate(`/users/${row.id}`);
   };
 
   const handleEdit = (row: any) => {
-    console.log('Edit row data:', row);
-    const userId = row.id || `${row.name}-${row.emergency_contact}-${row.blood_group}`;
-    navigate(`/users/new/${userId}`);
+    navigate(`/users/new/${row.id}`);
   };
 
   const handleDelete = (row: any) => {
-    console.log('Delete row data:', row);
     dispatch(
       openModal({
         type: 'DELETE_USER',
@@ -108,8 +104,6 @@ const ManageUsers = () => {
       console.error('Error deleting user:', error);
     }
   };
-
-  console.log('API response data:', data?.results);
 
   return (
     <div>
@@ -131,8 +125,8 @@ const ManageUsers = () => {
               getRowId: (row) => `${row.name}-${row.emergency_contact}-${row.blood_group}`,
             }}
             onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            // onEdit={handleEdit}
+            // onDelete={handleDelete}
             visibleFields={visibleFields}
             useServerSearch={true}
             onSearchChange={handleSearchChange}

@@ -1,5 +1,18 @@
 import type { ReactNode } from 'react';
-import { LayoutDashboardIcon, Building2Icon, UsersIcon, BuildingIcon, ClockIcon, CalendarIcon, DoorClosed as DoorClosedIcon } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Building2, 
+  Users, 
+  Building, 
+  Clock, 
+  Calendar, 
+  DoorClosed,
+  UserPlus,
+  Plus,
+  Timer,
+  CalendarPlus,
+  DoorOpen 
+} from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 interface NavigationHeader {
@@ -28,7 +41,7 @@ export const useNavigation = () => {
     {
       segment: 'dashboard',
       title: 'Dashboard',
-      icon: <LayoutDashboardIcon />,
+      icon: <LayoutDashboard />,
     },
     {
       kind: 'header',
@@ -37,37 +50,37 @@ export const useNavigation = () => {
     {
       segment: 'organisations/new/:id',
       title: 'Create Organisation',
-      icon: <Building2Icon />,
+      icon: <Plus />,
       show: hasPermission('create:organization'),
     },
     {
       segment: 'departments/new/:id',
       title: 'Create Department',
-      icon: <BuildingIcon />,
+      icon: <Plus />,
       show: hasPermission('create:department'),
     },
     {
       segment: 'users/new/:id',
       title: 'Create User',
-      icon: <UsersIcon />,
+      icon: <UserPlus />,
       show: hasPermission('create:user') || hasPermission('create:admin-user'),
     },
     {
       segment: 'shifts/new/:id',
       title: 'Create Shift',
-      icon: <ClockIcon />,
+      icon: <Timer />,
       show: hasPermission('create:shift'),
     },
     {
       segment: 'holidays/new/:id',
       title: 'Create Holiday',
-      icon: <CalendarIcon />,
+      icon: <CalendarPlus />,
       show: hasPermission('create:holiday'),
     },
     {
       segment: 'gate-passes/new/:id',
       title: 'Create Gate Pass',
-      icon: <DoorClosedIcon />,
+      icon: <DoorOpen />,
       show: hasPermission('create:gate-pass'),
     },
     {
@@ -77,37 +90,37 @@ export const useNavigation = () => {
     {
       segment: 'organisations',
       title: 'Manage Organisations',
-      icon: <Building2Icon />,
+      icon: <Building2 />,
       show: hasPermission('manage:organizations'),
     },
     {
       segment: 'departments',
       title: 'Manage Departments',
-      icon: <BuildingIcon />,
+      icon: <Building />,
       show: hasPermission('manage:departments'),
     },
     {
       segment: 'users',
       title: 'Manage Users',
-      icon: <UsersIcon />,
+      icon: <Users />,
       show: hasPermission('manage:users') || hasPermission('manage:admin-users'),
     },
     {
       segment: 'shifts',
       title: 'Manage Shifts',
-      icon: <ClockIcon />,
+      icon: <Clock />,
       show: hasPermission('manage:shifts'),
     },
     {
       segment: 'holidays',
       title: 'Manage Holidays',
-      icon: <CalendarIcon />,
+      icon: <Calendar />,
       show: hasPermission('manage:holidays'),
     },
     {
       segment: 'gate-passes',
       title: 'Manage Gate Passes',
-      icon: <DoorClosedIcon />,
+      icon: <DoorClosed />,
       show: hasPermission('manage:gate-passes'),
     },
   ];

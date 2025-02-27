@@ -1,10 +1,11 @@
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress } from '@mui/material';
-import { useCreateDepartmentMutation, useUpdateDepartmentMutation } from '../../services/DepartmentApi';
+import { useCreateDepartmentMutation, useUpdateDepartmentMutation, useGetDepartmentByIdQuery } from '../../services/DepartmentApi';
 import { DepartmentFormFields } from '../../components/department/departmentFormFeilds';
 import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
+import { skipToken } from '@reduxjs/toolkit/query';
 
 interface DepartmentFormProps {
   onSuccess?: () => void;
@@ -16,9 +17,11 @@ interface DepartmentFormValues {
 }
 
 const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
-    const { departmentId } = useParams();
-    const location = useLocation();
-    const initialData = location.state?.departmentData;
+    const { id } = useParams();
+    const { data: departmentData, isLoading: isDepartmentLoading } = useGetDepartmentByIdQuery(
+        id ? parseInt(id) : skipToken   
+    );
+    const isEditMode = Boolean(id && id !== ':id' && !isNaN(parseInt(id)));
     const [editDepartment, { isLoading: isEditLoading }] = useUpdateDepartmentMutation();
     const [createDepartment, { isLoading: isCreateLoading }] = useCreateDepartmentMutation();
     const navigate = useNavigate();
@@ -27,20 +30,16 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
     const organizationOptions = organizations?.results?.map((org: Organisation) => ({
         label: org.name,
         value: org.id
-    })) || [];
+    })) || [];  
 
     const modifiedInitialData = React.useMemo(() => {
-        if (!initialData) {
-            return null;
-        }
+        if (!id || !departmentData?.data) return undefined;
         
         return {
-            ...initialData,
-            organization: typeof initialData.organization === 'string' 
-                ? organizationOptions.find(option => option.label === initialData.organization)?.value 
-                : initialData.organization
+            ...departmentData.data,
+            organization: departmentData.data.organization.id
         };
-    }, [initialData, organizationOptions]);
+    }, [departmentData, organizationOptions, id]);
 
 
     const formFields = React.useMemo(() => {
@@ -72,9 +71,9 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
                 }
             });
             
-            if (initialData && departmentId) {
+            if (isEditMode) {
                 const response = await editDepartment({ 
-                    id: parseInt(departmentId), 
+                    id: parseInt(id!), 
                     data: formData 
                 }).unwrap();
                 console.log('Department updated successfully:', response);
@@ -92,9 +91,9 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
-                {initialData ? 'Edit Department' : 'Create Department'}
+                {isEditMode ? 'Edit Department' : 'Create Department'}
             </Typography>
-            {(isEditLoading || isCreateLoading || isOrgsLoading) ? (
+            {(isEditLoading || isCreateLoading || isOrgsLoading || isDepartmentLoading) ? (
                 <Box display="flex" justifyContent="center" my={4}>
                     <CircularProgress />
                 </Box>

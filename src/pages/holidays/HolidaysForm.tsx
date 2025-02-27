@@ -25,6 +25,7 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
     const navigate = useNavigate();
     const initialData = location.state?.holidayData;
     
+    const isEditMode = Boolean(id && id !== ':id' && !isNaN(parseInt(id)));
     const { data: holidayData, isLoading: isLoadingHoliday } = useGetHolidayByIdQuery(
          parseInt(id!),
         { skip: !id }
@@ -45,9 +46,9 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
                 formData.append('is_verified', values.is_verified ? 'True' : 'False');
             }
 
-            if (id) {
+            if (isEditMode) {
                 await editHoliday({
-                    id: parseInt(id),
+                    id: parseInt(id!),
                     data: formData
                 }).unwrap();
                 onSuccess?.();
@@ -63,7 +64,7 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
-                {id ? 'Edit Holiday' : 'Create Holiday'}
+                {isEditMode ? 'Edit Holiday' : 'Create Holiday'}
             </Typography>
             {(isEditLoading || isCreateLoading || isLoadingHoliday) ? (
                 <Box display="flex" justifyContent="center" my={4}>

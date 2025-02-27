@@ -11,9 +11,15 @@ export interface Organisation {
   no_of_employees: string;
 }
 
-interface OrganisationResponse {
+interface OrganisationListResponse {
   results: Organisation[];
   count: number;
+  total_pages: number;
+  current_page: number;
+}
+
+interface OrganisationDetailResponse {
+  data: Organisation;
 }
 
 export const organisationApi = createApi({
@@ -21,7 +27,7 @@ export const organisationApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
   tagTypes: ['Organisations'],
   endpoints: (builder) => ({
-    getOrganisations: builder.query<OrganisationResponse, { search?: string; page?: number; page_size?: number }>({
+    getOrganisations: builder.query<OrganisationListResponse, { search?: string; page?: number; page_size?: number }>({
       query: (params) => ({
         url: API_ENDPOINTS.organizations.list,
         params,
@@ -64,7 +70,7 @@ export const organisationApi = createApi({
       }),
       invalidatesTags: ['Organisations']
     }),
-    getOrganisationById: builder.query<Organisation, number>({
+    getOrganisationById: builder.query<OrganisationDetailResponse, number>({
       query: (id) => ({
         url: API_ENDPOINTS.organizations.getById(id),
         headers: {

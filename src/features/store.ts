@@ -6,6 +6,7 @@ import { departmentApi } from "../services/DepartmentApi";
 import { userApi } from "../services/UserApi";
 import { shiftApi } from "../services/shiftApi";
 import { holidayApi } from "../services/holidayApi";
+import { gatePassApi } from "../services/gatePassApi";
 const store = configureStore({
     reducer: {
         modal: modalReducer,
@@ -15,8 +16,9 @@ const store = configureStore({
         [userApi.reducerPath]: userApi.reducer,
         [shiftApi.reducerPath]: shiftApi.reducer,
         [holidayApi.reducerPath]: holidayApi.reducer,
+        [gatePassApi.reducerPath]: gatePassApi.reducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(authApiSlice.middleware, organisationApi.middleware, departmentApi.middleware, userApi.middleware, shiftApi.middleware, holidayApi.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(authApiSlice.middleware, organisationApi.middleware, departmentApi.middleware, userApi.middleware, shiftApi.middleware, holidayApi.middleware, gatePassApi.middleware),
     devTools: true,
 })
 

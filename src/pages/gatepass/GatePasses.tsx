@@ -8,6 +8,7 @@ import { openModal } from '../../features/slices/modalSlice';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { RootState } from '../../features/store';
 import { ModalState } from "../../features/slices/modalSlice";
+import { useGetGuestPassesQuery } from "../../services/gatePassApi";
 
 const GatePasses = () => {
   const navigate = useNavigate();
@@ -15,26 +16,11 @@ const GatePasses = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   
-  // Temporary mock data until API is integrated
-  const mockData = {
-    results: [
-      {
-        id: 1,
-        employee_name: "John Doe",
-        organization: "Org 1",
-        start_time: "09:00",
-        end_time: "17:00",
-        purpose: "Client Meeting",
-        vehicle_number: "KL-01-1234",
-        status: "Approved"
-      },
-      // Add more mock data as needed
-    ],
-    count: 1
-  };
-
-  const columns = mockData?.results?.[0] 
-    ? Object.keys(mockData.results[0]).map((key) => ({
+  const { data, isLoading } = useGetGuestPassesQuery();
+  console.log(data);
+  const updatedData = data?.results
+  const columns = updatedData?.[0] 
+    ? Object.keys(updatedData[0]).map((key) => ({
         field: key,
         headerName: formatFieldName(key),
         width: 150,
@@ -42,13 +28,13 @@ const GatePasses = () => {
     : [];
 
   const visibleFields = [
-    'employee_name',
-    'organization',
-    'start_time',
-    'end_time',
-    'purpose',
-    'vehicle_number',
-    'status'
+   'name',
+   'visit_date',
+   'visit_start_time',
+   'visit_end_time',
+   'department_to_visit',
+   'organization_to_visit',
+   'person_to_meet',
   ];
 
   const dispatch = useDispatch();
@@ -100,9 +86,9 @@ const GatePasses = () => {
         <CommonTable
           data={{
             columns: columns,
-            rows: mockData?.results || [],
-            rowCount: mockData?.count || 0,
-            loading: false,
+            rows: data?.results || [],
+            rowCount: data?.count || 0,
+            loading: isLoading,
             pageSize: pageSize,
             page: page,
           }}

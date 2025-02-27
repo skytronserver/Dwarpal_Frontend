@@ -41,11 +41,19 @@ export const API_ENDPOINTS = {
       delete: (id: number) => `/api/holidays/${id}/delete/`,
       getById: (id: number) => `/api/holidays/${id}/`,
     },
+    
     devices: {
       faceMatch: '/api/face-match/',
       esp32Pairing: '/api/esp32/pairing/',
       addCamera: '/api/add-camera/',
       locks: '/api/locks/',
       cameras: '/api/cameras/',
+    },
+    
+    guestPasses: {
+      list: '/api/guest-passes/all/',
+      create: '/api/guest-passes/create/',
+      approve: (guestPassId: number) => `/api/guest-passes/approve/${guestPassId}/`,
+      getById: (guestPassId: number) => `/api/guest-passes/view/${guestPassId}/`,
     }
   };

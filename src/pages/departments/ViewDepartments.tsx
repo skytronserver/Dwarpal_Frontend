@@ -1,14 +1,25 @@
 import { Grid, Typography, Paper, Box } from "@mui/material"
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import BusinessIcon from '@mui/icons-material/Business';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import { useGetDepartmentByIdQuery } from '../../services/DepartmentApi';
 
 const ViewDepartment = () => {
-    const location = useLocation();
-    const department = location.state?.department;
-    console.log(department,'department');
+    const { id } = useParams();
+    const { data, isLoading, error } = useGetDepartmentByIdQuery(Number(id));
+    const department = data?.data;
+    const organisation = department?.organization;
+    console.log(organisation,department,'department');
+    if (isLoading) {
+        return <Box sx={{ p: 3 }}>Loading...</Box>;
+    }
 
+    if (error || !department) {
+        return <Box sx={{ p: 3 }}>
+            {error && 'data' in error ? (error.data as any).message : 'Error loading department details'}
+        </Box>;
+    }
 
     return (
         <Box sx={{ p: 3, maxWidth: 1200 }}>
@@ -40,7 +51,7 @@ const ViewDepartment = () => {
                                         Organisation Name
                                     </Typography>
                                     <Typography variant="body1">
-                                        {department.organization.name}
+                                        {organisation?.name}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -49,7 +60,7 @@ const ViewDepartment = () => {
                                 <CameraAltIcon sx={{ color: 'text.secondary' }} />
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
-                                      Intregrated with AI camera
+                                        Integrated with AI camera
                                     </Typography>
                                     <Typography variant="body1">
                                         {department.integrate_with_ai_camera ? 'Yes' : 'No'}

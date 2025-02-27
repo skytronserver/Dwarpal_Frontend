@@ -1,6 +1,5 @@
 import * as Yup from 'yup';
 import { Field } from '../../types/form.types';
-import { ToggleButton } from '@mui/material';
 
 export const UserFormFields: Field[] = [
   {
@@ -15,7 +14,7 @@ export const UserFormFields: Field[] = [
     label: 'Role',
     type: 'select',
     required: true,
-    options: [{label: 'HR', value: 'HR'},{label: 'Accounts', value: 'accounts'}],
+    options: [],
     validation: Yup.string().required('Role is required')
   },
   {
@@ -24,14 +23,6 @@ export const UserFormFields: Field[] = [
     type: 'select',
     required: true,
     validation: Yup.string().required('Organization is required')
-  },
-  {
-    name: 'department',
-    label: 'Department',
-    type: 'select',
-    required: true,
-    validation: Yup.string().required('Department is required'),
-    options: []
   },
   {
     name: 'designation',
@@ -74,26 +65,4 @@ export const UserFormFields: Field[] = [
         'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character')
       .required('Password is required')
   },
-  {
-    name: 'canCreateAdmin',
-    label: 'Can Create Admin',
-    type: 'switch',
-    required: false,
-    validation: Yup.boolean().required('Can create admin is required')
-  },
-  {
-    name: 'canManageEmployees',
-    label: 'Can Manage Employees',
-    type: 'switch',
-    required: false,
-    validation: Yup.boolean().required('Can manage employees is required')
-  },
-  {
-    name: 'canViewReports',
-    label: 'Can View Reports',
-    type: 'switch',
-    required: false,
-    validation: Yup.boolean().required('Can view reports is required')
-  }
-
 ]; 

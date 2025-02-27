@@ -4,55 +4,89 @@ import { Outlet } from 'react-router-dom';
 import { useNavigation } from '../routes/config';
 import { ThemeProvider } from '@mui/material';
 import { appTheme } from '../themes/AppTheme';
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, Typography, IconButton, Tooltip } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useLogoutMutation } from '../services/AuthApi';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+interface UserData {
+  user_id: string;
+  user_name: string;
+  role: string;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  employee_code: string;
+  // ... you can add other fields if needed
+}
+
 const MainLayout = () => {
   const navigate = useNavigate();
   const [logout, { isLoading }] = useLogoutMutation();
-  // Mock user session data
-  const mockSession = {
-    user: {
-      name: "John Doe",
-      email: "john@example.com",
-      avatar: "/assets/avatar.png"
-    },
-    isAuthenticated: true
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user_data') || sessionStorage.getItem('user_data');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    if (isLoading) return;
+    try {
+      await logout().unwrap();
+      localStorage.clear();
+      sessionStorage.clear();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
-  // Mock authentication provider
-  const mockAuthentication = {
-    profile: <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Avatar src="/assets/avatar.png" alt="User" />
-      <Typography>John Doe</Typography>
-    </Box>,
-    signIn: () => console.log("Sign in"),
-    signOut: async () => {
-      if (isLoading) return; // Prevent multiple logout attempts
-      try {
-        await logout().unwrap();
-        localStorage.clear();
-        sessionStorage.clear();
-        navigate('/login');
-      } catch (error) {
-        console.error('Logout failed:', error);
-      }
-    },
-    logout:  () =>  console.log("Sign out"),
-    loading: isLoading, // Add loading state to authentication object
+  const authentication = {
+    profile: (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Avatar src={'/assets/avatar.png'} alt={user?.user_name || 'User'} />
+        {user && (
+          <>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Typography variant="body2">{user.user_name}</Typography>
+              <Typography variant="caption" color="text.secondary">{user.role}</Typography>
+            </Box>
+            <Tooltip title="Logout">
+              <IconButton onClick={handleLogout} color="error">
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
+      </Box>
+    ),
+    signIn: () => console.log('Sign in'),
+    signOut: handleLogout,
+    logout: handleLogout,
+    loading: isLoading,
   };
 
+  const sessionUser = user ? {
+    name: user.user_name,
+    email: user.role,
+    image: '/assets/avatar.png'
+  } : undefined;
   return (
     <ThemeProvider theme={appTheme}>
       <AppProvider
         navigation={useNavigation()}
         branding={{
-          logo: <img src="/assets/logo.png" alt="DWARPAL logo" />,
+          logo: <img src="/assets/logo.png" alt="DWARPAL logo" style={{ height: 40 }} />,
           title: 'DWARPAL',
           homeUrl: '/dashboard',
         }}
-        authentication={mockAuthentication}
-        session={mockSession}
+        authentication={authentication}
+        session={{ user: sessionUser }}
       >
         <DashboardLayout>
           <Outlet />

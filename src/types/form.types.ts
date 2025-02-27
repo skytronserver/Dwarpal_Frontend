@@ -13,6 +13,7 @@ export interface Field {
     disabled?: boolean;
     helperText?: string;
     component?: ({ value, onChange }: { value: any; onChange: (value: any) => void }) => JSX.Element;
+    showIf?: (values: Record<string, any>) => boolean;
 }
 export interface DynamicFormProps {    
     fields: Field[];

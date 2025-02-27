@@ -36,47 +36,88 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
     border: 'none',
     '& .MuiDataGrid-cell': {
       borderBottom: `1px solid ${theme.palette.divider}`,
+      padding: '12px 16px',
     },
     '& .MuiDataGrid-columnHeaders': {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: theme.palette.background.paper,
       borderBottom: `2px solid ${theme.palette.divider}`,
+      '& .MuiDataGrid-columnHeader': {
+        padding: '12px 16px',
+        fontWeight: 600,
+      },
     },
-    '& .MuiDataGrid-row:hover': {
-      backgroundColor: theme.palette.action.hover,
+    '& .MuiDataGrid-row': {
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      '&:hover': {
+        backgroundColor: theme.palette.action.selected,
+      },
     },
     '& .MuiDataGrid-root': {
       borderRadius: theme.shape.borderRadius,
+      boxShadow: theme.shadows[1],
     },
     '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-cell:focus': {
       outline: 'none',
-    }
+    },
+    '& .MuiDataGrid-footerContainer': {
+      borderTop: `2px solid ${theme.palette.divider}`,
+      backgroundColor: theme.palette.background.paper,
+    },
   }));  
+const StyledColumnsButton = styled(GridToolbarColumnsButton)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  '&:hover': { backgroundColor: theme.palette.primary.dark },
+}));
+
+const StyledFilterButton = styled(GridToolbarFilterButton)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  '&:hover': { backgroundColor: theme.palette.primary.dark },
+}));
+
+const StyledExportButton = styled(GridToolbarExport)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  '&:hover': { backgroundColor: theme.palette.primary.dark },
+}));
+
 const CustomToolbar = () => {
   const theme = useTheme();
 
   return (
     <GridToolbarContainer
       sx={{
-        p: 1,
+        p: 2,
         bgcolor: theme.palette.background.paper,
         borderBottom: `1px solid ${theme.palette.divider}`,
         display: 'flex',
-        gap: 1,
+        gap: 1.5,
         flexWrap: 'wrap',
       }}
     >
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-      <GridToolbarExport />
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <StyledColumnsButton />
+        <StyledFilterButton />
+        <StyledExportButton />
+      </Box>
       <Box sx={{ flexGrow: 1 }} />
       <GridToolbarQuickFilter
         debounceMs={500}
         sx={{
-          width: { xs: '100%', sm: '300px' },
+          width: { xs: '100%', sm: 'auto', minWidth: '300px' },
           '& .MuiInputBase-root': {
-            height: '36px',
+            height: '40px',
             borderRadius: '8px',
             bgcolor: theme.palette.background.default,
+            '&:hover': {
+              bgcolor: theme.palette.action.hover,
+            },
+            '& .MuiInputBase-input': {
+              padding: '8px 12px',
+            },
           },
         }}
       />
@@ -106,19 +147,54 @@ export default function CommonTable({
         sortable: false,
         width: 150,
         renderCell: (params: any) => (
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1,
+            opacity: 0.7,
+            transition: 'opacity 0.2s',
+            '&:hover': {
+              opacity: 1
+            }
+          }}>
             {onView && (
-              <IconButton size="small" onClick={() => onView(params.row)}>
+              <IconButton 
+                size="small" 
+                onClick={() => onView(params.row)}
+                sx={{
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.lighter',
+                  }
+                }}
+              >
                 <Visibility fontSize="small" />
               </IconButton>
             )}
             {onEdit && (
-              <IconButton size="small" onClick={() => onEdit(params.row)}>
+              <IconButton 
+                size="small" 
+                onClick={() => onEdit(params.row)}
+                sx={{
+                  color: 'warning.main',
+                  '&:hover': {
+                    backgroundColor: 'warning.lighter',
+                  }
+                }}
+              >
                 <Edit fontSize="small" />
               </IconButton>
             )}
             {onDelete && (
-              <IconButton size="small" onClick={() => onDelete(params.row)}>
+              <IconButton 
+                size="small" 
+                onClick={() => onDelete(params.row)}
+                sx={{
+                  color: 'error.main',
+                  '&:hover': {
+                    backgroundColor: 'error.lighter',
+                  }
+                }}
+              >
                 <Delete fontSize="small" />
               </IconButton>
             )}

@@ -23,7 +23,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
         parseInt(id!),
         { skip: !id }
     );
-    
+    const isEditMode = Boolean(id && id !== ':id' && !isNaN(parseInt(id)));
     const [editShift, { isLoading: isEditLoading }] = useEditShiftMutation();
     const [createShift, { isLoading: isCreateLoading }] = useCreateShiftMutation();
 
@@ -40,9 +40,9 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
         });
         
         try {
-                if (id) {
+                if (isEditMode) {
                 await editShift({ 
-                    id: parseInt(id), 
+                    id: parseInt(id!), 
                     data: shifts 
                 }).unwrap();
                 onSuccess?.();
@@ -58,7 +58,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
-                {id ? 'Edit Shift' : 'Create Shift'}
+                {isEditMode ? 'Edit Shift' : 'Create Shift'}
             </Typography>
             {(isEditLoading || isCreateLoading || isLoadingShift) ? (
                 <Box display="flex" justifyContent="center" my={4}>

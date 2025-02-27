@@ -55,19 +55,21 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
 
   const commonStyles = {
     '& .MuiOutlinedInput-root': {
-      borderRadius: 3,
-      backgroundColor: 'white',
-      transition: 'all 0.3s ease',
+      borderRadius: '8px',
+      backgroundColor: '#ffffff',
+      transition: 'all 0.2s ease',
       '&:hover': {
-        boxShadow: 2,
+        backgroundColor: '#ffffff',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
       },
       '&.Mui-focused': {
-        boxShadow: 4,
-        borderColor: 'primary.main'
+        boxShadow: '0 2px 12px rgba(25, 118, 210, 0.12)',
       }
     },
     '& .MuiInputLabel-root': {
-      color: 'text.secondary'
+      color: '#2c3e50',
+      fontWeight: 500,
+      fontSize: '0.95rem'
     }
   };
 
@@ -190,11 +192,20 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
   const nonSwitchFields = fields.filter(field => field.type !== "switch");
 
   return (
-    <Paper elevation={5} sx={{ borderRadius: 4, p: 5, background: 'linear-gradient(135deg, #f3f4f6 30%, #ffffff 90%)' }}>
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        borderRadius: '12px',
+        p: { xs: 2, sm: 3, md: 4 },
+        backgroundColor: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+      }}
+    >
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={4}>
+        <Grid container spacing={2.5}>
           {nonSwitchFields.map((field) => (
-            <Grid item xs={12} sm={6} key={field.name}>
+            <Grid item xs={12} sm={field.type === 'radio' ? 12 : 6} key={field.name}>
               {renderField(field)}
             </Grid>
           ))}
@@ -207,11 +218,20 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 sx={{
                   width: '100%',
                   py: 1.5,
-                  borderRadius: 3,
+                  borderRadius: '8px',
                   textTransform: 'none',
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                  borderColor: '#e2e8f0',
+                  color: '#2c3e50',
+                  '&:hover': {
+                    borderColor: '#cbd5e1',
+                    backgroundColor: '#ffffff',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  }
                 }}
               >
-                Select Previledges
+                Select Privileges
               </Button>
             </Grid>
           )}
@@ -222,16 +242,16 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
               variant="contained"
               sx={{
                 mt: 2,
-                px: 5,
+                px: 4,
                 py: 1.5,
-                borderRadius: 3,
+                borderRadius: '8px',
                 textTransform: 'none',
-                fontSize: '1.1rem',
-                boxShadow: 4,
-                transition: 'all 0.3s ease',
+                fontSize: '1rem',
+                fontWeight: 500,
+                backgroundColor: '#2563eb',
                 '&:hover': {
-                  boxShadow: 6,
-                  transform: 'scale(1.05)'
+                  backgroundColor: '#1d4ed8',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
                 },
               }}
             >
@@ -246,40 +266,41 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
         onClose={handleModalClose}
         PaperProps={{
           sx: {
-            borderRadius: 3,
-            minWidth: '400px',
-            background: 'linear-gradient(135deg, #f3f4f6 30%, #ffffff 90%)',
+            borderRadius: '12px',
+            minWidth: '360px',
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
           }
         }}
       >
         <DialogTitle sx={{ 
           pb: 1,
-          pt: 3,
-          px: 4,
+          pt: 2.5,
+          px: 3,
           typography: 'h6',
-          fontWeight: 'medium',
-          color: 'text.primary',
+          fontWeight: 600,
+          color: '#2c3e50',
         }}>
-          Priviledges
+          Privileges
         </DialogTitle>
-        <DialogContent sx={{ px: 4 }}>
+        <DialogContent sx={{ px: 3 }}>
           <Box sx={{ 
             py: 2,
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
+            gap: 1.5,
           }}>
             {switchFields.map((field) => (
               <Box 
                 key={field.name} 
                 sx={{
                   p: 2,
-                  borderRadius: 2,
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                  transition: 'all 0.2s ease',
+                  borderRadius: '8px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
                   '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    transform: 'translateX(4px)',
+                    borderColor: '#cbd5e1',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                   }
                 }}
               >
@@ -288,22 +309,24 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
             ))}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 4, pb: 3 }}>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button 
             onClick={handleModalClose}
             variant="contained"
             sx={{
               px: 4,
               py: 1,
-              borderRadius: 2,
+              borderRadius: '6px',
               textTransform: 'none',
-              transition: 'all 0.3s ease',
+              fontSize: '0.95rem',
+              fontWeight: 500,
+              backgroundColor: '#2563eb',
               '&:hover': {
-                transform: 'scale(1.02)',
+                backgroundColor: '#1d4ed8',
               }
             }}
           >
-            OK
+            Done
           </Button>
         </DialogActions>
       </Dialog>

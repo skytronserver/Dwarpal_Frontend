@@ -1,13 +1,23 @@
 import { Grid, Typography, Paper, Box } from "@mui/material"
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import GroupIcon from '@mui/icons-material/Group';
+import SecurityIcon from '@mui/icons-material/Security';
+import { useGetOrganisationByIdQuery } from "../../services/OrganisationApi";
 
 const ViewOrganisation = () => {
-    const location = useLocation();
-    const organisation = location.state?.organisation;
+    const { id } = useParams();
+    const { data, isLoading } = useGetOrganisationByIdQuery(Number(id));
+    const organisation = data?.data;
+    if (isLoading) {
+        return <Box sx={{ p: 3 }}>Loading...</Box>;
+    }
+
+    if (!organisation) {
+        return <Box sx={{ p: 3 }}>Organisation not found</Box>;
+    }
 
     return (
         <Box sx={{ p: 3, maxWidth: 1200 }}>
@@ -63,7 +73,19 @@ const ViewOrganisation = () => {
                                         Number of Employees
                                     </Typography>
                                     <Typography variant="body1">
-                                        {organisation.no_of_employees}
+                                        {organisation?.no_of_employees || 'N/A'}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <SecurityIcon sx={{ color: 'text.secondary' }} />
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Access Control
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {organisation.access_control ? "Enabled" : "Disabled"}
                                     </Typography>
                                 </Box>
                             </Box>

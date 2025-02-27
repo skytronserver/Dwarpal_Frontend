@@ -1,9 +1,9 @@
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { OrganisationFormFields } from '../../components/organisation/organisationFormFeilds';
 import { Typography, Box, CircularProgress } from '@mui/material';
-import { useCreateOrganisationMutation, useEditOrganisationMutation } from '../../services/OrganisationApi';
+import { useCreateOrganisationMutation, useEditOrganisationMutation, useGetOrganisationByIdQuery } from '../../services/OrganisationApi';
 
 interface OrganisationFormProps {
   onSuccess?: () => void;
@@ -16,13 +16,15 @@ interface OrganisationFormValues {
 
 const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
     const { id } = useParams();
-    console.log(id,'id');
-    const location = useLocation();
-    const initialData = location.state?.organisationData;
-    console.log(initialData,'initialData');
+    const navigate = useNavigate();
+    const { data, isLoading: isDataLoading } = useGetOrganisationByIdQuery(
+        parseInt(id as string),
+        { skip: !id }
+    );
+    const isEditMode = Boolean(id && id !== ':id' && !isNaN(parseInt(id)));
+    const organisationData = data?.data;
     const [editOrganisation, { isLoading: isEditLoading }] = useEditOrganisationMutation();
     const [createOrganisation, { isLoading: isCreateLoading }] = useCreateOrganisationMutation();
-    const navigate = useNavigate();
         
 
     const handleSubmit = async (values: OrganisationFormValues) => {
@@ -40,10 +42,10 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
         });
         
         try {
-            if (id) {
+            if (isEditMode) {
                 console.log('Executing edit operation with ID:', id);
                 await editOrganisation({ 
-                    id: parseInt(id), 
+                    id: parseInt(id!), 
                     data: orgs 
                 }).unwrap();
                 onSuccess?.();
@@ -60,9 +62,9 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
-                {initialData ? 'Edit Organization' : 'Create Organization'}
+                {isEditMode ? 'Edit Organization' : 'Create Organization'}
             </Typography>
-            {isEditLoading || isCreateLoading ? (
+            {(isEditLoading || isCreateLoading || isDataLoading) ? (
                 <Box display="flex" justifyContent="center" my={4}>
                     <CircularProgress />
                 </Box>
@@ -70,7 +72,7 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
                 <DynamicForm 
                     fields={OrganisationFormFields} 
                     onSubmit={handleSubmit}
-                    initialValues={initialData} 
+                    initialValues={organisationData} 
                 />
             )}
         </Box>

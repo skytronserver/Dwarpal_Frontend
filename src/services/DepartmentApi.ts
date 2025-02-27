@@ -5,14 +5,17 @@ interface DepartmentResponse {
     count: number;
     total_pages: number;
     current_page: number;
-    results: Department[];
+    results?: Department[];
+    data?: Department;
 }
-
 
 interface Department {
     id: number;
     name: string;
-    organization: string;
+    organization: {
+        id: number;
+        name: string;
+    };
     integrate_with_ai_camera: boolean;
 }
 
@@ -64,7 +67,7 @@ export const departmentApi = createApi({
             }),
             invalidatesTags: ['Department'],
         }),
-        getDepartmentById: builder.query<Department, number>({
+        getDepartmentById: builder.query<DepartmentResponse, number>({
             query: (id) => ({
                 url: API_ENDPOINTS.departments.getById(id),
                 headers: {

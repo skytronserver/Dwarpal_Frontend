@@ -25,6 +25,16 @@ export const userApi = createApi({
         }
       })
     }),
+    createAdmin: builder.mutation<User, FormData>({
+      query: (formData) => ({
+        url: API_ENDPOINTS.users.adminCreate,
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      })
+    }),
     updateUser: builder.mutation<User, { id: number; formData: FormData }>({
       query: ({ id, formData }) => ({
         url: API_ENDPOINTS.users.update(id),
@@ -60,5 +70,6 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
-  useGetUserByIdQuery
+  useGetUserByIdQuery,
+  useCreateAdminMutation
 } = userApi; 
