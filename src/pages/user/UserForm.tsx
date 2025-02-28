@@ -6,9 +6,10 @@ import { useCreateUserMutation, useCreateAdminMutation, useUpdateUserMutation, u
 import { UserFormFields } from '../../components/user/userFormFields';
 import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
 import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
-import { useAuth } from '../../hooks/useAuth';  
 import { Field } from '../../types/form.types';
 import * as Yup from 'yup';
+import { useGetShiftsQuery } from '../../services/shiftApi';
+import { useAuth } from '../../hooks/useAuth';
 
 interface UserFormProps {
   onSuccess?: () => void;
@@ -24,7 +25,7 @@ interface UserFormValues {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
-  const { user, hasRole } = useAuth();
+  const { hasRole } = useAuth();
   const { id } = useParams();
   const location = useLocation();
   
@@ -34,7 +35,6 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   
   const skip = undefined as any;
 
-  // Update getUserById query to use validEditId
   const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(
     validEditId || skip,
     { skip: !validEditId }
@@ -45,21 +45,22 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   const [createAdmin, { isLoading: isCreateAdminLoading }] = useCreateAdminMutation();
   const navigate = useNavigate();
 
-  // Fetch organizations and departments for dropdowns
   const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
   const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
+  const updatedDepartments = departments?.results?.filter((dep: any) => dep.organization?.[0]?.id === userData?.organization);
+  const { data: shifts, isLoading: isShiftsLoading } = useGetShiftsQuery({});
 
+  console.log(updatedDepartments,'updatedDepartments');
   const organizationOptions = organizations?.results?.map((org: Organisation) => ({
     label: org.name,
     value: org.id
   })) || [];
 
-  const departmentOptions = departments?.results?.map((dep: any) => ({
+  const departmentOptions = updatedDepartments?.map((dep: any) => ({
     label: dep.name,
     value: dep.id
   })) || [];
 
-  // Modify initial data to match the form structure
   const modifiedInitialData = React.useMemo(() => {
     const initialData = userData || location.state?.userData;
     if (!initialData) {
@@ -73,14 +74,16 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
         : initialData.organization,
       department: typeof initialData.department === 'string'
         ? departmentOptions.find(option => option.label === initialData.department)?.value
-        : initialData.department
-      
+        : initialData.department,
+      shift: typeof initialData.shift === 'string'
+        ? shifts?.results?.find(shift => shift.id === initialData.shift)?.shift_name
+        : initialData.shift
     };
-  }, [userData, location.state?.userData, organizationOptions, departmentOptions]);
+  }, [userData, location.state?.userData, organizationOptions, departmentOptions, shifts]);
+
 
   const [values, setValues] = React.useState<UserFormValues | undefined>(modifiedInitialData);
 
-  // Update form fields with dynamic options and permissions
   const formFields = React.useMemo(() => {
     const baseFields = UserFormFields.map(field => {
       if (field.name === 'role') {
@@ -100,16 +103,12 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
           disabled: values?.role === 'EMPLOYEE'
         };
       }
+      // Remove department from base fields
       if (field.name === 'department') {
-        return {
-          ...field,
-          options: departmentOptions,
-          disabled: !values?.organization,
-          helperText: !values?.organization ? 'Please select an organization first' : field.helperText
-        };
+        return null;
       }
       return field;
-    }) as Field[];
+    }).filter(Boolean) as Field[];
 
     // Modify this condition to include when creating/editing an admin
     const shouldShowPermissions = hasRole(['ADMIN']) || 
@@ -124,28 +123,33 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
           type: 'select',
           required: true,
           validation: Yup.string().required('Department is required'),
-          options: [],
+          options: departmentOptions,
+          disabled: !values?.organization,
+          helperText: !values?.organization ? 'Please select an organization first' : undefined
         },
         {
-          name: 'canCreateAdmin',
-          label: 'Can Create Admin',
-          type: 'switch',
+          name: 'shift  ',
+          label: 'Shift',
+          type: 'select',
           required: false,
-          validation: Yup.boolean(),
+          validation: Yup.string().required('Shift is required'),
+          options: shifts?.results?.map((shift: any) => ({
+            label: shift.shift_name,
+            value: shift.id
+          })) || [],
         },
         {
-          name: 'canManageEmployees',
-          label: 'Can Manage Employees',
-          type: 'switch',
+          name: 'assigned_permissions',
+          label: 'Select Priviledges',
+          type: 'multi-select',
           required: false,
-          validation: Yup.boolean(),
-        },
-        {
-          name: 'canViewReports',
-          label: 'Can View Reports',
-          type: 'switch',
-          required: false,
-          validation: Yup.boolean(),
+          validation: Yup.array().of(Yup.string()),
+          options: [
+            { label: 'Create Guest Pass', value: 'can_create_guest_pass' },
+            { label: 'View Guest Pass', value: 'view_guest_pass' },
+            { label: 'Attendance Report', value: 'attendance_report' },
+            { label: 'Approve Guest Pass', value: 'Create Gate Pass' }
+          ]
         }
       ];
       return [...baseFields, ...permissionFields];
@@ -163,7 +167,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          if (key === 'photo' && value instanceof File) {
+          if (key === 'photo' || key === 'kyc_document' && value instanceof File) {
             formData.append(key, value);
           } else {
             formData.append(key, value.toString());
@@ -179,7 +183,6 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
         console.log('User updated successfully:', response);
         onSuccess?.();
       } else {
-        // Use different mutation based on user role
         const response = hasRole(['SUPERADMIN']) && values.role === 'ADMIN'
           ? await createAdmin(formData).unwrap()
           : await createUser(formData).unwrap();
@@ -191,14 +194,13 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
     }
   };
 
-  console.log(formFields,'ssadsda');
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" sx={{ mb: 3 }}>
         {validEditId ? 'Edit User' : 'Create User'}
       </Typography>
-      {(isEditLoading || isCreateLoading || isCreateAdminLoading || isOrgsLoading || isDepsLoading || isUserLoading) ? (
+      {(isEditLoading || isCreateLoading || isCreateAdminLoading || isOrgsLoading || isDepsLoading || isUserLoading || isShiftsLoading) ? (
         <Box display="flex" justifyContent="center" my={4}>
           <CircularProgress />
         </Box>

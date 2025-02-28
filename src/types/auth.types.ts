@@ -11,11 +11,9 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  permissions: string[];
   organization?: { name: string };
   department?: { name: string };
-  can_create_gatepass?: boolean;
-  can_manage_shifts?: boolean;
+  assigned_permissions?: string[];
 }
 
 export interface LoginResponseTypes {

@@ -38,7 +38,7 @@ export const ROLE_PERMISSIONS = {
   ],
   EMPLOYEE: [
     'view:dashboard',
-    'view:holidays',
+    'manage:holidays',
     'view:shifts',
     'view:gate-passes',
     'create:gate-pass',

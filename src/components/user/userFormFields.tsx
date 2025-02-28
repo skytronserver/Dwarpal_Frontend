@@ -52,7 +52,8 @@ export const UserFormFields: Field[] = [
     name: 'photo',
     label: 'Photo',
     type: 'file',
-    required: false
+    required: false,
+    validation:Yup.mixed().optional()
   },
   {
     name: 'password',
@@ -65,4 +66,11 @@ export const UserFormFields: Field[] = [
         'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character')
       .required('Password is required')
   },
+  {
+    name:'kyc_document',
+    label:'Kyc Document',
+    type:'file',
+    required:false,
+    validation:Yup.mixed().optional()
+  }
 ]; 

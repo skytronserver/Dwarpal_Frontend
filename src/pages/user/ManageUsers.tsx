@@ -3,10 +3,10 @@ import { formatFieldName } from "../../utils/formatFeildName";
 import CommonTable from "../../components/common/CommonTable";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { GridColDef } from '@mui/x-data-grid';
 
-import { openModal } from '../../features/slices/modalSlice';
+// import { openModal } from '../../features/slices/modalSlice';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { RootState } from '../../features/store';
 import { useGetUsersQuery, useDeleteUserMutation } from "../../services/UserApi";
@@ -55,16 +55,18 @@ const ManageUsers = () => {
     : [];
 
   const visibleFields = [
+    'employee_code',
     'name',
-    'organization',
+    'shift',
     'department',
     'designation',
     'blood_group',
     'emergency_contact',
-    'assigned_permissions'
+    'assigned_permissions',
+
   ];
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [deleteUser] = useDeleteUserMutation();
   const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
 
@@ -83,18 +85,18 @@ const ManageUsers = () => {
     navigate(`/users/${row.id}`);
   };
 
-  const handleEdit = (row: any) => {
-    navigate(`/users/new/${row.id}`);
-  };
+  // const handleEdit = (row: any) => {
+  //   navigate(`/users/new/${row.id}`);
+  // };
 
-  const handleDelete = (row: any) => {
-    dispatch(
-      openModal({
-        type: 'DELETE_USER',
-        data: row,
-      })
-    );
-  };
+  // const handleDelete = (row: any) => {
+  //   dispatch(
+  //     openModal({
+  //       type: 'DELETE_USER',
+  //       data: row,
+  //     })
+  //   );
+  // };
 
   const handleConfirmDelete = async () => {
     const userId = modalData?.id;

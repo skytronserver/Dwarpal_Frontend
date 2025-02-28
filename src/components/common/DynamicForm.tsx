@@ -171,6 +171,34 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
             )}
           </Box>
         );
+
+      case "multi-select":
+        return (
+          <FormControl fullWidth sx={commonStyles}>
+            <InputLabel>{field.label}</InputLabel>
+            <Select
+              multiple
+              name={field.name}
+              value={formData[field.name] || field.defaultValue || []}
+              onChange={handleSelectChange}
+              required={field.required}
+              label={field.label}
+              renderValue={(selected) => (
+                Array.isArray(selected) 
+                  ? selected.map(value => 
+                      field.options?.find(opt => opt.value === value)?.label
+                    ).join(', ')
+                  : ''
+              )}
+            >
+              {field.options?.map((option) => (
+                <MenuItem key={String(option.value)} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        );
       
       default:
         return (

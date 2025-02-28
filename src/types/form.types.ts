@@ -14,6 +14,10 @@ export interface Field {
     helperText?: string;
     component?: ({ value, onChange }: { value: any; onChange: (value: any) => void }) => JSX.Element;
     showIf?: (values: Record<string, any>) => boolean;
+    transform?: {
+        input?: (value: any) => any;
+        output?: (value: any) => any;
+    };
 }
 export interface DynamicFormProps {    
     fields: Field[];

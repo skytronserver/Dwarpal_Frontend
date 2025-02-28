@@ -38,7 +38,7 @@ const adminRoutes:RouteConfig[] = [
         element: Dashboard,
         title: 'Dashboard',
         icon: LayoutDashboard,
-        allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE'] as UserRole[],
         group: 'dashboard'
     },
     {
@@ -150,7 +150,7 @@ const adminRoutes:RouteConfig[] = [
         element: Holidays,
         title: 'Holidays',
         icon: Calendar,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE'] as UserRole[],
         group: 'manage'
     },
     {
@@ -174,7 +174,7 @@ const adminRoutes:RouteConfig[] = [
         element: GatePassForm,
         title: 'Create Gate Pass',
         icon: Gate,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['EMPLOYEE'] as UserRole[],
         group: 'create'
     },
     {
@@ -182,7 +182,7 @@ const adminRoutes:RouteConfig[] = [
         element: ViewGatePass,
         title: 'View Gate Pass',
         icon: Gate,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: [ 'EMPLOYEE'] as UserRole[],
         group: 'manage'
     }   
 ]
