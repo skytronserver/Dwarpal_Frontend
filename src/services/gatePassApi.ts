@@ -26,20 +26,21 @@ export const gatePassApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
     tagTypes: ['guestPasses'] as const,
     endpoints: (builder) => ({
-        getGuestPasses: builder.query<GuestPassResponse, void>({
-            query: () => ({
+        getGuestPasses: builder.query<GuestPassResponse, { search?: string }>({
+            query: (params) => ({
                 url: '/api/guest-passes/all/',
+                params,
                 headers: {
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
             }),
             providesTags: [{ type: 'guestPasses', id: 'LIST' }],
         }),
-        createGuestPass: builder.mutation<GuestPass, GuestPass>({
-            query: (guestPass) => ({
+        createGuestPass: builder.mutation<GuestPass, FormData>({
+            query: (formData) => ({
                 url: '/api/guest-passes/create/',
                 method: 'POST',
-                body: guestPass,
+                body: formData,
                 headers: {
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }

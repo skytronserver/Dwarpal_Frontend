@@ -166,7 +166,7 @@ const adminRoutes:RouteConfig[] = [
         element: GatePasses,
         title: 'Gate Passes',
         icon: Gate,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['ADMIN','EMPLOYEE'] as UserRole[],
         group: 'manage'
     },
     {

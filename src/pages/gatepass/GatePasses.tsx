@@ -9,18 +9,27 @@ import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { RootState } from '../../features/store';
 import { ModalState } from "../../features/slices/modalSlice";
 import { useGetGuestPassesQuery } from "../../services/gatePassApi";
-
+import { useAuth } from "../../hooks/useAuth";
 const GatePasses = () => {
   const navigate = useNavigate();
+  const { hasRole, user, hasPermission } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   
-  const { data, isLoading } = useGetGuestPassesQuery();
-  console.log(data);
-  const updatedData = data?.results
-  const columns = updatedData?.[0] 
-    ? Object.keys(updatedData[0]).map((key) => ({
+  const { data, isLoading } = useGetGuestPassesQuery({ search: searchTerm });
+  console.log(user, 'user');
+  const filteredData = data?.results?.filter(gatepass => {
+    if (hasRole(['EMPLOYEE']) && hasPermission('approve_guest_pass')) {
+      return gatepass.assigned_approver === Number(user.user_id);
+    }
+    return true;
+  }) || [];
+
+  console.log(filteredData, 'filteredData');
+
+  const columns = filteredData?.[0] 
+    ? Object.keys(filteredData[0]).map((key) => ({
         field: key,
         headerName: formatFieldName(key),
         width: 150,
@@ -86,25 +95,27 @@ const GatePasses = () => {
         <CommonTable
           data={{
             columns: columns,
-            rows: data?.results || [],
-            rowCount: data?.count || 0,
+            rows: filteredData || [],
+            rowCount: filteredData?.length || 0,
             loading: isLoading,
             pageSize: pageSize,
             page: page,
           }}
           onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onEdit={hasRole(['ADMIN']) && hasPermission('manage:gate-passes') ? undefined : handleEdit}
+          onDelete={hasRole(['ADMIN']) && hasPermission('manage:gate-passes') ? undefined : handleDelete}
           visibleFields={visibleFields}
           useServerSearch={true}
           onSearchChange={handleSearchChange}
           onPaginationChange={handlePaginationChange}
         />
-        <ConfirmationModal
-          title="Delete Gate Pass"
-          message="Are you sure you want to delete this gate pass? This action cannot be undone."
-          onConfirm={handleConfirmDelete}
-        />
+        {!hasRole(['EMPLOYEE']) && (
+          <ConfirmationModal
+            title="Delete Gate Pass"
+            message="Are you sure you want to delete this gate pass? This action cannot be undone."
+            onConfirm={handleConfirmDelete}
+          />
+        )}
       </Box>
     </div>
   );

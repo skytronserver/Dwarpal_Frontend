@@ -3,6 +3,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress } from '@mui/material';
 import { GatePassFormFields } from '../../components/gatePass/gatePassFormFeilds';
+import { useCreateGuestPassMutation } from '../../services/gatePassApi';
+import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
+import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
+
 interface GatePassFormProps {
   onSuccess?: () => void;
 }
@@ -13,16 +17,26 @@ interface GatePassFormValues {
 }
 
 const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
-    const { gatepassId } = useParams();
+    const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     const initialData = location.state?.gatepassData;
+    const [createGatePass, { isLoading }] = useCreateGuestPassMutation();
+    const [values, setValues] = React.useState<GatePassFormValues | undefined>(initialData);
 
-    // Temporary mock data for organization options
-    const organizationOptions = [
-        { label: 'Organization 1', value: '1' },
-        { label: 'Organization 2', value: '2' },
-    ];
+    const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
+    const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
+    const updatedDepartments = departments?.results?.filter((dep: any) => dep.organization?.[0]?.id === values?.organization);
+
+    const organizationOptions = organizations?.results?.map((org: Organisation) => ({
+        label: org.name,
+        value: org.id
+    })) || [];
+
+    const departmentOptions = updatedDepartments?.map((dep: any) => ({
+        label: dep.name,
+        value: dep.id
+    })) || [];
 
     const formFields = React.useMemo(() => {
         return GatePassFormFields.map(field => {
@@ -32,15 +46,44 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
                     options: organizationOptions
                 };
             }
+            if (field.name === 'department') {
+                return {
+                    ...field,
+                    options: departmentOptions,
+                    disabled: !values?.organization,
+                    helperText: !values?.organization ? 'Please select an organization first' : undefined
+                };
+            }
             return field;
         });
-    }, [organizationOptions]);
+    }, [organizationOptions, departmentOptions, values]);
+
+    const handleFormChange = (newValues: GatePassFormValues) => {
+        setValues(newValues);
+    };
 
     const handleSubmit = async (values: GatePassFormValues) => {
-        // For now, just log the values and navigate
-        console.log('Form Values:', values);
-        navigate('/gate-passes');
-        onSuccess?.();
+        try {
+            const formData = new FormData();
+            
+            // Iterate through all values and append to FormData
+            Object.entries(values).forEach(([key, value]) => {
+                // Handle file objects specially
+                if (value instanceof File) {
+                    formData.append(key, value);
+                } else if (value !== null && value !== undefined) {
+                    // Convert non-null values to string
+                    formData.append(key, String(value));
+                }
+            });
+
+            await createGatePass(formData).unwrap();
+            navigate('/gate-passes');
+            onSuccess?.();
+        } catch (error) {
+            console.error('Failed to create gate pass:', error);
+            // You might want to add error handling here
+        }
     };
 
     return (
@@ -48,11 +91,18 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
             <Typography variant="h4" sx={{ mb: 3 }}>
                 {initialData ? 'Edit Gate Pass' : 'Create Gate Pass'}
             </Typography>
-            <DynamicForm 
-                fields={formFields}
-                onSubmit={handleSubmit}
-                initialValues={initialData || {}}
-            />
+            {(isLoading || isOrgsLoading || isDepsLoading) ? (
+                <Box display="flex" justifyContent="center" my={4}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <DynamicForm 
+                    fields={formFields}
+                    onSubmit={handleSubmit}
+                    initialValues={initialData || {}}
+                    onChange={handleFormChange}
+                />
+            )}
         </Box>
     );
 };

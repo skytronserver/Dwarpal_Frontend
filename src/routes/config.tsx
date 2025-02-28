@@ -121,7 +121,7 @@ export const useNavigation = () => {
       segment: 'gate-passes',
       title: 'Manage Gate Passes',
       icon: <DoorClosed />,
-      show: hasPermission('manage:gate-passes') && hasPermission('can_create_guest_pass'),
+      show: hasPermission('manage:gate-passes') || hasPermission("approve_guest_pass"),
     },
     {
       segment: 'gate-passes/:id',
