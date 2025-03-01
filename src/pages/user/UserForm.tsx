@@ -10,7 +10,7 @@ import { Field } from '../../types/form.types';
 import * as Yup from 'yup';
 import { useGetShiftsQuery } from '../../services/shiftApi';
 import { useAuth } from '../../hooks/useAuth';
-
+import { useSuccessToast, useErrorToast } from '../../components/Toast';
 interface UserFormProps {
   onSuccess?: () => void;
 }
@@ -28,6 +28,8 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   const { hasRole } = useAuth();
   const { id } = useParams();
   const location = useLocation();
+  const showSuccessToast = useSuccessToast();
+  const showErrorToast = useErrorToast();
   
   // Check if we're actually in create mode despite having an ID in the URL
   const isCreateMode = location.pathname.includes('/new');
@@ -148,7 +150,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
             { label: 'Create Guest Pass', value: 'can_create_guest_pass' },
             { label: 'View Guest Pass', value: 'view_guest_pass' },
             { label: 'Attendance Report', value: 'attendance_report' },
-            { label: 'Approve Guest Pass', value: 'Create Gate Pass' }
+            { label: 'Approve Guest Pass', value: 'approve_guest_pass' }
           ]
         }
       ];
@@ -181,16 +183,19 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
           formData
         }).unwrap();
         console.log('User updated successfully:', response);
+        showSuccessToast(response?.message || '');
         onSuccess?.();
       } else {
         const response = hasRole(['SUPERADMIN']) && values.role === 'ADMIN'
           ? await createAdmin(formData).unwrap()
           : await createUser(formData).unwrap();
         console.log('User created successfully:', response);
+        showSuccessToast(response?.message || '');
         navigate('/users');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error handling user:', error);
+      showErrorToast(error?.data?.message || '');
     }
   };
 

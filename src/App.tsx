@@ -9,37 +9,40 @@ import Unauthorized from './pages/Unauthorized';
 import { RouteConfig } from './routes/adminRoutes';
 import ErrorBoundary from './components/ErrorBoundary';
 import { CircularProgress } from '@mui/material';
+import { ToastProvider } from './context/ToastContext';
 
 const App = () => {
   return (
-    <ErrorBoundary>
-      <Routes>
-        <Route path="/login" element={<Authentication />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        
-        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <ToastProvider>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/login" element={<Authentication />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           
-          {adminRoutes.map((route: RouteConfig) => (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={
-                <RoleRoute allowedRoles={route.allowedRoles}>
-                  <Suspense fallback={
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                      <CircularProgress />
-                    </div>
-                  }>
-                    <route.element />
-                  </Suspense>
-                </RoleRoute>
-              }
-            />
-          ))}
-        </Route>
-      </Routes>
-    </ErrorBoundary>
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {adminRoutes.map((route: RouteConfig) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={
+                  <RoleRoute allowedRoles={route.allowedRoles}>
+                    <Suspense fallback={
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                        <CircularProgress />
+                      </div>
+                    }>
+                      <route.element />
+                    </Suspense>
+                  </RoleRoute>
+                }
+              />
+            ))}
+          </Route>
+        </Routes>
+      </ErrorBoundary>
+    </ToastProvider>
   );
 };
 

@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
-import { Email, Person, Business, Badge, Work, Phone } from "@mui/icons-material";
+import { Person, Business, Badge, Work, Phone } from "@mui/icons-material";
 import { Box, Paper, Typography, Grid } from "@mui/material";
 import { useGetUserByIdQuery } from "../../services/UserApi";
 
 const ViewUser = () => {
     const { id } = useParams();
-    const { data: user, isLoading } = useGetUserByIdQuery(Number(id));
-
+    const { data: response, isLoading } = useGetUserByIdQuery(Number(id));
+    const user = (response as any)?.data || {};
+    console.log(user, 'user');
     if (isLoading) {
         return <Box sx={{ p: 3 }}>Loading...</Box>;
     }
@@ -39,18 +40,6 @@ const ViewUser = () => {
                             </Box>
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Email sx={{ color: 'text.secondary' }} />
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Email
-                                    </Typography>
-                                    <Typography variant="body1">
-                                                {user.email}
-                                    </Typography>
-                                </Box>
-                            </Box>
-
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Badge sx={{ color: 'text.secondary' }} />
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
@@ -69,7 +58,7 @@ const ViewUser = () => {
                                         Organization
                                     </Typography>
                                     <Typography variant="body1">
-                                            {user.organization?.name || 'Not Assigned'}
+                                            {user.organization || 'Not Assigned'}
                                     </Typography>
                                 </Box>
                             </Box>

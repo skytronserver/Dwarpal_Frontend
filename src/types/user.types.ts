@@ -6,9 +6,11 @@ export interface User extends AuthUser {
   designation: string;
   blood_group: string;
   emergency_contact: string;
+  message?: string;
 }
 
 export interface UserResponse {
+  message: string;
   results: User[];
   count: number;
 } 

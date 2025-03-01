@@ -4,7 +4,7 @@ import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress } from '@mui/material';
 import { useCreateShiftMutation, useEditShiftMutation, useGetShiftByIdQuery } from '../../services/shiftApi';
 import ShiftFormFields from '../../components/shift/ShiftFormFeilds';
-
+import { useSuccessToast, useErrorToast } from '../../components/Toast';
 
 interface ShiftFormProps {
   onSuccess?: () => void;
@@ -18,6 +18,8 @@ interface ShiftFormValues {
 const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const showSuccessToast = useSuccessToast();
+    const showErrorToast = useErrorToast();
     
     const { data: shiftData, isLoading: isLoadingShift } = useGetShiftByIdQuery(
         parseInt(id!),
@@ -46,12 +48,15 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
                     data: shifts 
                 }).unwrap();
                 onSuccess?.();
+                showSuccessToast('Shift updated successfully');
             } else {
                 await createShift(shifts).unwrap();
                 navigate('/shifts');
+                showSuccessToast('Shift created successfully');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error handling shift:', error);
+            showErrorToast(error?.data?.message || '');
         }
     };
 

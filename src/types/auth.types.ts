@@ -9,7 +9,7 @@ export interface User {
   id: string;
   user_id: number;
   employee_code: string;
-  name: string;
+  user_name: string;
   email: string;
   role: UserRole;
   organization?: { name: string };

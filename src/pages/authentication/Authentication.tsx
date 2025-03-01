@@ -4,6 +4,7 @@ import { useGetLoginMutation } from '../../services/AuthApi';
 import { LoginTypes } from '../../types/auth.types';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useErrorToast, useSuccessToast } from '../../components/Toast';
 
 const Authentication = () => {
   const [employeeId, setEmployeeId] = useState('');
@@ -13,6 +14,8 @@ const Authentication = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [getLogin, { isLoading }] = useGetLoginMutation();
   const navigate = useNavigate();
+  const showSuccessToast = useSuccessToast();
+  const showErrorToast = useErrorToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,10 +24,7 @@ const Authentication = () => {
       password: password
     };
     try {
-      console.log('Making API call with data:', data);
-      console.log('API URL:', import.meta.env.VITE_BASE_URL);
       const response = await getLogin(data).unwrap();
-      console.log('API Response:', response.data.token);
       
       if (keepLoggedIn) {
         localStorage.setItem('auth_token', response.data.token);
@@ -33,9 +33,11 @@ const Authentication = () => {
         sessionStorage.setItem('auth_token', response.data.token);
         sessionStorage.setItem('user_data', JSON.stringify(response.data.user));
       }
-
+      console.log(response);
+      showSuccessToast(response?.message);
       navigate('/dashboard');
     } catch (error: any) {
+      showErrorToast(error?.data?.message);
       console.error('Login failed:', {
         status: error?.status,
         data: error?.data,
@@ -73,24 +75,28 @@ const Authentication = () => {
       animate={{ opacity: 1 }}
       className="min-h-screen flex bg-gray-50 relative"
     >
+      {/* Add mobile background with overlay */}
+      {/* <div className="absolute inset-0 lg:hidden">
+        <img src="/assets/bg-4.jpg" alt="Background" className="h-full w-full object-cover object-center" />
+        <div className="absolute inset-0 bg-white/60" />
+      </div> */}
+      
       <motion.div 
-        className="absolute left-1/2 -translate-x-1/2 top-8 z-10 flex flex-row items-center gap-1
-          lg:left-20 lg:transform-none"
+        className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-row items-center gap-1
+        lg:left-44 lg:transform-none lg:top-5 md:top-10"
         animate={{
           x: window.innerWidth >= 1024 
-            ? (isActive ? 0 : 'calc(100vw - 160px)')
+            ? (isActive ? 0 : 'calc(100vw - 340px)')
             : 0
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <img 
-          src="/assets/logo.png" 
+          src="/assets/dwarpal.png" 
           alt="Company Logo" 
-          className="h-20 w-auto lg:h-12" 
+          className="h-12 w-auto md:h-14 lg:h-12"
         />
-        <h2 className="text-lg font-bold text-gray-900 mt-2 lg:mt-0">
-          Dwarpal
-        </h2>
+
       </motion.div>
       <div className={`hidden lg:flex lg:flex-1 lg:h-screen ${!isActive ? 'rounded-r-[10rem]' : 'rounded-l-[10rem]'} 
         overflow-hidden relative ${isActive ? 'order-2' : 'order-1'} transition-all duration-300`}>

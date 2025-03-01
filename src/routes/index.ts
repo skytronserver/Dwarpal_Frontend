@@ -3,6 +3,7 @@ import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
 
 
+
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Organisations = lazy(() => import('../pages/organisation/Organisations'));
 const ViewOrganisation = lazy(() => import('../pages/organisation/ViewOrganisation'));
@@ -22,6 +23,8 @@ const GatePassForm = lazy(() => import('../pages/gatepass/GatePassForm'));
 const ViewGatePass = lazy(() => import('../pages/gatepass/ViewGatePass'));
 const HolidayForm = lazy(() => import('../pages/holidays/HolidaysForm'))
 const ViewUser = lazy(() => import('../pages/user/ViewUser'));
+const AttendanceDetail = lazy(() => import('../pages/attendance/AttendanceDetail'));
+const AttendanceAnalytics = lazy(() => import('../pages/attendance/AttendanceAnalytics'));
 
 export interface RouteConfig {
     path: string;
@@ -182,7 +185,31 @@ const adminRoutes:RouteConfig[] = [
         element: ViewGatePass,
         title: 'View Gate Pass',
         icon: Gate,
-        allowedRoles: [ 'EMPLOYEE'] as UserRole[],
+        allowedRoles: [ 'EMPLOYEE','ADMIN'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/attendance',
+        element: AttendanceDetail,
+        title: 'Attendance',
+        icon: Clock,
+        allowedRoles: ['ADMIN', 'EMPLOYEE'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/attendance/analytics',
+        element: AttendanceAnalytics,
+        title: 'Attendance Analytics',
+        icon: Clock,
+        allowedRoles: [ 'ADMIN', 'EMPLOYEE'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/attendance/:id',
+        element: AttendanceDetail,
+        title: 'Attendance Detail',
+        icon: Clock,
+        allowedRoles: [ 'ADMIN', 'EMPLOYEE'] as UserRole[],
         group: 'manage'
     }   
 ]

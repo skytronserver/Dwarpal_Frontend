@@ -34,15 +34,14 @@ export const ROLE_PERMISSIONS = {
     'edit:shift',
     'delete:shift',
     'manage:gate-passes',
-    'approve:gate-pass'
+    'approve:gate-pass',
+    'view:attendance',
+    'manage:attendance',
   ],
   EMPLOYEE: [
     'view:dashboard',
     'manage:holidays',
-    'view:shifts',
-    'view:gate-passes',
-    'create:gate-pass',
-    'view:profile'
+    'view:attendance',
   ]
 } as const;
 

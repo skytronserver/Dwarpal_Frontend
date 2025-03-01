@@ -10,8 +10,23 @@ import { useApproveGuestPassMutation } from "../../services/gatePassApi";
 const ViewGatePass = () => {
     const location = useLocation();
     const {hasPermission} = useAuth();
-    const visitorPass = location.state?.gatepass;
+    const passFromLocation = location.state?.gatepass;
     const [approveGuestPass] = useApproveGuestPassMutation();
+
+    // Add dummy data fallback
+    const dummyPass = {
+        id: 1,
+        name: "John Doe",
+        organization_to_visit: "Demo Organization",
+        visit_date: "2024-03-20",
+        visit_start_time: "09:00",
+        visit_end_time: "17:00",
+        person_to_meet: "Jane Smith",
+        department_to_visit: "IT Department",
+        is_approved: false
+    };
+
+    const visitorPass = passFromLocation || dummyPass;
     console.log(visitorPass, 'visitorPass');
 
     return (

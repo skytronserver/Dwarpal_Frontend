@@ -81,7 +81,7 @@ export const useNavigation = () => {
       segment: 'gate-passes/new/:id',
       title: 'Create Gate Pass',
       icon: <DoorOpen />,
-      show: hasPermission('create:gate-pass'),
+      show: hasPermission('can_create_guest_pass'),
     },
     {
       kind: 'header',
@@ -123,11 +123,18 @@ export const useNavigation = () => {
       icon: <DoorClosed />,
       show: hasPermission('manage:gate-passes') || hasPermission("approve_guest_pass"),
     },
+
     {
       segment: 'gate-passes/:id',
       title: 'View Gate Pass',
       icon: <DoorOpen />,
-      show: hasPermission('view:gate-passes'),
+      show: hasPermission('view_guest_pass'),
+    },
+    {
+      segment: 'attendance/analytics',
+      title: 'Attendance Analytics',  
+      icon: <Clock />,
+      show: hasPermission('manage:attendance')|| hasPermission('attendance_report'),
     },
   ];
 
