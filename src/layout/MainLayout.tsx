@@ -80,17 +80,15 @@ const MainLayout = () => {
     <ThemeProvider theme={appTheme}>
       <AppProvider
         navigation={useNavigation()}
+        theme={appTheme}
         branding={{
-          logo: <img 
-            src="/assets/dwarpal.png" 
-            alt="DWARPAL logo" 
-            style={{ 
-              height: '100% !important',
-              maxHeight: '100%',
-              width: 'auto',
-              objectFit: 'contain'
-            }} 
-          />,
+          logo: (
+            <img
+              src="/assets/dwarpal2.png"
+              alt="DWARPAL logo"
+              style={{ width: '180px', height: 'auto', maxHeight: '80px', objectFit: 'contain',position:'relative',top:'-42%' }}
+            />
+          ),
           title: '',
           homeUrl: '/dashboard',
         }}
