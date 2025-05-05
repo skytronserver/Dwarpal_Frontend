@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress } from '@mui/material';
 import { GatePassFormFields } from '../../components/gatePass/gatePassFormFeilds';
@@ -18,7 +18,7 @@ interface GatePassFormValues {
 }
 
 const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
-    const { id } = useParams();
+    // const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     const initialData = location.state?.gatepassData;

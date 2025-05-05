@@ -29,7 +29,7 @@ const sidebarConfig : SidebarGroup[] = [
             type: 'item',
             path: '/dashboard',
             icon: LayoutDashboard,
-            allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR']
+            allowedRoles: ['SUPERADMIN', 'ADMIN']
         },
         {
             id: 'organisations',
@@ -45,7 +45,7 @@ const sidebarConfig : SidebarGroup[] = [
             type: 'item',
             path: '/departments',
             icon: Building,
-            allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR']
+            allowedRoles: ['SUPERADMIN', 'ADMIN']
         },
         {
             id: 'users',
@@ -53,7 +53,7 @@ const sidebarConfig : SidebarGroup[] = [
             type: 'item',
             path: '/users',
             icon: Users,
-            allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR']
+            allowedRoles: ['SUPERADMIN', 'ADMIN']
         },
         {
             id: 'create',

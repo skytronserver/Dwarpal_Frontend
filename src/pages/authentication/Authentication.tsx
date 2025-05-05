@@ -77,9 +77,7 @@ const Authentication = () => {
       style={{ backgroundColor: '#0d5c63' }}
     >
       {/* Mobile background with overlay */}
-      <div className="absolute inset-0 lg:hidden">
-        <img src="/assets/mob-bg.jpeg" alt="Background" className="h-full w-full object-cover object-center" />
-      </div>
+      <div className="absolute inset-0 lg:hidden bg-[#0d5c63]" />
       
       <motion.div 
         className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-row items-center gap-1
@@ -94,12 +92,12 @@ const Authentication = () => {
         <img 
           src="/assets/dwarpal.png" 
           alt="Company Logo" 
-          className="h-12 w-auto md:h-14 lg:h-12"
+          className="h-16 w-auto md:h-20 lg:h-16 xl:h-24 xl:w-auto"
         />
 
       </motion.div>
       <div className={`hidden lg:flex lg:flex-1 lg:h-screen ${!isActive ? 'rounded-r-[10rem]' : 'rounded-l-[10rem]'} 
-        overflow-hidden relative ${isActive ? 'order-2' : 'order-1'} transition-all duration-300`}>
+        overflow-hidden relative ${isActive ? 'order-2' : 'order-1'} transition-all duration-300 bg-white`}>
         <motion.div 
           className="absolute inset-0"
           initial={false}
@@ -109,21 +107,21 @@ const Authentication = () => {
           }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          <img src="/assets/bg.png" alt="Horizon UI Logo" className="h-full w-full object-cover" />
+          <div className="h-full w-full bg-white" />
         </motion.div>
 
-        <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-center">
-          <h1 className="text-4xl font-bold mb-4">
+        <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#0d5c63] text-center">
+          <h1 className="text-4xl font-bold mb-4 text-[#0d5c63]">
             {!isActive ? 'Welcome Back!' : "Don't have an account?"}
           </h1>
-          <p className="text-lg px-10 mb-8">
+          <p className="text-lg px-10 mb-8 text-[#197981]">
             {!isActive
               ? 'Already have an account? Sign in now!'
               : "Click here to know more about our services"}
           </p>
           <button
             onClick={() => setIsActive(!isActive)}
-            className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full hover:bg-white hover:text-gray-900 transition-all duration-200 font-medium"
+            className="bg-white border-2 border-[#0d5c63] text-[#0d5c63] px-8 py-3 rounded-full hover:bg-[#0d5c63] hover:text-white transition-all duration-200 font-medium shadow-md"
           >
             {!isActive ? 'Sign In' : 'Know more'}
           </button>
@@ -147,14 +145,14 @@ const Authentication = () => {
                   variants={containerVariants}
                 >
                   <motion.div variants={fadeIn}>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Welcome back</h1>
-                    <p className="text-gray-500 mt-2">Please enter your details to sign in</p>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Welcome back</h1>
+                    <p className="text-white/80 mt-2">Please enter your details to sign in</p>
                   </motion.div>
 
                   <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 mt-6 sm:mt-8">
                     <motion.div className="space-y-5" variants={fadeIn}>
                       <div>
-                        <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="employeeId" className="block text-sm font-medium text-white mb-2">
                             Employee ID
                         </label>
                         <div className="relative">
@@ -164,13 +162,13 @@ const Authentication = () => {
                             value={employeeId}
                             onChange={(e) => setEmployeeId(e.target.value)}
                             placeholder="Enter your Employee ID"
-                            className="w-full rounded-2xl border border-gray-200 px-4 h-12 text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 text-sm transition-all duration-200"
+                            className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
                           Password
                         </label>
                         <div className="relative">
@@ -180,12 +178,12 @@ const Authentication = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
-                            className="w-full rounded-2xl border border-gray-200 px-4 h-12 text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 text-sm transition-all duration-200"
+                            className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
                           >
                             {showPassword ? (
                               <HiEyeOff className="w-5 h-5" />
@@ -207,15 +205,15 @@ const Authentication = () => {
                           id="keep-logged-in"
                           checked={keepLoggedIn}
                           onChange={(e) => setKeepLoggedIn(e.target.checked)}
-                          className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                          className="h-4 w-4 rounded border-white/40 text-white bg-transparent focus:ring-white"
                         />
-                        <label htmlFor="keep-logged-in" className="ml-2.5 text-sm text-gray-600">
+                        <label htmlFor="keep-logged-in" className="ml-2.5 text-sm text-white">
                           Remember me
                         </label>
                       </div>
                       <button
                         type="button"
-                        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                        className="text-sm font-medium text-white hover:text-white/80 transition-colors"
                       >
                         Forgot password?
                       </button>
@@ -227,7 +225,7 @@ const Authentication = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       disabled={isLoading}
-                      className="w-full rounded-2xl bg-gray-900 px-6 h-12 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      className="w-full rounded-2xl bg-white/20 px-6 h-12 text-sm font-medium text-white shadow-sm hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                       {isLoading ? (
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -238,7 +236,7 @@ const Authentication = () => {
                     <div className="mt-6 text-center lg:hidden">
                       <button
                         onClick={() => setIsActive(false)}
-                        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                        className="text-sm font-medium text-white hover:text-white/80 transition-colors"
                       >
                         Don't have an account? Learn more
                       </button>
@@ -257,11 +255,11 @@ const Authentication = () => {
                   className="text-center space-y-4 sm:space-y-6"
                   variants={fadeIn}
                 >
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900">Don't have an account?</h1>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white">Don't have an account?</h1>
                   <div className="space-y-2 sm:space-y-3">
-                    <p className="text-gray-600 text-lg">Please contact our team at</p>
-                    <p className="text-gray-900 font-medium">support@example.com</p>
-                    <p className="text-gray-600 text-lg">We'll be happy to help you get started</p>
+                    <p className="text-white/80 text-lg">Please contact our team at</p>
+                    <p className="text-white font-medium">support@example.com</p>
+                    <p className="text-white/80 text-lg">We'll be happy to help you get started</p>
                   </div>
                   <motion.button
                     onClick={() => setIsActive(true)}

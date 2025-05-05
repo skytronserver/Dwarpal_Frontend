@@ -50,7 +50,7 @@ const Shifts = () => {
   const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
 
   // Add the delete mutation hook at component level
-  const [deleteShift, { isLoading: isDeleting }] = useDeleteShiftMutation();
+  const [deleteShift] = useDeleteShiftMutation();
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
