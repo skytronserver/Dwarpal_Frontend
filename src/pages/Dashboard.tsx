@@ -48,7 +48,7 @@ const gatePassTrend = [
   { date: '2024-05', approved: 55, rejected: 6 },
 ];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const COLORS = ['#2C3E50', '#3498DB', '#8E44AD', '#F39C12', '#7F8C8D'];
 
 const Dashboard: React.FC = () => {
   const { user, hasPermission } = useAuth();
@@ -281,8 +281,8 @@ const Dashboard: React.FC = () => {
                 <Area 
                   type="monotone" 
                   dataKey="attendance" 
-                  stroke="#8884d8" 
-                  fill="#8884d8" 
+                  stroke="#3498DB" 
+                  fill="#3498DB" 
                   fillOpacity={0.3} 
                 />
               </AreaChart>
@@ -330,8 +330,8 @@ const Dashboard: React.FC = () => {
                 <XAxis dataKey="date" />
                 <YAxis />
                 <RechartsTooltip />
-                <Bar dataKey="approved" fill="#4CAF50" stackId="a" name="Approved" />
-                <Bar dataKey="rejected" fill="#FF5722" stackId="a" name="Rejected" />
+                <Bar dataKey="approved" fill="#3498DB" stackId="a" name="Approved" />
+                <Bar dataKey="rejected" fill="#8E44AD" stackId="a" name="Rejected" />
               </BarChart>
             </ResponsiveContainer>
           </Paper>

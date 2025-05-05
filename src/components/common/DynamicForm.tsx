@@ -23,10 +23,12 @@ import {
   DialogActions
 } from "@mui/material";
 import { DynamicFormProps, Field } from "../../types/form.types";
+import { useTheme } from "@mui/material/styles";
 
 const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
   const [formData, setFormData] = useState<Record<string, any>>(initialValues || {});
   const [openModal, setOpenModal] = useState(false);
+  const theme = useTheme();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -56,20 +58,27 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
   const commonStyles = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '8px',
-      backgroundColor: '#ffffff',
-      transition: 'all 0.2s ease',
+      backgroundColor: theme.palette.background.paper,
       '&:hover': {
-        backgroundColor: '#ffffff',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+        backgroundColor: theme.palette.background.paper,
+        '& fieldset': {
+          borderColor: theme.palette.primary.main,
+        }
       },
       '&.Mui-focused': {
-        boxShadow: '0 2px 12px rgba(25, 118, 210, 0.12)',
+        '& fieldset': {
+          borderColor: theme.palette.primary.main,
+        }
       }
     },
     '& .MuiInputLabel-root': {
-      color: '#2c3e50',
-      fontWeight: 500,
-      fontSize: '0.95rem'
+      color: theme.palette.text.primary,
+      '&.Mui-focused': {
+        color: theme.palette.primary.main,
+      }
+    },
+    '& .MuiInputBase-input': {
+      fontSize: '0.95rem',
     }
   };
 
@@ -88,9 +97,33 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
               onChange={handleSelectChange}
               required={field.required}
               label={field.label}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: '8px',
+                    mt: 1,
+                    boxShadow: '0 4px 16px rgba(255, 131, 97, 0.08)',
+                    border: '1px solid rgba(255, 131, 97, 0.1)',
+                  }
+                }
+              }}
             >
               {field.options?.map((option) => (
-                <MenuItem key={String(option.value)} value={option.value}>
+                <MenuItem 
+                  key={String(option.value)} 
+                  value={option.value}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 131, 97, 0.08)',
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: 'rgba(255, 131, 97, 0.12)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 131, 97, 0.16)',
+                      }
+                    }
+                  }}
+                >
                   {option.label}
                 </MenuItem>
               ))}
@@ -106,17 +139,29 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 name={field.name}
                 checked={formData[field.name] || false}
                 onChange={handleInputChange}
+                sx={{
+                  color: theme.palette.primary.main,
+                  '&.Mui-checked': {
+                    color: theme.palette.primary.main,
+                  },
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 131, 97, 0.08)',
+                  }
+                }}
               />
             }
             label={field.label}
-            sx={{ transition: 'all 0.3s ease', '&:hover': { transform: 'scale(1.05)' } }}
+            sx={{ 
+              transition: 'all 0.3s ease', 
+              '&:hover': { transform: 'scale(1.05)' } 
+            }}
           />
         );
       
       case "radio":
         return (
           <FormControl component="fieldset">
-            <FormLabel>{field.label}</FormLabel>
+            <FormLabel sx={{ color: theme.palette.text.primary }}>{field.label}</FormLabel>
             <RadioGroup
               name={field.name}
               value={formData[field.name] || field.defaultValue || ""}
@@ -126,7 +171,19 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 <FormControlLabel
                   key={String(option.value)}
                   value={option.value}
-                  control={<Radio />}
+                  control={
+                    <Radio 
+                      sx={{
+                        color: theme.palette.primary.main,
+                        '&.Mui-checked': {
+                          color: theme.palette.primary.main,
+                        },
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 131, 97, 0.08)',
+                        }
+                      }}
+                    />
+                  }
                   label={option.label}
                 />
               ))}
@@ -142,6 +199,17 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 name={field.name}
                 checked={formData[field.name] || false}
                 onChange={handleInputChange}
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: theme.palette.primary.main,
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 131, 97, 0.08)',
+                    },
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: theme.palette.primary.main,
+                  }
+                }}
               />
             }
             label={field.label}
@@ -223,11 +291,10 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
     <Paper 
       elevation={0} 
       sx={{ 
-        borderRadius: '12px',
+        borderRadius: '16px',
         p: { xs: 2, sm: 3, md: 4 },
-        backgroundColor: '#f8fafc',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
       }}
     >
       <form onSubmit={handleSubmit}>
@@ -268,18 +335,18 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
             <Button
               type="submit"
               variant="contained"
+              fullWidth
               sx={{
                 mt: 2,
-                px: 4,
-                py: 1.5,
+                py: 1,
                 borderRadius: '8px',
                 textTransform: 'none',
-                fontSize: '1rem',
+                fontSize: '0.9rem',
                 fontWeight: 500,
-                backgroundColor: '#2563eb',
+                backgroundColor: theme.palette.primary.main,
                 '&:hover': {
-                  backgroundColor: '#1d4ed8',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)',
+                  backgroundColor: theme.palette.primary.dark,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                 },
               }}
             >
@@ -294,10 +361,10 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
         onClose={handleModalClose}
         PaperProps={{
           sx: {
-            borderRadius: '12px',
+            borderRadius: '16px',
             minWidth: '360px',
-            backgroundColor: '#f8fafc',
-            border: '1px solid #e2e8f0',
+            backgroundColor: theme.palette.background.paper,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
           }
         }}
       >
@@ -344,13 +411,14 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
             sx={{
               px: 4,
               py: 1,
+             width:10,
               borderRadius: '6px',
               textTransform: 'none',
               fontSize: '0.95rem',
               fontWeight: 500,
-              backgroundColor: '#2563eb',
+              backgroundColor: theme.palette.primary.main,
               '&:hover': {
-                backgroundColor: '#1d4ed8',
+                backgroundColor: theme.palette.primary.dark,
               }
             }}
           >

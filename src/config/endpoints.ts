@@ -35,7 +35,7 @@ export const API_ENDPOINTS = {
       assign: (id: number) => `/api/shifts/${id}/assign/`
     },
     holidays: {
-      list: '/api/holidays/create',
+      list: 'public/holidays/',
       create: '/api/holidays/create/',
       update: (id: number) => `/api/holidays/${id}/update/`,
       delete: (id: number) => `/api/holidays/${id}/delete/`,

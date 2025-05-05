@@ -6,14 +6,15 @@ import { GatePassFormFields } from '../../components/gatePass/gatePassFormFeilds
 import { useCreateGuestPassMutation } from '../../services/gatePassApi';
 import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
 import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
+import { useGetUsersQuery } from '../../services/UserApi';
 
 interface GatePassFormProps {
-  onSuccess?: () => void;
+    onSuccess?: () => void;
 }
 
 interface GatePassFormValues {
-  id?: string;
-  [key: string]: any;
+    id?: string;
+    [key: string]: any;
 }
 
 const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
@@ -26,7 +27,14 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
 
     const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
     const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
-    const updatedDepartments = departments?.results?.filter((dep: any) => dep.organization?.[0]?.id === values?.organization);
+    const updatedDepartments = departments?.results?.filter((dep: any) =>
+        dep.organization?.[0]?.id === values?.organization_to_visit
+    );
+    const {data: users,isLoading:isUsersLoading} = useGetUsersQuery({});
+    const approverOptions = users?.results?.map((user: any) => ({
+        label: user.name,
+        value: user.id,    
+    })) || [{ label: 'Default Approver', value: 25 }];
 
     const organizationOptions = organizations?.results?.map((org: Organisation) => ({
         label: org.name,
@@ -40,23 +48,29 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
 
     const formFields = React.useMemo(() => {
         return GatePassFormFields.map(field => {
-            if (field.name === 'organization') {
+            if (field.name === 'organization_to_visit') {
                 return {
                     ...field,
                     options: organizationOptions
                 };
             }
-            if (field.name === 'department') {
+            if (field.name === 'department_to_visit') {
                 return {
                     ...field,
                     options: departmentOptions,
-                    disabled: !values?.organization,
-                    helperText: !values?.organization ? 'Please select an organization first' : undefined
+                    disabled: !values?.organization_to_visit,
+                    helperText: !values?.organization_to_visit ? 'Please select an organization first' : undefined
+                };
+            }
+            if (field.name === 'assigned_approver') {
+                return {
+                    ...field,
+                    options: approverOptions
                 };
             }
             return field;
         });
-    }, [organizationOptions, departmentOptions, values]);
+    }, [organizationOptions, departmentOptions, approverOptions, values]);
 
     const handleFormChange = (newValues: GatePassFormValues) => {
         setValues(newValues);
@@ -65,14 +79,10 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
     const handleSubmit = async (values: GatePassFormValues) => {
         try {
             const formData = new FormData();
-            
-            // Iterate through all values and append to FormData
             Object.entries(values).forEach(([key, value]) => {
-                // Handle file objects specially
                 if (value instanceof File) {
                     formData.append(key, value);
                 } else if (value !== null && value !== undefined) {
-                    // Convert non-null values to string
                     formData.append(key, String(value));
                 }
             });
@@ -82,7 +92,6 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
             onSuccess?.();
         } catch (error) {
             console.error('Failed to create gate pass:', error);
-            // You might want to add error handling here
         }
     };
 
@@ -91,12 +100,12 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
             <Typography variant="h4" sx={{ mb: 3 }}>
                 {initialData ? 'Edit Gate Pass' : 'Create Gate Pass'}
             </Typography>
-            {(isLoading || isOrgsLoading || isDepsLoading) ? (
+            {(isLoading || isOrgsLoading || isDepsLoading || isUsersLoading) ? (
                 <Box display="flex" justifyContent="center" my={4}>
                     <CircularProgress />
                 </Box>
             ) : (
-                <DynamicForm 
+                <DynamicForm
                     fields={formFields}
                     onSubmit={handleSubmit}
                     initialValues={initialData || {}}

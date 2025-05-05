@@ -23,28 +23,28 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.date().required('Visit date is required'),
     },
     {
-        name: 'start_time',
+        name: 'visit_start_time',
         label: 'Start Time',
         type: 'time',
         required: true,
         validation: Yup.string().required('Start time is required'),
     },
     {
-        name: 'end_time',
+        name: 'visit_end_time',
         label: 'End Time',
         type: 'time',
         required: true,
         validation: Yup.string().required('End time is required'),
     },
     {
-        name: 'organization',
+        name: 'organization_to_visit',
         label: 'Organization',
         type: 'select',
         required: true,
         validation: Yup.number().required('Organization is required'),
     },
     {
-        name: 'department',
+        name: 'department_to_visit',
         label: 'Department',
         type: 'select',
         required: true,
@@ -56,5 +56,11 @@ export const GatePassFormFields: Field[] = [
         type: 'text',
         required: true,
         validation: Yup.string().required('Person to meet is required'),
+    },{
+        name:'assigned_approver',
+        label:'Assigned Approver',
+        type:'select',
+        required:true,
+        validation:Yup.number().required('Assigned approver is required'),
     }
 ]

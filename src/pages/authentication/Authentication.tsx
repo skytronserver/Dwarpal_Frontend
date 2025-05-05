@@ -42,7 +42,7 @@ const Authentication = () => {
         status: error?.status,
         data: error?.data,
         error: error,
-        message: error?.message
+        message: error?.message || 'An unknown error occurred'
       });
     }
   };
@@ -73,13 +73,13 @@ const Authentication = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen flex bg-gray-50 relative"
+      className="min-h-screen flex relative"
+      style={{ backgroundColor: '#0d5c63' }}
     >
-      {/* Add mobile background with overlay */}
-      {/* <div className="absolute inset-0 lg:hidden">
-        <img src="/assets/bg-4.jpg" alt="Background" className="h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-white/60" />
-      </div> */}
+      {/* Mobile background with overlay */}
+      <div className="absolute inset-0 lg:hidden">
+        <img src="/assets/mob-bg.jpeg" alt="Background" className="h-full w-full object-cover object-center" />
+      </div>
       
       <motion.div 
         className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-row items-center gap-1

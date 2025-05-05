@@ -3,32 +3,42 @@ import { createTheme } from '@mui/material';
 export const appTheme = createTheme({
   palette: {
     primary: {
-      main: '#FF8361', // Coral
-      light: '#ff9b7a',
-      dark: '#e66b4c',
+      main: '#2C3E50', // Matte Navy
+      light: '#34495E',
+      dark: '#1A252F',
     },
     secondary: {
-      main: '#899EE8', // Periwinkle Blue
-      light: '#a4b5ff',
-      dark: '#6f85cc',
+      main: '#7F8C8D', // Matte Gray
+      light: '#95A5A6',
+      dark: '#6C7A7D',
     },
     info: {
-      main: '#BDEDE0', // Mint
-      light: '#d4fff3',
-      dark: '#9ad3c7',
+      main: '#3498DB', // Matte Blue
+      light: '#5DADE2',
+      dark: '#2874A6',
     },
     error: {
-      main: '#2E0219', // Dark Purple
-      light: '#441a2f',
-      dark: '#1a0110',
+      main: '#8E44AD', // Matte Purple
+      light: '#9B59B6',
+      dark: '#7D3C98',
+    },
+    success: {
+      main: '#3498DB', // Matte Blue
+      light: '#5DADE2',
+      dark: '#2874A6',
+    },
+    warning: {
+      main: '#F39C12', // Matte Orange
+      light: '#F5B041',
+      dark: '#D68910',
     },
     background: {
-      default: '#f5f5f7',
-      paper: '#ffffff',
+      default: '#0d5c63',
+      paper: '#0d5c63',
     },
     text: {
-      primary: '#32213A', // Dark Navy
-      secondary: '#4a3751',
+      primary: '#2C3E50',
+      secondary: '#7F8C8D',
     },
   },
   components: {
@@ -44,6 +54,16 @@ export const appTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
+          backgroundColor: '#0d5c63',
+          color: '#fff',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#0d5c63',
+          color: '#fff',
         },
       },
     },
