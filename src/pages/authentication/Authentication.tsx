@@ -77,7 +77,7 @@ const Authentication = () => {
       style={{ backgroundColor: '#0d5c63' }}
     >
       {/* Mobile background with overlay */}
-      <div className="absolute inset-0 lg:hidden bg-[#0d5c63]" />
+      <div className="absolute inset-0 lg:hidden bg-[url('/assets/tealBG.png')] bg-cover bg-center" />
       
       <motion.div 
         className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-row items-center gap-1
