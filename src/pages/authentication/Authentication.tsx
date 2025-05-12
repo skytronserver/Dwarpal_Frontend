@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 import { useGetLoginMutation } from '../../services/AuthApi';
 import { LoginTypes } from '../../types/auth.types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useErrorToast, useSuccessToast } from '../../components/Toast';
 
@@ -242,6 +242,14 @@ const Authentication = () => {
                       </button>
                     </div>
                   </form>
+                  <div className="mt-4 text-center text-xs text-white/70">
+                    <span>
+                      By signing in, you agree to our{' '}
+                      <Link to="/terms-and-conditions" className="underline hover:text-white">Terms & Conditions</Link>
+                      {' '}and{' '}
+                      <Link to="/privacy-policy" className="underline hover:text-white">Privacy Policy</Link>.
+                    </span>
+                  </div>
                 </motion.div>
               </motion.div>
             ) : (

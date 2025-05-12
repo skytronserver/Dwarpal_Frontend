@@ -10,6 +10,7 @@ import { RouteConfig } from './routes/adminRoutes';
 import ErrorBoundary from './components/ErrorBoundary';
 import { CircularProgress } from '@mui/material';
 import { ToastProvider } from './context/ToastContext';
+import { PrivacyPolicy, TermsAndConditions } from './pages';
 
 const App = () => {
   return (
@@ -18,6 +19,8 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Authentication />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
