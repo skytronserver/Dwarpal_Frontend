@@ -212,6 +212,7 @@ export default function CommonTable({
         height: '100%',
         width: '100%',
         p: 2,
+        pb: 4,
         minHeight: '90vh',
         bgcolor: 'background.default',
       }}
@@ -221,9 +222,19 @@ export default function CommonTable({
         columns={columns}
         slots={{ toolbar: CustomToolbar }}
         paginationMode="server"
+        rowCount={data.rowCount}
+        pageSizeOptions={[10, 25, 50]}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: data.pageSize,
+              page: 0,
+            },
+          },
+        }}
         onPaginationModelChange={(model) => {
           if (onPaginationChange) {
-            onPaginationChange(model.page, model.pageSize);
+            onPaginationChange(1, model.pageSize);
           }
         }}
         onFilterModelChange={(model) => {

@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
 
   const getSuperAdminMetrics = (): DashboardMetric[] => [
     {
-      title: 'Total Organizations',
+      title: 'Total Organisations',
       value: '25',
       icon: <Building2 className="h-6 w-6" />,
       progress: 85,
@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
       color: 'info.main'
     },
     {
-      title: 'Active Organizations',
+      title: 'Active Organisations',
       value: '20',
       icon: <Building2 className="h-6 w-6" />,
       progress: 80,

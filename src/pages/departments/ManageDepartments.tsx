@@ -15,7 +15,7 @@ import { ModalState } from '../../features/slices/modalSlice';
 const ManageDepartments = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { data, isLoading, error } = useGetDepartmentsQuery({
     search: searchTerm,
@@ -49,14 +49,13 @@ const ManageDepartments = () => {
   const visibleFields = ['name', 'organization', 'integrate_with_ai_camera']; 
 
   const dispatch = useDispatch();
-  const [deleteDepartment] = useDeleteDepartmentMutation  ();
-
+  const [deleteDepartment] = useDeleteDepartmentMutation();
 
   const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
-    setPage(0);
+    setPage(1);
   };
 
   const handlePaginationChange = (newPage: number, newPageSize: number) => {

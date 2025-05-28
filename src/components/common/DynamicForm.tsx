@@ -141,11 +141,25 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 onChange={handleInputChange}
                 sx={{
                   color: theme.palette.primary.main,
+                  '& .MuiSvgIcon-root': {
+                    border: '2px solid #bdbdbd',
+                    borderRadius: '4px',
+                  },
+                  '&.Mui-checked .MuiSvgIcon-root': {
+                    border: '2px solid #000',
+                  },
                   '&.Mui-checked': {
-                    color: theme.palette.primary.main,
+                    color: '#000',
+                    '& .MuiSvgIcon-root path': {
+                      color: '#1976d2',
+                      fill: '#1976d2',
+                    },
                   },
                   '&:hover': {
-                    backgroundColor: 'rgba(255, 131, 97, 0.08)',
+                    backgroundColor: 'rgba(5, 5, 5, 0.08)',
+                  },
+                  '&.Mui-focusVisible': {
+                    backgroundColor: 'rgba(6, 2, 0, 0.12)',
                   }
                 }}
               />

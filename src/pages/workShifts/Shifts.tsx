@@ -24,7 +24,7 @@ interface ShiftData {
 const Shifts = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const {data, isLoading, error} = useGetShiftsQuery({search: searchTerm, page: page, page_size: pageSize});
 
@@ -54,7 +54,7 @@ const Shifts = () => {
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
-    setPage(0);
+    setPage(1);
   };
 
   const handlePaginationChange = (newPage: number, newPageSize: number) => {

@@ -5,6 +5,7 @@ import { LoginTypes } from '../../types/auth.types';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useErrorToast, useSuccessToast } from '../../components/Toast';
+import './Authentication.css';
 
 const Authentication = () => {
   const [employeeId, setEmployeeId] = useState('');
@@ -70,35 +71,14 @@ const Authentication = () => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen flex relative"
-      style={{ backgroundColor: '#0d5c63' }}
+      className="min-h-screen lg:h-screen flex flex-col lg:flex-row relative bg-[#0d5c63] overflow-y-auto"
     >
-      {/* Mobile background with overlay */}
-      <div className="absolute inset-0 lg:hidden bg-[url('/assets/tealBG.png')] bg-cover bg-center" />
-      
-      <motion.div 
-        className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-row items-center gap-1
-        lg:left-44 lg:transform-none lg:top-5 md:top-10"
-        animate={{
-          x: window.innerWidth >= 1024 
-            ? (isActive ? 0 : 'calc(100vw - 340px)')
-            : 0
-        }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-      >
-        <img 
-          src="/assets/dwarpal.png" 
-          alt="Company Logo" 
-          className="h-16 w-auto md:h-20 lg:h-16 xl:h-24 xl:w-auto"
-        />
-
-      </motion.div>
-      <div className={`hidden lg:flex lg:flex-1 lg:h-screen ${!isActive ? 'rounded-r-[10rem]' : 'rounded-l-[10rem]'} 
-        overflow-hidden relative ${isActive ? 'order-2' : 'order-1'} transition-all duration-300 bg-white`}>
-        <motion.div 
+      {/* Side panel for desktop */}
+      <div className={`hidden lg:flex lg:flex-1 h-full lg:h-screen ${!isActive ? 'rounded-r-[10rem]' : 'rounded-l-[10rem]'} overflow-hidden relative ${isActive ? 'order-2' : 'order-1'} transition-all duration-300 bg-white`}>
+        <motion.div
           className="absolute inset-0"
           initial={false}
           animate={{
@@ -109,7 +89,6 @@ const Authentication = () => {
         >
           <div className="h-full w-full bg-white" />
         </motion.div>
-
         <div className="absolute z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#0d5c63] text-center">
           <h1 className="text-4xl font-bold mb-4 text-[#0d5c63]">
             {!isActive ? 'Welcome Back!' : "Don't have an account?"}
@@ -128,32 +107,37 @@ const Authentication = () => {
         </div>
       </div>
 
-      <div className={`w-full lg:flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 ${isActive ? 'order-1' : 'order-2'}`}>
-        <div className="w-full max-w-md relative min-h-[400px] flex items-center">
+      {/* Main form area */}
+      <div className={`w-full lg:flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 h-full lg:h-screen ${isActive ? 'order-1' : 'order-2'}`}
+      >
+        <div className="w-full max-w-md relative flex flex-col items-center auth-form-vertical-fix">
+          {/* Logo for all screen sizes */}
+          <div className="flex justify-center mb-6 w-full">
+            <img src="/assets/dwarpal.png" alt="Company Logo" className="h-20 w-64" />
+          </div>
           <AnimatePresence mode="wait">
             {isActive ? (
-              <motion.div 
+              <motion.div
                 key="login"
                 {...pageTransition}
                 className="w-full"
-                style={{ position: 'absolute', left: 0, right: 0 }}
+                style={{ position: 'relative' }}
               >
-                <motion.div 
+                <motion.div
                   className="w-full space-y-8"
                   initial="hidden"
                   animate="visible"
                   variants={containerVariants}
                 >
-                  <motion.div variants={fadeIn}>
+                  <motion.div variants={fadeIn} className="text-center">
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Welcome back</h1>
                     <p className="text-white/80 mt-2">Please enter your details to sign in</p>
                   </motion.div>
-
                   <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 mt-6 sm:mt-8">
                     <motion.div className="space-y-5" variants={fadeIn}>
                       <div>
                         <label htmlFor="employeeId" className="block text-sm font-medium text-white mb-2">
-                            Employee ID
+                          Employee ID
                         </label>
                         <div className="relative">
                           <input
@@ -166,7 +150,6 @@ const Authentication = () => {
                           />
                         </div>
                       </div>
-
                       <div>
                         <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
                           Password
@@ -194,8 +177,7 @@ const Authentication = () => {
                         </div>
                       </div>
                     </motion.div>
-
-                    <motion.div 
+                    <motion.div
                       className="flex items-center justify-between"
                       variants={fadeIn}
                     >
@@ -218,7 +200,6 @@ const Authentication = () => {
                         Forgot password?
                       </button>
                     </motion.div>
-
                     <motion.button
                       type="submit"
                       variants={fadeIn}
@@ -253,13 +234,13 @@ const Authentication = () => {
                 </motion.div>
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="info"
                 {...pageTransition}
                 className="w-full"
-                style={{ position: 'absolute', left: 0, right: 0 }}
+                style={{ position: 'relative' }}
               >
-                <motion.div 
+                <motion.div
                   className="text-center space-y-4 sm:space-y-6"
                   variants={fadeIn}
                 >

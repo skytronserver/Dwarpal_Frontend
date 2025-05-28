@@ -20,6 +20,7 @@ const App = () => {
           <Route path="/login" element={<Authentication />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

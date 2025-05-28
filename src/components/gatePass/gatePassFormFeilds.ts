@@ -38,10 +38,10 @@ export const GatePassFormFields: Field[] = [
     },
     {
         name: 'organization_to_visit',
-        label: 'Organization',
+        label: 'Organisation',
         type: 'select',
         required: true,
-        validation: Yup.number().required('Organization is required'),
+        validation: Yup.number().required('Organisation is required'),
     },
     {
         name: 'department_to_visit',

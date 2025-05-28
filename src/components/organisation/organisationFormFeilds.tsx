@@ -8,7 +8,7 @@ export const OrganisationFormFields: Field[] = [
     type: 'text',
     required: true,
     validation: Yup.string()
-      .required('Organization name is required')
+      .required('Organisation name is required')
       .min(2, 'Name must be at least 2 characters')
       .max(100, 'Name must not exceed 100 characters')
   },

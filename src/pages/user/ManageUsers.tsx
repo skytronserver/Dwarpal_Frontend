@@ -15,7 +15,7 @@ import { ModalState } from "../../features/slices/modalSlice";
 const ManageUsers = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   
   const { data, isLoading, error } = useGetUsersQuery({
@@ -72,7 +72,7 @@ const ManageUsers = () => {
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
-    setPage(0);
+    setPage(1);
   };
 
   const handlePaginationChange = (newPage: number, newPageSize: number) => {

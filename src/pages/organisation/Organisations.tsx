@@ -13,7 +13,7 @@ import { RootState } from '../../features/store';
 const Organisations = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(0  );
+  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { data, isLoading, error } = useGetOrganisationsQuery({
     search: searchTerm,
@@ -38,7 +38,7 @@ const Organisations = () => {
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
-    setPage(0);
+    setPage(1);
   };
 
   const handlePaginationChange = (newPage: number, newPageSize: number) => {
@@ -99,8 +99,8 @@ const Organisations = () => {
           onPaginationChange={handlePaginationChange}
         />
         <ConfirmationModal
-          title="Delete Organization"
-          message="Are you sure you want to delete this organization? This action cannot be undone."
+          title="Delete Organisation"
+          message="Are you sure you want to delete this organisation? This action cannot be undone."
           onConfirm={handleConfirmDelete}
         />
         </Box>

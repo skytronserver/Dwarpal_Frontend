@@ -1,0 +1,13 @@
+@media (max-height: 600px) {
+  .auth-form-vertical-fix {
+    justify-content: flex-start !important;
+    padding-top: 2rem !important;
+  }
+}
+
+.auth-form-vertical-fix {
+  justify-content: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+} 
