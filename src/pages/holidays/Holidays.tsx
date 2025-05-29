@@ -9,7 +9,7 @@ import { enUS } from 'date-fns/locale/en-US';
 import { useState } from 'react';
 import { Box, Typography, Paper, Modal, Button, List, ListItem, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '../../hooks/useAuth';
 const locales = {
     'en-US': enUS
 };
@@ -44,8 +44,9 @@ interface CalendarEvent {
 const Holidays = () => {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { data, isLoading, error } = useGetHolidaysQuery({search: '', page: 1, page_size: 10});
+    const { data, isLoading, error } = useGetHolidaysQuery({ search: '', page: 1, page_size: 10 });
     const navigate = useNavigate();
+    const { hasRole } = useAuth();
 
     const events: CalendarEvent[] = data?.results.map((holiday: Holiday) => ({
         id: holiday.id,
@@ -61,7 +62,7 @@ const Holidays = () => {
         setSelectedEvent(event);
         setIsModalOpen(true);
     };
-    
+
     const handleCloseModal = () => {
         setSelectedEvent(null);
         setIsModalOpen(false);
@@ -128,9 +129,9 @@ const Holidays = () => {
             >
                 <Box>
                     {selectedEvent && (
-                        <Paper sx={{ 
-                            width: 400, 
-                            maxHeight: '90vh', 
+                        <Paper sx={{
+                            width: 400,
+                            maxHeight: '90vh',
                             overflow: 'auto',
                             p: 4,
                             borderRadius: 2,
@@ -138,9 +139,9 @@ const Holidays = () => {
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             '&:focus': { outline: 'none' }
                         }}>
-                            <Typography 
-                                variant="h5" 
-                                sx={{ 
+                            <Typography
+                                variant="h5"
+                                sx={{
                                     mb: 3,
                                     color: 'primary.main',
                                     fontWeight: 600,
@@ -151,9 +152,9 @@ const Holidays = () => {
                             >
                                 {selectedEvent.name}
                             </Typography>
-                            
+
                             <Box sx={{ mb: 3 }}>
-                                <Box sx={{ 
+                                <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     mb: 2,
@@ -169,14 +170,14 @@ const Holidays = () => {
                                     </Typography>
                                 </Box>
 
-                                <Typography sx={{ 
-                                    fontWeight: 600, 
+                                <Typography sx={{
+                                    fontWeight: 600,
                                     mb: 2,
                                     color: 'text.secondary'
                                 }}>
                                     Date(s):
                                 </Typography>
-                                <List sx={{ 
+                                <List sx={{
                                     bgcolor: 'grey.50',
                                     borderRadius: 1,
                                     mb: 2
@@ -193,7 +194,7 @@ const Holidays = () => {
                                     </ListItem>
                                 </List>
 
-                                <Box sx={{ 
+                                <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     p: 2,
@@ -215,10 +216,10 @@ const Holidays = () => {
                                 </Box>
                             </Box>
 
-                            <Box sx={{ 
-                                display: 'flex', 
-                                justifyContent: 'flex-end', 
-                                gap: 2, 
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                gap: 2,
                                 mt: 3,
                                 borderTop: '1px solid',
                                 borderColor: 'grey.200',
@@ -227,23 +228,25 @@ const Holidays = () => {
                                 <Button
                                     variant="outlined"
                                     onClick={handleCloseModal}
-                                    sx={{ 
+                                    sx={{
                                         borderRadius: 2,
                                         px: 3
                                     }}
                                 >
                                     Close
                                 </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => handleEditClick(selectedEvent.id)}
-                                    sx={{ 
-                                        borderRadius: 2,
-                                        px: 3
-                                    }}
-                                >
-                                    Edit
-                                </Button>
+                                {hasRole(['ADMIN']) && (
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => handleEditClick(selectedEvent.id)}
+                                        sx={{
+                                            borderRadius: 2,
+                                            px: 3
+                                        }}
+                                    >
+                                        Edit
+                                    </Button>
+                                )}
                             </Box>
                         </Paper>
                     )}

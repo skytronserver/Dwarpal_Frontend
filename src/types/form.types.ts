@@ -12,6 +12,7 @@ export interface Field {
     multiple?: boolean;
     disabled?: boolean;
     helperText?: string;
+    placeholder?: string;
     component?: ({ value, onChange }: { value: any; onChange: (value: any) => void }) => JSX.Element;
     showIf?: (values: Record<string, any>) => boolean;
     transform?: {

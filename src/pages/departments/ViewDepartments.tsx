@@ -1,4 +1,4 @@
-import { Grid, Typography, Paper, Box } from "@mui/material"
+import { Grid, Typography, Paper, Box, CircularProgress } from "@mui/material"
 import { useParams } from "react-router-dom";
 import BusinessIcon from '@mui/icons-material/Business';
 import ApartmentIcon from '@mui/icons-material/Apartment';
@@ -12,7 +12,11 @@ const ViewDepartment = () => {
     const organisation = department?.organization;
     console.log(organisation,department,'department');
     if (isLoading) {
-        return <Box sx={{ p: 3 }}>Loading...</Box>;
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (error || !department) {

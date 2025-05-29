@@ -37,9 +37,9 @@ export const API_ENDPOINTS = {
     holidays: {
       list: 'public/holidays/',
       create: '/api/holidays/create/',
-      update: (id: number) => `/api/holidays/${id}/update/`,
-      delete: (id: number) => `/api/holidays/${id}/delete/`,
-      getById: (id: number) => `/api/holidays/${id}/`,
+      update: (id: number) => `/public/holidays/${id}/update/`,
+      delete: (id: number) => `/public/holidays/${id}/delete/`,
+      getById: (id: number) => `/public/holidays/${id}/`,
     },
     
     devices: {

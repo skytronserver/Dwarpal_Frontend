@@ -1,4 +1,4 @@
-import { Grid, Typography, Paper, Box } from "@mui/material"
+import { Grid, Typography, Paper, Box, CircularProgress } from "@mui/material"
 import { useParams } from "react-router-dom";
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -12,7 +12,11 @@ const ViewOrganisation = () => {
     const { data, isLoading } = useGetOrganisationByIdQuery(Number(id));
     const organisation = data?.data;
     if (isLoading) {
-        return <Box sx={{ p: 3 }}>Loading...</Box>;
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
+            </Box>
+        );
     }
 
     if (!organisation) {

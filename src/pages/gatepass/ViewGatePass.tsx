@@ -5,6 +5,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useAuth } from "../../hooks/useAuth";
 import { useApproveGuestPassMutation } from "../../services/gatePassApi";
+import { useSuccessToast, useErrorToast } from "../../components/Toast";
 
 
 const ViewGatePass = () => {
@@ -12,6 +13,8 @@ const ViewGatePass = () => {
     const {hasPermission} = useAuth();
     const passFromLocation = location.state?.gatepass;
     const [approveGuestPass] = useApproveGuestPassMutation();
+    const showSuccessToast = useSuccessToast();
+    const showErrorToast = useErrorToast();
 
     // Add dummy data fallback
     const dummyPass = {
@@ -110,8 +113,10 @@ const ViewGatePass = () => {
                             onClick={async () => {
                                 try {
                                     await approveGuestPass(visitorPass?.id);
+                                    showSuccessToast('Gate pass approved successfully');
                                 } catch (error) {
                                     console.error('Error approving gate pass:', error);
+                                    showErrorToast('Error approving gate pass');
                                 }
                             }}
                         >

@@ -233,23 +233,44 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
       case "file":
         return (
           <Box>
-            <TextField
-              fullWidth
-              type="file"
-              name={field.name}
-              label={field.label}
-              onChange={handleInputChange}
-              required={field.required}
-              InputLabelProps={{ shrink: true }}
-              sx={commonStyles}
-              inputProps={{
-                accept: field.accept || 'image/*'
-              }}
-            />
-            {formData[field.name] && (
-              <Typography variant="caption" sx={{ mt: 1, display: 'block' }}>
-                Selected file: {formData[field.name]?.name || 'No file selected'}
-              </Typography>
+            {!formData[field.name] ? (
+              <TextField
+                fullWidth
+                type="file"
+                name={field.name}
+                label={field.label}
+                onChange={handleInputChange}
+                required={field.required}
+                InputLabelProps={{ shrink: true }}
+                sx={commonStyles}
+                inputProps={{
+                  accept: field.accept || 'image/*'
+                }}
+              />
+            ) : (
+              <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <img
+                  src={URL.createObjectURL(formData[field.name])}
+                  alt="Preview"
+                  style={{
+                    maxWidth: '200px',
+                    maxHeight: '200px',
+                    objectFit: 'contain',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  {formData[field.name]?.name}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={() => setFormData(prev => ({ ...prev, [field.name]: null }))}
+                >
+                  Change
+                </Button>
+              </Box>
             )}
           </Box>
         );
@@ -293,6 +314,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
             onChange={handleInputChange}
             required={field.required}
             sx={commonStyles}
+            placeholder={field.placeholder || ''}
+            InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
           />
         );
     }

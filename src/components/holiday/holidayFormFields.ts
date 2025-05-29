@@ -17,6 +17,7 @@ export const HolidayFormFields: Field[] = [
         label: 'Start Date',
         type: 'date',
         required: true,
+        placeholder: 'dd-mm-yyyy',
         validation: Yup.string()
             .required('Start date is required'),
     },
@@ -25,24 +26,25 @@ export const HolidayFormFields: Field[] = [
         label: 'End Date',
         type: 'date',
         required: true,
+        placeholder: 'dd-mm-yyyy',
         validation: Yup.string()
             .required('End date is required'),
     },
-    {
-        name: 'description',
-        label: 'Description',
-        type: 'text',
-        required: true,
-        validation: Yup.string()
-            .min(3, 'Description must be at least 3 characters')
-            .max(200, 'Description must not exceed 200 characters')
-            .required('Description is required'),
-    },
-    {
-        name: 'is_verified',
-        label: 'Is Verified',
-        type: 'checkbox',
-        required: false,
-        validation: Yup.boolean(),
-    }
+    // {
+    //     name: 'description',
+    //     label: 'Description',
+    //     type: 'text',
+    //     required: true,
+    //     validation: Yup.string()
+    //         .min(3, 'Description must be at least 3 characters')
+    //         .max(200, 'Description must not exceed 200 characters')
+    //         .required('Description is required'),
+    // },
+    // {
+    //     name: 'is_verified',
+    //     label: 'Is Verified',
+    //     type: 'checkbox',
+    //     required: false,
+    //     validation: Yup.boolean(),
+    // }
 ]; 

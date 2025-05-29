@@ -168,7 +168,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
+        if (value !== null && value !== undefined && key !== 'role') {
           if (key === 'photo' || key === 'kyc_document' && value instanceof File) {
             formData.append(key, value);
           } else {
