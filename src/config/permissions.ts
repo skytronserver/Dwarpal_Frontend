@@ -3,8 +3,11 @@ import { UserRole } from '../types/auth.types';
 export const ROLE_PERMISSIONS = {
   SUPERADMIN: [
     'view:dashboard',
+    'create:service-provider',
     'manage:organizations',
+    'view:organizations',
     'create:organization',
+    'create:client',
     'edit:organization',
     'delete:organization',
     'manage:departments',

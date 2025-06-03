@@ -28,7 +28,7 @@ const ViewOrganisation = () => {
             <Paper elevation={0} sx={{ p: 4, borderRadius: 2 }}>
                 <Typography variant="h4" sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
                     <BusinessIcon sx={{ fontSize: 35 }} />
-                    Organisation Details
+                    Company Details
                 </Typography>
 
                 <Grid container spacing={3}>    

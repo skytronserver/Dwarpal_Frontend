@@ -20,34 +20,45 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Chip
 } from "@mui/material";
 import { DynamicFormProps, Field } from "../../types/form.types";
 import { useTheme } from "@mui/material/styles";
 
-const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
+const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormProps) => {
   const [formData, setFormData] = useState<Record<string, any>>(initialValues || {});
   const [openModal, setOpenModal] = useState(false);
   const theme = useTheme();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" || type === "switch"
-        ? (e.target as HTMLInputElement).checked
-        : type === "file"
-          ? (e.target as HTMLInputElement).files?.[0] || null
-          : value
-    }));
+    const newValue = type === "checkbox" || type === "switch"
+      ? (e.target as HTMLInputElement).checked
+      : type === "file"
+        ? (e.target as HTMLInputElement).files?.[0] || null
+        : value;
+    
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: newValue
+      };
+      onChange?.(newData);
+      return newData;
+    });
   };
 
   const handleSelectChange = (e: SelectChangeEvent<any>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+      onChange?.(newData);
+      return newData;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -85,8 +96,88 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
   const handleModalOpen = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
 
+  const handleArrayFieldAdd = (fieldName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: [...(prev[fieldName] || []), {}]
+    }));
+  };
+
+  const handleArrayFieldRemove = (fieldName: string, index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: prev[fieldName].filter((_: any, i: number) => i !== index)
+    }));
+  };
+
+  const handleArrayFieldChange = (fieldName: string, index: number, value: any) => {
+    setFormData(prev => {
+      const newArray = [...prev[fieldName]];
+      newArray[index] = { ...newArray[index], ...value };
+      return {
+        ...prev,
+        [fieldName]: newArray
+      };
+    });
+  };
+
+  const renderArrayField = (field: Field) => {
+    const arrayValue = formData[field.name] || [];
+    
+    return (
+      <Box sx={{ mb: 2 }}>
+        {arrayValue.map((item: any, index: number) => (
+          <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
+            <Box sx={{ flex: 1 }}>
+              {field.arrayFields?.map((arrayField) => (
+                <Box key={arrayField.name}>
+                  {renderField({
+                    ...arrayField,
+                    name: `${field.name}.${index}.${arrayField.name}`,
+                    value: item[arrayField.name],
+                    onChange: (value: any) => handleArrayFieldChange(field.name, index, { [arrayField.name]: value })
+                  })}
+                </Box>
+              ))}
+            </Box>
+            {arrayValue.length > 1 && (
+              <Button 
+                color="error" 
+                onClick={() => handleArrayFieldRemove(field.name, index)}
+                sx={{ mt: 1 }}
+                size="small"
+                variant="outlined"
+              >
+                Remove
+              </Button>
+            )}
+          </Box>
+        ))}
+        {arrayValue.length < 5 && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Button 
+              variant="outlined" 
+              onClick={() => handleArrayFieldAdd(field.name)}
+              sx={{ mt: 1 }}
+              size="small"
+              color="primary"
+            >
+              Add More {field.label}
+            </Button>
+            <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+              {5 - arrayValue.length} more {field.label.toLowerCase()}{arrayValue.length === 4 ? '' : 's'} can be added
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    );
+  };
+
   const renderField = (field: Field) => {
     switch (field.type) {
+      case "array":
+        return renderArrayField(field);
+
       case "select":
         return (
           <FormControl fullWidth sx={commonStyles}>
@@ -96,6 +187,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
               value={formData[field.name] || field.defaultValue || ""}
               onChange={handleSelectChange}
               required={field.required}
+              disabled={field.disabled}
               label={field.label}
               MenuProps={{
                 PaperProps: {
@@ -240,6 +332,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 name={field.name}
                 label={field.label}
                 onChange={handleInputChange}
+                disabled={field.disabled}
                 required={field.required}
                 InputLabelProps={{ shrink: true }}
                 sx={commonStyles}
@@ -272,26 +365,54 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
                 </Button>
               </Box>
             )}
+            <p style={{ color: 'grey', fontSize: '12px',marginLeft:'2px',marginTop:'2px' }}>File size must be than 256KB to 400KB</p>
           </Box>
         );
 
       case "multi-select":
+        const selectedValues = formData[field.name] || field.defaultValue || [];
+        const handleDelete = (valueToDelete: string | number) => {
+          const newValues = selectedValues.filter((value: string | number) => value !== valueToDelete);
+          setFormData(prev => ({ ...prev, [field.name]: newValues }));
+          if (onChange) {
+            onChange({ ...formData, [field.name]: newValues });
+          }
+        };
+
         return (
           <FormControl fullWidth sx={commonStyles}>
             <InputLabel>{field.label}</InputLabel>
             <Select
               multiple
               name={field.name}
-              value={formData[field.name] || field.defaultValue || []}
+              value={selectedValues}
               onChange={handleSelectChange}
               required={field.required}
+              disabled={field.disabled}
               label={field.label}
               renderValue={(selected) => (
-                Array.isArray(selected) 
-                  ? selected.map(value => 
-                      field.options?.find(opt => opt.value === value)?.label
-                    ).join(', ')
-                  : ''
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {Array.isArray(selected) && selected.map((value) => {
+                    const label = field.options?.find(opt => opt.value === value)?.label;
+                    return (
+                      <Chip
+                        key={String(value)}
+                        label={label}
+                        onDelete={() => handleDelete(value)}
+                        onMouseDown={(event) => event.stopPropagation()}
+                        deleteIcon={<span style={{ color: 'black' }}>×</span>}
+                        sx={{
+                          '& .MuiChip-deleteIcon': {
+                            color: 'black',
+                            '&:hover': {
+                              color: 'black'
+                            }
+                          }
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
               )}
             >
               {field.options?.map((option) => (
@@ -302,21 +423,25 @@ const DynamicForm = ({ fields, onSubmit, initialValues }: DynamicFormProps) => {
             </Select>
           </FormControl>
         );
-      
+
       default:
         return (
-          <TextField
-            fullWidth
-            name={field.name}
-            label={field.label}
-            type={field.type}
-            value={field.type !== 'file' ? (formData[field.name] || field.defaultValue || "") : undefined}
-            onChange={handleInputChange}
-            required={field.required}
-            sx={commonStyles}
-            placeholder={field.placeholder || ''}
-            InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
-          />
+          <FormControl fullWidth sx={commonStyles}>
+            <TextField
+              fullWidth
+              name={field.name}
+              label={field.label}
+              type={field.type}
+              value={formData[field.name] || field.defaultValue || ""}
+              onChange={handleInputChange}
+              required={field.required}
+              disabled={field.disabled}
+              sx={commonStyles}
+              placeholder={field.placeholder || ''}
+              InputLabelProps={{ shrink: field.type === 'date' }}
+              helperText={field.helperText}
+            />
+          </FormControl>
         );
     }
   };

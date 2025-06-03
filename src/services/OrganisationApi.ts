@@ -2,13 +2,19 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_ENDPOINTS } from "../config/endpoints";
 
 export interface Organisation {
-  id?: number;
+  id: number;
   name: string;
-  type?: number;
-  access_control: boolean;
   address: string;
   gst_no: string;
   no_of_employees: string;
+  access_control: boolean;
+}
+
+export interface OrganisationResponse {
+  success: boolean;
+  message: string;
+  status_code: number;
+  data: Organisation;
 }
 
 interface OrganisationListResponse {
@@ -18,15 +24,21 @@ interface OrganisationListResponse {
   current_page: number;
 }
 
-interface OrganisationDetailResponse {
-  data: Organisation;
-}
-
 export const organisationApi = createApi({
   reducerPath: 'organisationApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
   tagTypes: ['Organisations'],
   endpoints: (builder) => ({
+    getOrganizationById: builder.query<OrganisationResponse, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.organizations.getById(id),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      }),
+      providesTags: ['Organisations']
+    }),
     getOrganisations: builder.query<OrganisationListResponse, { search?: string; page?: number; page_size?: number }>({
       query: (params) => ({
         url: API_ENDPOINTS.organizations.list,
@@ -70,7 +82,7 @@ export const organisationApi = createApi({
       }),
       invalidatesTags: ['Organisations']
     }),
-    getOrganisationById: builder.query<OrganisationDetailResponse, number>({
+    getOrganisationById: builder.query<OrganisationResponse, number>({
       query: (id) => ({
         url: API_ENDPOINTS.organizations.getById(id),
         headers: {

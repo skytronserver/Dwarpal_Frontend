@@ -10,6 +10,22 @@ export const UserFormFields: Field[] = [
     validation: Yup.string().required('Name is required')
   },
   {
+    name: 'phone_number',
+    label: 'Mobile Number',
+    type: 'text',
+    required: true,
+    validation: Yup.string()
+      .matches(/^\\d{10}$/, 'Phone number must be 10 digits')
+      .required('Phone number is required')
+  },
+  {
+    name:'email',
+    label:'Email',
+    type:'email',
+    required:true,
+    validation:Yup.string().email('Invalid email').required('Email is required')
+  },
+  {
     name: 'role',
     label: 'Role',
     type: 'select',
@@ -26,11 +42,18 @@ export const UserFormFields: Field[] = [
   },
   {
     name: 'designation',
-    label: 'Designation',
+    label: 'Company Designation',
     type: 'text',
     required: true,
     validation: Yup.string().required('Designation is required'),
     options: []
+  },
+  {
+    name: 'date_of_birth',
+    label: 'Date of Birth',
+    type: 'date',
+    required: true,
+    validation: Yup.date().required('Date of birth is required')
   },
   {
     name: 'blood_group',
@@ -56,15 +79,32 @@ export const UserFormFields: Field[] = [
     validation:Yup.mixed().optional()
   },
   {
-    name: 'password',
-    label: 'Password',
-    type: 'password',
-    required: true,
-    validation: Yup.string()
-      .min(8, 'Password must be at least 8 characters')
-      .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
-        'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character')
-      .required('Password is required')
+    name:'pan',
+    label:'Pan',
+    type:'text',
+    required:true,
+    validation:Yup.string().required('Pan is required')
+  },
+  {
+    name:'pan_upload',
+    label:'Pan Upload',
+    type:'file',
+    required:false,
+    validation:Yup.mixed().optional()
+  },
+  {
+    name:'id_proof_no',
+    label:'ID Proof No',
+    type:'text',
+    required:true,
+    validation:Yup.string().required('ID proof no is required')
+  },
+  {
+    name:'id_proof_document',
+    label:'ID Proof Document',
+    type:'file',
+    required:false,
+    validation:Yup.mixed().optional()
   },
   {
     name:'kyc_document',
@@ -73,4 +113,12 @@ export const UserFormFields: Field[] = [
     required:false,
     validation:Yup.mixed().optional()
   }
+,
+{
+  name:'valid_upto',
+  label:'Valid Upto',
+  type:'date',
+  required:true,
+  validation:Yup.date().required('Valid upto date is required')
+}
 ]; 

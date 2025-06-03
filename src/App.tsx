@@ -11,21 +11,20 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { CircularProgress } from '@mui/material';
 import { ToastProvider } from './context/ToastContext';
 import { PrivacyPolicy, TermsAndConditions } from './pages';
+import Home from './pages/Home/Home';
 
 const App = () => {
   return (
     <ToastProvider>
       <ErrorBoundary>
         <Routes>
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Authentication />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
             {adminRoutes.map((route: RouteConfig) => (
               <Route
                 key={route.path}

@@ -1,7 +1,12 @@
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
-import { Typography, Box, CircularProgress} from '@mui/material';
+import { 
+  Box, CircularProgress, Grid, List, ListItem, ListItemText, Paper, Typography,
+  TextField, InputAdornment, IconButton
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useCreateUserMutation, useCreateAdminMutation, useUpdateUserMutation, useGetUserByIdQuery } from '../../services/UserApi';
 import { UserFormFields } from '../../components/user/userFormFields';
 import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
@@ -9,6 +14,7 @@ import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
 import { Field } from '../../types/form.types';
 import * as Yup from 'yup';
 import { useGetShiftsQuery } from '../../services/shiftApi';
+import { useGetUsersQuery } from '../../services/UserApi';
 import { useAuth } from '../../hooks/useAuth';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
 interface UserFormProps {
@@ -25,6 +31,7 @@ interface UserFormValues {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
+  const [searchQuery, setSearchQuery] = React.useState('');
   const { hasRole } = useAuth();
   const { id } = useParams();
   const location = useLocation();
@@ -49,6 +56,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
 
   const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
   const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
+  const { data: users, isLoading: isUsersLoading } = useGetUsersQuery({ search: searchQuery, page: 1, page_size: 10 });
   const updatedDepartments = departments?.results?.filter((dep: any) => dep.organization?.[0]?.id === userData?.organization);
   const { data: shifts, isLoading: isShiftsLoading } = useGetShiftsQuery({});
 
@@ -66,23 +74,16 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   const modifiedInitialData = React.useMemo(() => {
     const initialData = userData || location.state?.userData;
     if (!initialData) {
-      return null;
+      return { role: 'admin' };
     }
-
     return {
       ...initialData,
-      organization: typeof initialData.organization === 'string'
-        ? organizationOptions.find(option => option.label === initialData.organization)?.value
-        : initialData.organization,
-      department: typeof initialData.department === 'string'
-        ? departmentOptions.find(option => option.label === initialData.department)?.value
-        : initialData.department,
-      shift: typeof initialData.shift === 'string'
-        ? shifts?.results?.find(shift => shift.id === initialData.shift)?.shift_name
-        : initialData.shift
+      organization: initialData.organization?.id,
+      department: initialData.department?.id,
+      shift: initialData.shift?.id,
+      role: 'admin'
     };
-  }, [userData, location.state?.userData, organizationOptions, departmentOptions, shifts]);
-
+  }, [userData, location.state]);
 
   const [values, setValues] = React.useState<UserFormValues | undefined>(modifiedInitialData);
 
@@ -91,28 +92,42 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
       if (field.name === 'role') {
         return {
           ...field,
-          options: hasRole(['SUPERADMIN']) 
-            ? [{ label: 'Admin', value: 'ADMIN' }]
-            : hasRole(['ADMIN'])
-            ? [{ label: 'Employee', value: 'EMPLOYEE' }]
-            : []
+          disabled: true,
+          defaultValue: 'admin',
+          value: 'admin',
+          options: [{ label: 'Admin', value: 'admin' }]
         };
       }
       if (field.name === 'organization') {
         return {
           ...field,
-          options: organizationOptions,
-          disabled: values?.role === 'EMPLOYEE'
+          options: organizations?.results?.map((org: Organisation) => ({
+            label: org.name,
+            value: org.id
+          })) || []
         };
       }
-      // Remove department from base fields
       if (field.name === 'department') {
-        return null;
+        return {
+          ...field,
+          options: updatedDepartments?.map((dep: any) => ({
+            label: dep.name,
+            value: dep.id
+          })) || []
+        };
+      }
+      if (field.name === 'shift') {
+        return {
+          ...field,
+          options: shifts?.results?.map((shift: any) => ({
+            label: shift.name,
+            value: shift.id
+          })) || []
+        };
       }
       return field;
-    }).filter(Boolean) as Field[];
+    });
 
-    // Modify this condition to include when creating/editing an admin
     const shouldShowPermissions = hasRole(['ADMIN']) || 
       (values?.role === 'ADMIN') || 
       (userData?.role === 'ADMIN');
@@ -202,21 +217,75 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        {validEditId ? 'Edit User' : 'Create User'}
-      </Typography>
-      {(isEditLoading || isCreateLoading || isCreateAdminLoading || isOrgsLoading || isDepsLoading || isUserLoading || isShiftsLoading) ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <DynamicForm
-          fields={formFields}
-          onSubmit={handleSubmit}
-          initialValues={values}
-          onChange={handleFormChange}
-        />
-      )}
+      <Grid container spacing={3}>
+        <Grid item xs={9}>
+          <Typography variant="h5" gutterBottom>
+            {isCreateMode ? 'Create Admin' : 'Edit Admin'}
+          </Typography>
+          {(isEditLoading || isCreateLoading || isCreateAdminLoading || isUserLoading || isOrgsLoading || isDepsLoading || isShiftsLoading) ? (
+            <Box display="flex" justifyContent="center" my={4}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <DynamicForm
+              fields={formFields}
+              onSubmit={handleSubmit}
+              initialValues={modifiedInitialData}
+            />
+          )}
+        </Grid>
+        <Grid item xs={3}>
+          <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+            <Typography variant="h6" gutterBottom>
+              Users
+            </Typography>
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchQuery ? (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => setSearchQuery('')}>
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null
+                }}
+              />
+            </Box>
+            {isUsersLoading ? (
+              <Box display="flex" justifyContent="center" p={2}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <List sx={{ maxHeight: 400, overflow: 'auto' }}>
+                {users?.results?.map((user: any) => (
+                  <ListItem
+                    component="div"
+                    key={user.id}
+                    onClick={() => navigate(`/users/${user.id}`)}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <ListItemText 
+                      primary={`${user.name}`}
+                      secondary={`${user.email || 'No email'}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

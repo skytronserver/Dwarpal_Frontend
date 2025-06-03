@@ -1,4 +1,5 @@
-import { AppProvider } from '@toolpad/core/AppProvider';
+import * as React from 'react';
+import { AppProvider, type Router } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { Outlet } from 'react-router-dom';
 import { useNavigation } from '../routes/config';
@@ -9,6 +10,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useLogoutMutation } from '../services/AuthApi';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+
 
 interface UserData {
   user_id: string;
@@ -25,6 +27,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const [logout, { isLoading }] = useLogoutMutation();
   const [user, setUser] = useState<UserData | null>(null);
+  const [pathname, setPathname] = useState('/dashboard');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user_data') || sessionStorage.getItem('user_data');
@@ -45,6 +48,20 @@ const MainLayout = () => {
       console.error('Logout failed:', error);
     }
   };
+
+  const router = React.useMemo<Router>(() => {
+    console.log(pathname,'saudsahdu')
+    return {
+      pathname,
+      searchParams: new URLSearchParams(),
+      navigate: (path) => {
+        const newPath = String(path);
+        setPathname(newPath);
+        navigate(newPath);
+      },
+    };
+  }, [pathname, navigate]);
+  
 
   const authentication = {
     profile: (
@@ -76,10 +93,12 @@ const MainLayout = () => {
     email: user.role,
     image: '/assets/avatar.png'
   } : undefined;
+
   return (
     <ThemeProvider theme={appTheme}>
       <AppProvider
         navigation={useNavigation()}
+        router={router}
         theme={appTheme}
         branding={{
           logo: (
@@ -95,7 +114,7 @@ const MainLayout = () => {
         authentication={authentication}
         session={{ user: sessionUser }}
       >
-        <DashboardLayout>
+        <DashboardLayout >
           <Outlet />
         </DashboardLayout>
       </AppProvider>

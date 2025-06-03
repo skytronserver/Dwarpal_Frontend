@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_ENDPOINTS } from "../config/endpoints";
 
-interface DepartmentResponse {
+export interface DepartmentResponse {
     count: number;
     total_pages: number;
     current_page: number;
@@ -9,7 +9,7 @@ interface DepartmentResponse {
     data?: Department;
 }
 
-interface Department {
+export interface Department {
     id: number;
     name: string;
     organization: {

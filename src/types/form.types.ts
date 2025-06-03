@@ -19,6 +19,9 @@ export interface Field {
         input?: (value: any) => any;
         output?: (value: any) => any;
     };
+    arrayFields?: Field[];
+    value?: any;
+    onChange?: (value: any) => void;
 }
 export interface DynamicFormProps {    
     fields: Field[];

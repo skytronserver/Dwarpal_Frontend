@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { useDeleteOrganisationMutation, useGetOrganisationsQuery } from "../../services/OrganisationApi";
 import { formatFieldName } from "../../utils/formatFeildName";
 import CommonTable from "../../components/common/CommonTable";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { openModal } from '../../features/slices/modalSlice';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
-import { RootState } from '../../features/store';
 
 
 const Organisations = () => {
@@ -15,26 +13,33 @@ const Organisations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const { data, isLoading, error } = useGetOrganisationsQuery({
-    search: searchTerm,
-    page: page,
-    page_size: pageSize,
-  });
+  
+  // Dummy data
+  const dummyData = [
+    { id: 1, name: 'Example Org', address: '123 Main Street', gst_no: 'GST123456789', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT','SALES'], admin: 'John Doe', subscription_plan: 'Premium' },
+    { id: 2, name: 'Example Org1', address: '123 Main Street', gst_no: 'GST123456789', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Jane Smith', subscription_plan: 'Basic' },
+    { id: 3, name: 'Police Org2', address: '123 Main Street', gst_no: 'GST123456789', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Mike Johnson', subscription_plan: 'Premium' },
+    { id: 4, name: 'Skytrack', address: 'Cenikuthi,Guwahati', gst_no: '21323', no_of_employees: '1-10', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Sarah Wilson', subscription_plan: 'Basic' },
+    { id: 5, name: 'Haleluya', address: 'heaven', gst_no: '21323', no_of_employees: '1-10', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Tom Brown', subscription_plan: 'Premium' },
+    { id: 6, name: 'Dwarpal', address: 'bulbul nagar', gst_no: '2134tyu3242', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Lisa Davis', subscription_plan: 'Basic' }
+  ];
 
-  const columns = data?.results?.[0] 
-    ? Object.keys(data.results[0]).map((key) => ({
-        field: key,
-        headerName: formatFieldName(key),
-        width: 150,
-      }))
-    : [];
+  const filteredData = dummyData.filter(org => 
+    org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    org.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const visibleFields = ['id', 'name', 'type', 'access_control', 'address', 'gst_no', 'no_of_employees']; 
+  const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
+
+  const columns = Object.keys(dummyData[0]).map((key) => ({
+    field: key,
+    headerName: formatFieldName(key),
+    width: 150,
+  }));
+
+  const visibleFields = ['id', 'name', 'address', 'gst_no', 'no_of_employees', 'access_control', 'attendance', 'departments', 'admin', 'subscription_plan']; 
 
   const dispatch = useDispatch();
-  const [deleteOrganisation] = useDeleteOrganisationMutation();
-
-  const modalData = useSelector((state: RootState) => state.modal.data);
 
   const handleSearchChange = (searchQuery: string) => {
     setSearchTerm(searchQuery);
@@ -63,30 +68,22 @@ const Organisations = () => {
     );
   };
 
-  const handleConfirmDelete = async () => {
-    const orgId = modalData?.id;
-    try {
-      await deleteOrganisation(orgId).unwrap();
-    } catch (error) {
-      console.error('Error deleting organisation:', error);
-    }
+  const handleConfirmDelete = () => {
+    console.log('Delete operation would happen here');
   };
 
   return (
     <div>
-      { error ? (
-        <div>Error loading organisations</div>
-      ) : (
-        <Box  sx={{ p: 3 }}>
-          <Typography variant="h4" sx={{ mb: 3 }}>
-            Manage Organizations
-          </Typography>
-          <CommonTable
-            data={{
-              columns: columns,
-              rows: data?.results || [],
-              rowCount: data?.count || 0,
-              loading: isLoading,
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4" sx={{ mb: 3 }}>
+          Manage Company
+        </Typography>
+        <CommonTable
+          data={{
+            columns: columns,
+            rows: paginatedData,
+            rowCount: filteredData.length,
+            loading: false,
             pageSize: pageSize,
             page: page,
           }}
@@ -104,7 +101,6 @@ const Organisations = () => {
           onConfirm={handleConfirmDelete}
         />
         </Box>
-      )}
     </div>
   );
 };

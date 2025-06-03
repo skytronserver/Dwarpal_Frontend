@@ -1,6 +1,7 @@
-import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClosed as Gate } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClosed as Gate, Plus } from 'lucide-react';
 import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
+
 
 
 
@@ -25,6 +26,11 @@ const HolidayForm = lazy(() => import('../pages/holidays/HolidaysForm'))
 const ViewUser = lazy(() => import('../pages/user/ViewUser'));
 const AttendanceDetail = lazy(() => import('../pages/attendance/AttendanceDetail'));
 const AttendanceAnalytics = lazy(() => import('../pages/attendance/AttendanceAnalytics'));
+const AccountsUserForm = lazy(() => import('../pages/account/AccountUserForm'));
+const IndividualUserForm = lazy(() => import('../pages/individualUser/individualUserForm'));
+const SubscriptionForm = lazy(() => import('../pages/subscription/SubscriptionForm'));
+const ServiceProviderForm = lazy(() => import('../pages/service-provider/ServiceProviderForm'));
+const IndividualServiceProviderForm = lazy(() => import('../pages/service-provider/IndividualServiceProviderForm'));
 
 export interface RouteConfig {
     path: string;
@@ -34,6 +40,7 @@ export interface RouteConfig {
     allowedRoles: UserRole[];
     group?: 'create' | 'manage' | 'dashboard';
 }   
+
 
 const adminRoutes:RouteConfig[] = [
     {
@@ -45,15 +52,15 @@ const adminRoutes:RouteConfig[] = [
         group: 'dashboard'
     },
     {
-        path: '/organisations',
+        path: '/client/organisations',
         element: Organisations,
         title: 'Manage Organisations',
         icon: Building2,
         allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
-        group: 'manage'
+        group: 'create'
     },
     {
-        path: '/organisations/new/:id',
+        path: '/client/organisations/new/:id',
         element: OrganisationForm,
         title: 'Create Organisation',
         icon: Building2,
@@ -61,15 +68,15 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     },
     {
-        path: '/departments',                       
+        path: '/org/client/:orgId/departments',                       
         element: ManageDepartments,     
         title: 'Manage Departments',
         icon: Building,
         allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
-        group: 'manage'
+        group: 'create'
     },
     {
-        path: '/departments/new/:id',
+        path: '/org/client/:orgId/departments/new/:id',
         element: DepartmentForm,
         title: 'Create Department',
         icon: Building,
@@ -77,15 +84,55 @@ const adminRoutes:RouteConfig[] = [
         group: 'create' 
     },
     {
-        path: '/users',
+        path: '/org/client/:orgId/users',
         element: ManageUsers,
         title: 'Manage Users',
         icon: Users,
         allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR','ACCOUNTS'] as UserRole[],
-        group: 'manage'
+        group: 'create'
     },  
     {
-        path: '/users/new/:id',
+        path: '/accounts/new/:id',
+        element: AccountsUserForm,
+        title: 'Create accounts user',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/client/individualForm',
+        element: IndividualUserForm,
+        title: 'Create Individual User',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/settings/subscriptions/new',
+        element: SubscriptionForm,
+        title: 'Create Subscription',
+        icon: Plus,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/service-provider/new/:id',
+        element: ServiceProviderForm,
+        title: 'Create Service Provider',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/service-provider/individual/new/:id',
+        element: IndividualServiceProviderForm,
+        title: 'Create Individual Service Provider',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/org/client/:orgId/users/new/:id',
         element: UserForm,
         title: 'Create User',
         icon: Users,
