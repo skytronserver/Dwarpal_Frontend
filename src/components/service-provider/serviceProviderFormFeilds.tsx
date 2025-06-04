@@ -28,17 +28,6 @@ export const ServiceProviderFormFields: Field[] = [
       .required('Phone number is required')
   },
   {
-    name: 'service_provider_type',
-    label: 'Service Provider Type',
-    type: 'select',
-    required: true,
-    validation: Yup.string().required('Service provider type is required'),
-    options: [
-      { label: 'Individual', value: 'INDIVIDUAL' },
-      { label: 'Company', value: 'COMPANY' }
-    ]
-  },
-  {
     name: 'address',
     label: 'Address',
     type: 'text',

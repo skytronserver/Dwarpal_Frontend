@@ -1,6 +1,4 @@
-import React, { useState, useMemo } from "react";
-import { TextField, Box, IconButton, Modal, Paper } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { useState, useMemo } from "react";
 import {
   LayoutDashboard,
   Building2,
@@ -15,13 +13,27 @@ import {
   CalendarPlus,
   DoorOpen,
   Settings,
+  Search,
+  X,
+  Briefcase,
+  UserCircle,
+  FileText,
+  CreditCard,
+  BarChart3,
+  Shield,
+  CalendarClock,
+  FileCheck,
+  ClipboardList,
+  LineChart,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useGetOrganisationsQuery } from "../services/OrganisationApi";
+import { Box, InputBase, IconButton, Paper, List, ListItem, ListItemText, ListItemIcon, Typography, Fade } from "@mui/material";
+import { styled, alpha } from '@mui/material/styles';
 
 interface NavigationHeader {
   kind: "header" | "divider";
-  title?: string;
+  title?: string | React.ReactNode;
   show?: boolean;
 }
 
@@ -36,16 +48,137 @@ interface NavigationLink {
 
 type NavigationItem = NavigationHeader | NavigationLink;
 
+const SEARCH_LIST_WIDTH = 340;
+
+const SearchWrapper = styled(Paper)(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius * 2,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[2],
+  border: `1px solid ${theme.palette.divider}`,
+  width: '100%',
+  maxWidth: `${SEARCH_LIST_WIDTH}px`,
+  margin: '0 auto',
+  padding: theme.spacing(0.5, 2),
+  display: 'flex',
+  alignItems: 'center',
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 1, 0, 0),
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  width: '100%',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 0, 1, 0),
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    fontSize: 16,
+  },
+}));
+
+const OrgList = styled('div')(({ theme }) => ({
+  width: '100%',
+  maxWidth: `${SEARCH_LIST_WIDTH}px`,
+  margin: '4px auto 0 auto',
+  borderRadius: theme.shape.borderRadius * 2,
+  background: theme.palette.background.paper,
+  boxShadow: theme.shadows[2],
+  padding: 0,
+}));
+
+const OrgListItem = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1.5),
+  padding: theme.spacing(1.2, 2),
+  cursor: 'pointer',
+  borderRadius: theme.shape.borderRadius * 2,
+  transition: 'background 0.2s',
+  fontSize: 16,
+  '&:hover': {
+    background: theme.palette.action.hover,
+  },
+}));
+
 export const useNavigation = () => {
   const { data: organizations } = useGetOrganisationsQuery({ search: '', page: 1, page_size: 10 });
   const { hasPermission } = useAuth();
   const [search, setSearch] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const filteredOrgs = useMemo(() =>
     organizations?.results?.filter(org =>
       org.name.toLowerCase().includes(search.toLowerCase())
     ) ?? [], [search, organizations]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
+
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+  };
+
+  const handleSearchBlur = () => {
+    setTimeout(() => {
+      setIsSearchFocused(false);
+    }, 200);
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+  };
+
+  const renderSearchResults = () => {
+    if (!isSearchFocused || !search) return null;
+
+    return (
+      <Fade in={isSearchFocused && search.length > 0}>
+        <Box>
+          <List>
+            {filteredOrgs.length > 0 ? (
+              filteredOrgs.map((org) => (
+                <ListItem
+                  key={org.id}
+                  component="div"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSearch("");
+                    setIsSearchFocused(false);
+                  }}
+                >
+                  <ListItemIcon>
+                    <Building2 size={20} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={org.name}
+                    secondary={`ID: ${org.id}`}
+                  />
+                </ListItem>
+              ))
+            ) : (
+              <ListItem>
+                <ListItemText
+                  primary={
+                    <Typography color="text.secondary">
+                      No organizations found
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            )}
+          </List>
+        </Box>
+      </Fade>
+    );
+  };
 
   const allRoutes: NavigationItem[] = [
     {
@@ -57,19 +190,19 @@ export const useNavigation = () => {
     {
       segment: "service-provider",
       title: "Create Service Providers",
-      icon: <Users />,
+      icon: <Briefcase />,
       show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
       children: [
         {
           segment: "new/:id",
           title: "Company",
-          icon: <Users />,
+          icon: <Building2 />,
           show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
         },
         {
           segment: "individual/new/:id",
           title: "Individual",
-          icon: <Users />,
+          icon: <UserCircle />,
           show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
         },
       ],
@@ -78,121 +211,144 @@ export const useNavigation = () => {
     {
       segment: "client",
       title: "Create Clients",
-      icon: <Plus />,
+      icon: <UserPlus />,
       show: hasPermission("create:client"),
       children: [
         {
           segment: "organisations/new/:id",
           title: "Create Company",
-          icon: <Plus />,
+          icon: <Building2 />,
           show: hasPermission("create:organization"),
         },
         {
           segment: "individualForm",
           title: "Create Individual Client",
-          icon: <Plus />,
+          icon: <UserCircle />,
           show: hasPermission("create:organization"),
         },
       ],
     },
     { kind: "divider" },
     {
+      segment: "corporate-users",
       title: "Corporate Users",
       icon: <Building2 />,
       show: hasPermission("view:organizations"),
-      action: (
-        <>
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsSearchOpen(true);
-            }}
-            sx={{ mr: 1 }}
-          >
-            <SearchIcon />
-          </IconButton>
-          <Modal
-            open={isSearchOpen}
-            onClose={() => setIsSearchOpen(false)}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Paper
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 400,
-                p: 4,
-                outline: 'none',
-              }}
-            >
-              <TextField
-                autoFocus
-                size="small"
-                fullWidth
-                variant="outlined"
-                placeholder="Search corporate users..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </Paper>
-          </Modal>
-        </>
-      ),
-      children: filteredOrgs.map((organization) => ({
-        segment: "client",
-        title: organization.name,
-        icon: <Building2 />,
-        show: hasPermission("view:organizations"),
-        children: [
-          {
-            segment: `${organization.id}/departments/new/:id`,
-            title: "Create Departments",
-            icon: <Building />,
-            show: hasPermission("view:departments"),
-          },
-          {
-            segment: `${organization.id}/users/new/:id`,
-            title: "Create Company Admin",
-            icon: <UserPlus />,
-            show: hasPermission("create:user") || hasPermission("create:admin-user"),
-          },
-          {
-            segment: `${organization.id}/departments`,
-            title: "Manage Departments",
-            icon: <Building />,
-            show: hasPermission("manage:departments"),
-          },
-          {
-            segment: `${organization.id}/users`,
-            title: "Manage Company Admin",
-            icon: <Users />,
-            show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
-          },
-        ],
-      })),
+      children: [
+        {
+          kind: "header",
+          title: (
+            <Box sx={{
+              position: 'relative',
+              top: '-17px',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              py: 2,
+            }}>
+              <SearchWrapper>
+                <SearchIconWrapper>
+                  <Search size={18} />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search organizations..."
+                  value={search}
+                  onChange={handleSearchChange}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
+                  endAdornment={
+                    search && (
+                      <IconButton
+                        size="small"
+                        onClick={handleClearSearch}
+                        sx={{ ml: 1 }}
+                      >
+                        <X size={14} />
+                      </IconButton>
+                    )
+                  }
+                />
+              </SearchWrapper>
+              <OrgList>
+                {filteredOrgs.length > 0 ? (
+                  filteredOrgs.map((org) => (
+                    <OrgListItem key={org.id}>
+                      <Building2 size={20} style={{ minWidth: 20 }} />
+                      <span style={{ fontSize: 16 }}>{org.name}</span>
+                    </OrgListItem>
+                  ))
+                ) : (
+                  <OrgListItem style={{ cursor: 'default', color: '#888' }}>
+                    No organizations found
+                  </OrgListItem>
+                )}
+              </OrgList>
+            </Box>
+          ),
+          show: hasPermission("view:organizations"),
+        },
+        ...filteredOrgs.map((organization) => ({
+          segment: `${organization.id}`,
+          title: organization.name,
+          icon: <Building2 />,
+          show: hasPermission("view:organizations"),
+          children: [
+            {
+              segment: `${organization.id}/departments/new/:id`,
+              title: "Create Departments",
+              icon: <Building />,
+              show: hasPermission("view:departments"),
+            },
+            {
+              segment: `${organization.id}/users/new/:id`,
+              title: "Create Company Admin",
+              icon: <Shield />,
+              show: hasPermission("create:user") || hasPermission("create:admin-user"),
+            },
+            {
+              segment: `${organization.id}/departments`,
+              title: "Manage Departments",
+              icon: <Building />,
+              show: hasPermission("manage:departments"),
+            },
+            {
+              segment: `${organization.id}/users`,
+              title: "Manage Company Admin",
+              icon: <Users />,
+              show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
+            },
+          ],
+        })),
+      ],
     },
     { kind: "divider" },
     {
       segment: "",
       title: "Individual Users",
-      icon: <Users />,
+      icon: <UserCircle />,
       show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
     },
     { kind: "divider" },
     {
-      segment: "accountsForm",
+      segment: "accounts",
       title: "Accounts",
-      icon: <UserPlus />,
+      icon: <CreditCard />,
       show: hasPermission("create:user") || hasPermission("create:admin-user"),
+      children: [
+        {
+          segment: "new/:id",
+          title: "Create Account User",
+          icon: <CreditCard />,
+          show: hasPermission("create:user") || hasPermission("create:admin-user"),
+        },
+      ],
     },
     { kind: "divider" },
     {
       segment: "",
       title: "Reports",
-      icon: <Users />,
+      icon: <BarChart3 />,
       show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
     },
     { kind: "divider" },
@@ -205,7 +361,7 @@ export const useNavigation = () => {
         {
           segment: "subscriptions/new",
           title: "Subscription",
-          icon: <UserPlus />,
+          icon: <CreditCard />,
           show: hasPermission("create:user") || hasPermission("create:admin-user"),
         },
       ],
@@ -213,7 +369,7 @@ export const useNavigation = () => {
     {
       segment: "shifts/new/:id",
       title: "Create Shift",
-      icon: <Timer />,
+      icon: <CalendarClock />,
       show: hasPermission("create:shift"),
     },
     {
@@ -225,13 +381,13 @@ export const useNavigation = () => {
     {
       segment: "gate-passes/new/:id",
       title: "Create Gate Pass",
-      icon: <DoorOpen />,
+      icon: <FileCheck />,
       show: hasPermission("can_create_guest_pass"),
     },
     {
       segment: "shifts",
       title: "Manage Shifts",
-      icon: <Clock />,
+      icon: <CalendarClock />,
       show: hasPermission("manage:shifts"),
     },
     {
@@ -243,19 +399,19 @@ export const useNavigation = () => {
     {
       segment: "gate-passes",
       title: "Manage Gate Passes",
-      icon: <DoorClosed />,
+      icon: <ClipboardList />,
       show: hasPermission("manage:gate-passes") || hasPermission("approve_guest_pass"),
     },
     {
       segment: "gate-passes/:id",
       title: "View Gate Pass",
-      icon: <DoorOpen />,
+      icon: <FileText />,
       show: hasPermission("view_guest_pass"),
     },
     {
       segment: "attendance/analytics",
       title: "Attendance Analytics",
-      icon: <Clock />,
+      icon: <LineChart />,
       show: hasPermission("manage:attendance") || hasPermission("attendance_report"),
     },
   ];

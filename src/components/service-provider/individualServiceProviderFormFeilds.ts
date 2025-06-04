@@ -27,7 +27,33 @@ export const individualServiceProviderFormFields: Field[] = [
       .max(10, 'Must be exactly 10 digits')
       .required('Phone number is required')
   },
-  
+  {
+    name: 'address',
+    label: 'Address',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('Address is required')
+  },
+  {
+    name: 'service_area',
+    label: 'Service Area',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('Service area is required')
+  },
+  {
+    name: 'service_type',
+    label: 'Service Type',
+    type: 'select',
+    required: true,
+    validation: Yup.string().required('Service type is required'),
+    options: [
+      { label: 'Maintenance', value: 'MAINTENANCE' },
+      { label: 'Security', value: 'SECURITY' },
+      { label: 'Installation', value: 'INSTALLATION' },
+      { label: 'Other', value: 'OTHER' }
+    ]
+  },
   {
     name: 'pan',
     label: 'PAN',
@@ -57,46 +83,12 @@ export const individualServiceProviderFormFields: Field[] = [
     validation: Yup.mixed().required('GST upload is required')
   },
   {
-    name: 'address',
-    label: 'Address',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('Address is required')
-  },
-  {
-    name: 'service_area',
-    label: 'Service Area',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('Service area is required')
-  },
-  {
-    name: 'service_type',
-    label: 'Service Type',
-    type: 'select',
-    required: true,
-    validation: Yup.string().required('Service type is required'),
-    options: [
-      { label: 'Maintenance', value: 'MAINTENANCE' },
-      { label: 'Security', value: 'SECURITY' },
-      { label: 'Installation', value: 'INSTALLATION' },
-      { label: 'Other', value: 'OTHER' }
-    ]
-  },
-  {
     name: 'kyc_document',
     label: 'KYC Document',
     type: 'file',
     required: true,
     validation: Yup.mixed().required('KYC document is required'),
     accept: '.pdf,.doc,.docx'
-  },
-  {
-    name: 'valid_upto',
-    label: 'Valid Upto',
-    type: 'date',
-    required: true,
-    validation: Yup.date().required('Valid upto date is required')
   },
   {
     name: 'id_proof_no',
