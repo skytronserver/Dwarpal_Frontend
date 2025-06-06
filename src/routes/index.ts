@@ -2,9 +2,6 @@ import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClose
 import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
 
-
-
-
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Organisations = lazy(() => import('../pages/organisation/Organisations'));
 const ViewOrganisation = lazy(() => import('../pages/organisation/ViewOrganisation'));
@@ -31,6 +28,10 @@ const IndividualUserForm = lazy(() => import('../pages/individualUser/individual
 const SubscriptionForm = lazy(() => import('../pages/subscription/SubscriptionForm'));
 const ServiceProviderForm = lazy(() => import('../pages/service-provider/ServiceProviderForm'));
 const IndividualServiceProviderForm = lazy(() => import('../pages/service-provider/IndividualServiceProviderForm'));
+const HRForm = lazy(() => import('../pages/hr/HRForm'));
+const CompanyAccountsUserForm = lazy(()=>import('../pages/account/CompanyAccountsUser'))
+const HRUserForm = lazy(()=>import('../pages/hr/HRUser'))
+const GuestPassSettings = lazy(() => import('../pages/gatepass/GuestPassSettings'));
 
 export interface RouteConfig {
     path: string;
@@ -40,7 +41,6 @@ export interface RouteConfig {
     allowedRoles: UserRole[];
     group?: 'create' | 'manage' | 'dashboard';
 }   
-
 
 const adminRoutes:RouteConfig[] = [
     {
@@ -84,13 +84,29 @@ const adminRoutes:RouteConfig[] = [
         group: 'create' 
     },
     {
-        path: '/org/client/:orgId/users',
+        path: 'corporate-users/:id/users/new/:id',
         element: ManageUsers,
         title: 'Manage Users',
         icon: Users,
         allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR','ACCOUNTS'] as UserRole[],
         group: 'create'
     },  
+    {
+        path: 'company/sub-admin/new/:id',
+        element: HRUserForm,
+        title: 'Create HR',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: 'company/accounts/new/:id',
+        element: CompanyAccountsUserForm,
+        title: 'Create accounts user',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN','ADMIN'] as UserRole[],
+        group: 'create'
+    },
     {
         path: '/accounts/new/:id',
         element: AccountsUserForm,
@@ -148,7 +164,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },       
     {
-        path: '/shifts',
+        path: 'reports/shifts',
         element: Shifts,
         title: 'Manage Shifts',
         icon: Clock,
@@ -196,7 +212,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },
     {
-        path: '/holidays',
+        path: '/reports/holidays',
         element: Holidays,
         title: 'Holidays',
         icon: Calendar,
@@ -204,7 +220,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },
     {
-        path: '/holidays/new/:id',
+        path: '/reports/holidays/new/:id',
         element: HolidayForm,
         title: 'Create Holiday',
         icon: Calendar,
@@ -212,7 +228,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     },
     {
-        path: '/gate-passes',
+        path: '/reports/gate-passes',
         element: GatePasses,
         title: 'Gate Passes',
         icon: Gate,
@@ -224,7 +240,7 @@ const adminRoutes:RouteConfig[] = [
         element: GatePassForm,
         title: 'Create Gate Pass',
         icon: Gate,
-        allowedRoles: ['EMPLOYEE'] as UserRole[],
+        allowedRoles: ['EMPLOYEE', 'ADMIN'] as UserRole[],
         group: 'create'
     },
     {
@@ -236,6 +252,14 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },
     {
+        path: '/settings/guest-pass',
+        element: GuestPassSettings,
+        title: 'Guest Pass Settings',
+        icon: Gate,
+        allowedRoles: ['ADMIN'] as UserRole[],
+        group: 'manage'
+    },
+    {
         path: '/attendance',
         element: AttendanceDetail,
         title: 'Attendance',
@@ -244,7 +268,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },
     {
-        path: '/attendance/analytics',
+        path: 'reports/attendance/analytics',
         element: AttendanceAnalytics,
         title: 'Attendance Analytics',
         icon: Clock,
@@ -258,8 +282,15 @@ const adminRoutes:RouteConfig[] = [
         icon: Clock,
         allowedRoles: [ 'ADMIN', 'EMPLOYEE'] as UserRole[],
         group: 'manage'
+    },
+    {
+        path: 'company/hr/new/:id',
+        element: HRForm,
+        title: 'Create HR',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
     }   
 ]
-
 
 export { adminRoutes }; 

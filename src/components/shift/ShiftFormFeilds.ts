@@ -10,6 +10,22 @@ const ShiftFormFields: Field[] = [
         validation: Yup.string().required('Shift name is required'),
     },
     {
+        name: 'working_days',
+        label: 'Working Days',
+        type: 'multi-select',
+        required: true,
+        options: [
+            { label: 'Monday', value: 'Monday' },
+            { label: 'Tuesday', value: 'Tuesday' },
+            { label: 'Wednesday', value: 'Wednesday' },
+            { label: 'Thursday', value: 'Thursday' },
+            { label: 'Friday', value: 'Friday' },
+            { label: 'Saturday', value: 'Saturday' },
+            { label: 'Sunday', value: 'Sunday' }
+        ],
+        validation: Yup.array().of(Yup.string()).min(1, 'Select at least one working day').required('Working days are required'),
+    },
+    {
         name: 'shift_start_time',
         label: 'Start Time',
         type: 'time',
@@ -28,7 +44,24 @@ const ShiftFormFields: Field[] = [
         label: 'Total Work Time',
         type: 'text',
         required: true,
+        disabled: true,
         validation: Yup.string().required('Total work time is required'),
+    },
+    {
+        name: 'normal_working_hours',
+        label: 'Normal Working Hours',
+        type: 'text',
+        required: true,
+        disabled: true,
+        validation: Yup.string().required('Normal working hours are required'),
+    },
+    {
+        name: 'holiday_working_hours',
+        label: 'Holiday Working Hours',
+        type: 'text',
+        required: true,
+        disabled: true,
+        validation: Yup.string().required('Holiday working hours are required'),
     },
     {
         name: 'description',
@@ -38,18 +71,11 @@ const ShiftFormFields: Field[] = [
         validation: Yup.string().required('Description is required'),
     },
     {
-        name: 'is_active',
-        label: 'Is Active',
+        name: 'is_holiday_shift',
+        label: 'Is Holiday Shift',
         type: 'checkbox',
         required: true,
-        validation: Yup.boolean().required('Is Active is required'),
-    },
-    {
-        name: 'is_deleted',
-        label: 'Is Deleted',
-        type: 'checkbox',
-        required: true,
-        validation: Yup.boolean().required('Is Deleted is required'),
+        validation: Yup.boolean().required('Holiday shift status is required'),
     },
 ];  
 

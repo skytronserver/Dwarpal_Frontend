@@ -4,10 +4,10 @@ import * as Yup from 'yup';
 export const ServiceProviderFormFields: Field[] = [
   {
     name: 'name',
-    label: 'Full Name',
+    label: 'Name of the Company',
     type: 'text',
     required: true,
-    validation: Yup.string().required('Name is required')
+    validation: Yup.string().required('Company Name is required')
   },
   {
     name: 'email',
@@ -18,7 +18,7 @@ export const ServiceProviderFormFields: Field[] = [
   },
   {
     name: 'phone',
-    label: 'Phone Number',
+    label: 'Mobile Number',
     type: 'text',
     required: true,
     validation: Yup.string()
@@ -28,18 +28,18 @@ export const ServiceProviderFormFields: Field[] = [
       .required('Phone number is required')
   },
   {
+    name: 'date_of_establishment',
+    label: 'Date of Establishment',
+    type: 'date',
+    required: true,
+    validation: Yup.date().required('Date of establishment is required')
+  },
+  {
     name: 'address',
     label: 'Address',
     type: 'text',
     required: true,
     validation: Yup.string().required('Address is required')
-  },
-  {
-    name: 'state',
-    label: 'State',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('State is required')
   },
   {
     name: 'district',
@@ -49,18 +49,18 @@ export const ServiceProviderFormFields: Field[] = [
     validation: Yup.string().required('District is required')
   },
   {
+    name: 'state',
+    label: 'State',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('State is required')
+  },
+  {
     name: 'pincode',
     label: 'Pincode',
     type: 'text',
     required: true,
     validation: Yup.string().required('Pincode is required')
-  },
-  {
-    name: 'service_area',
-    label: 'Service Area',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('Service area is required')
   },
   {
     name: 'service_type',
@@ -100,39 +100,40 @@ export const ServiceProviderFormFields: Field[] = [
     required: true,
     validation: Yup.string().required('Designation of authorized person is required')
   },
+  // id proof of authorized person
   {
-    name: 'kyc_document',
-    label: 'KYC Document',
+    name: 'id_proof',
+    label: 'ID Proof of Authorized Person(Aadhaar, Pan, etc.)',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('ID proof is required')
+  },
+  {
+    name: 'id_proof_upload',
+    label: 'Upload ID Proof of Authorized Person(Aadhaar, Pan, etc.)',
     type: 'file',
     required: true,
-    validation: Yup.mixed().required('KYC document is required'),
+    validation: Yup.mixed().required('ID proof upload is required'),
     accept: '.pdf,.doc,.docx'
   },
   {
-    name: 'valid_upto',
-    label: 'Valid Upto',
-    type: 'date',
-    required: true,
-    validation: Yup.date().required('Valid upto date is required')
-  },
-  {
-    name: 'id_proof_no',
-    label: 'ID Proof Number',
+    name: 'pan',
+    label: 'PAN Number',
     type: 'text',
     required: true,
-    validation: Yup.string().required('ID proof no is required')
+    validation: Yup.string().required('PAN is required')
   },
   {
-    name: 'id_proof_document',
-    label: 'ID Proof Document',
+    name: 'pan_upload',
+    label: 'PAN Upload',
     type: 'file',
     required: true,
-    validation: Yup.mixed().required('ID proof document is required'),
+    validation: Yup.mixed().required('PAN upload is required'),
     accept: '.pdf,.doc,.docx'
   },
   {
     name: 'gst_no',
-    label: 'GST No',
+    label: 'GST Number',
     type: 'text',
     required: true,
     validation: Yup.string().required('GST number is required')
@@ -150,6 +151,6 @@ export const ServiceProviderFormFields: Field[] = [
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid upto date is required')
-  }
+  },
 ];
 

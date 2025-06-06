@@ -15,6 +15,9 @@ export const SubscriptionFormFields: Field[] = [
     type: 'select',
     required: true,
     options: [
+      { value: '1', label: '1 Month' },
+      { value: '3', label: '3 Months' },
+      { value: '6', label: '6 Months' },
       { value: '1', label: '1 Years' },
       { value: '2', label: '2 Years' },
       { value: '3', label: '3 Years' },
@@ -52,11 +55,11 @@ export const SubscriptionFormFields: Field[] = [
     type: 'select',
     required: true,
     options: [
-      { value: '1', label: '1/10' },
-      { value: '2', label: '10/100' },
-      { value: '3', label: '101/1000' },
-      { value: '4', label: '1001/10000' },
-      { value: '5', label: '10001/100000' },
+      { value: '1', label: '1-10' },
+      { value: '2', label: '10-100' },
+      { value: '3', label: '100-1000' },
+      { value: '4', label: '1000-10000' },
+      { value: '5', label: '10000-100000' },
     ],
     validation: Yup.string()
       .required('Number of employees is required')
@@ -78,5 +81,12 @@ export const SubscriptionFormFields: Field[] = [
       validation: Yup.number()
         .min(2, 'Number of cameras must be at least 2')
         .required('Number of cameras is required') 
+    },
+    {
+      name:'guest_pass_limit',
+      label:'Guest Pass Limit (per month)',
+      type:'number',
+      required:true,
+      validation: Yup.number().required('Guest pass limit is required')
     }
     ];

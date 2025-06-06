@@ -10,6 +10,13 @@ export const individualServiceProviderFormFields: Field[] = [
     validation: Yup.string().required('Name is required')
   },
   {
+    name: 'photo',
+    label: 'Photo',
+    type: 'file',
+    required: true,
+    validation: Yup.mixed().required('Photo is required')
+  },
+  {
     name: 'email',
     label: 'Email',
     type: 'text',
@@ -28,6 +35,20 @@ export const individualServiceProviderFormFields: Field[] = [
       .required('Phone number is required')
   },
   {
+    name: 'emergency_contact',
+    label: 'Emergency Contact',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('Emergency contact is required')
+  },
+  {
+    name: 'date_of_birth',
+    label: 'Date of Birth',
+    type: 'date',
+    required: true,
+    validation: Yup.date().required('Date of birth is required')
+  },
+  {
     name: 'address',
     label: 'Address',
     type: 'text',
@@ -35,11 +56,25 @@ export const individualServiceProviderFormFields: Field[] = [
     validation: Yup.string().required('Address is required')
   },
   {
-    name: 'service_area',
-    label: 'Service Area',
+    name: 'district',
+    label: 'District',
     type: 'text',
     required: true,
-    validation: Yup.string().required('Service area is required')
+    validation: Yup.string().required('District is required')
+  },
+  {
+    name: 'state',
+    label: 'State',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('State is required')
+  },
+  {
+    name: 'pincode',
+    label: 'Pincode',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('Pincode is required')
   },
   {
     name: 'service_type',
@@ -55,20 +90,33 @@ export const individualServiceProviderFormFields: Field[] = [
     ]
   },
   {
+    name: 'valid_upto',
+    label: 'Valid Upto',
+    type: 'date',
+    required: true,
+    validation: Yup.date().required('Valid upto date is required')
+  },
+  {
+    name: 'id_proof_no',
+    label: 'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('ID proof no is required')
+  },  {
+    name: 'id_proof_document',
+    label: 'ID Proof Document(Voter Id,Passport,Driving lisense or any Govt Id)',
+    type: 'file',
+    required: true,
+    validation: Yup.mixed().required('ID proof document is required'),
+    accept: '.pdf,.doc,.docx'
+  },
+  {
     name: 'pan',
-    label: 'PAN',
+    label: 'PAN Number',
     type: 'text',
     required: true,
     validation: Yup.string().required('PAN is required')
-  },
-  {
-    name: 'gst_no',
-    label: 'GST No',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('GST number is required')
-  },
-  {
+  },  {
     name: 'pan_upload',
     label: 'PAN Upload',
     type: 'file',
@@ -76,41 +124,18 @@ export const individualServiceProviderFormFields: Field[] = [
     validation: Yup.mixed().required('PAN upload is required')
   },
   {
+    name: 'gst_no',
+    label: 'GST Number(optional)',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('GST number is required')
+  },
+  {
     name: 'gst_upload',
-    label: 'GST Upload',
+    label: 'GST Upload(optional)',
     type: 'file',
     required: true,
     validation: Yup.mixed().required('GST upload is required')
   },
-  {
-    name: 'kyc_document',
-    label: 'KYC Document',
-    type: 'file',
-    required: true,
-    validation: Yup.mixed().required('KYC document is required'),
-    accept: '.pdf,.doc,.docx'
-  },
-  {
-    name: 'id_proof_no',
-    label: 'ID Proof Number',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('ID proof no is required')
-  },
-  {
-    name: 'id_proof_document',
-    label: 'ID Proof Document',
-    type: 'file',
-    required: true,
-    validation: Yup.mixed().required('ID proof document is required'),
-    accept: '.pdf,.doc,.docx'
-  },
-  {
-    name: 'valid_upto',
-    label: 'Valid Upto',
-    type: 'date',
-    required: true,
-    validation: Yup.date().required('Valid upto date is required')
-  }
 ];
 

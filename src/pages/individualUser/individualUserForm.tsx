@@ -41,7 +41,7 @@ const IndividualUserForm: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" sx={{ mb: 3 }}>
-        Create Individual User
+        Create Individual Client
       </Typography>
       <DynamicForm
         fields={UserFormFields}

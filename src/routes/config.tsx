@@ -109,13 +109,13 @@ const OrgListItem = styled('div')(({ theme }) => ({
 
 export const useNavigation = () => {
   const { data: organizations } = useGetOrganisationsQuery({ search: '', page: 1, page_size: 10 });
-  const { hasPermission } = useAuth();
+  const { hasPermission,user } = useAuth();
   const [search, setSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const filteredOrgs = useMemo(() =>
     organizations?.results?.filter(org =>
-      org.name.toLowerCase().includes(search.toLowerCase())
+      org.name?.toLowerCase().includes(search.toLowerCase())
     ) ?? [], [search, organizations]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,78 +136,33 @@ export const useNavigation = () => {
     setSearch("");
   };
 
-  const renderSearchResults = () => {
-    if (!isSearchFocused || !search) return null;
-
-    return (
-      <Fade in={isSearchFocused && search.length > 0}>
-        <Box>
-          <List>
-            {filteredOrgs.length > 0 ? (
-              filteredOrgs.map((org) => (
-                <ListItem
-                  key={org.id}
-                  component="div"
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    setSearch("");
-                    setIsSearchFocused(false);
-                  }}
-                >
-                  <ListItemIcon>
-                    <Building2 size={20} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={org.name}
-                    secondary={`ID: ${org.id}`}
-                  />
-                </ListItem>
-              ))
-            ) : (
-              <ListItem>
-                <ListItemText
-                  primary={
-                    <Typography color="text.secondary">
-                      No organizations found
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            )}
-          </List>
-        </Box>
-      </Fade>
-    );
-  };
-
   const allRoutes: NavigationItem[] = [
     {
       segment: "dashboard",
       title: "Dashboard",
       icon: <LayoutDashboard />,
     },
-    { kind: "divider" },
+    // super admin 
     {
       segment: "service-provider",
       title: "Create Service Providers",
       icon: <Briefcase />,
-      show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
+      show: hasPermission("manage:admin-users"),
       children: [
         {
           segment: "new/:id",
           title: "Company",
           icon: <Building2 />,
-          show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
+          show: hasPermission("manage:admin-users"),
         },
         {
           segment: "individual/new/:id",
           title: "Individual",
           icon: <UserCircle />,
-          show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
+          show: hasPermission("manage:admin-users"),
         },
       ],
     },
-    { kind: "divider" },
     {
       segment: "client",
       title: "Create Clients",
@@ -228,9 +183,8 @@ export const useNavigation = () => {
         },
       ],
     },
-    { kind: "divider" },
     {
-      segment: "corporate-users",
+      segment: "org",
       title: "Corporate Users",
       icon: <Building2 />,
       show: hasPermission("view:organizations"),
@@ -289,7 +243,7 @@ export const useNavigation = () => {
           show: hasPermission("view:organizations"),
         },
         ...filteredOrgs.map((organization) => ({
-          segment: `${organization.id}`,
+          segment:'client',
           title: organization.name,
           icon: <Building2 />,
           show: hasPermission("view:organizations"),
@@ -304,7 +258,7 @@ export const useNavigation = () => {
               segment: `${organization.id}/users/new/:id`,
               title: "Create Company Admin",
               icon: <Shield />,
-              show: hasPermission("create:user") || hasPermission("create:admin-user"),
+              show: hasPermission("create:admin-user"),
             },
             {
               segment: `${organization.id}/departments`,
@@ -316,56 +270,34 @@ export const useNavigation = () => {
               segment: `${organization.id}/users`,
               title: "Manage Company Admin",
               icon: <Users />,
-              show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
+              show: hasPermission("manage:admin-users"),
             },
           ],
         })),
       ],
     },
-    { kind: "divider" },
     {
       segment: "",
       title: "Individual Users",
       icon: <UserCircle />,
-      show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
+      show: hasPermission("manage:admin-users"),
     },
-    { kind: "divider" },
     {
       segment: "accounts",
       title: "Accounts",
       icon: <CreditCard />,
-      show: hasPermission("create:user") || hasPermission("create:admin-user"),
+      show: hasPermission("create:admin-user"),
       children: [
         {
           segment: "new/:id",
           title: "Create Account User",
           icon: <CreditCard />,
-          show: hasPermission("create:user") || hasPermission("create:admin-user"),
+          show: hasPermission("create:admin-user"),
         },
       ],
     },
-    { kind: "divider" },
-    {
-      segment: "",
-      title: "Reports",
-      icon: <BarChart3 />,
-      show: hasPermission("manage:users") || hasPermission("manage:admin-users"),
-    },
-    { kind: "divider" },
-    {
-      segment: "settings",
-      title: "Settings",
-      icon: <Settings />,
-      show: hasPermission("create:user") || hasPermission("create:admin-user"),
-      children: [
-        {
-          segment: "subscriptions/new",
-          title: "Subscription",
-          icon: <CreditCard />,
-          show: hasPermission("create:user") || hasPermission("create:admin-user"),
-        },
-      ],
-    },
+
+    // suder admin close 
     {
       segment: "shifts/new/:id",
       title: "Create Shift",
@@ -382,23 +314,69 @@ export const useNavigation = () => {
       segment: "gate-passes/new/:id",
       title: "Create Gate Pass",
       icon: <FileCheck />,
-      show: hasPermission("can_create_guest_pass"),
+      show: hasPermission("can_create_guest_pass") || hasPermission("create:guest-pass"),
+    },
+
+  // Admin
+
+  {
+    segment:"company",
+    title: "Create Users",
+    icon: <UserPlus />,
+    show: hasPermission("create:user"),
+    children: [{
+      segment: "hr/new/:id",
+      title: "Create HR",
+      icon: <UserCircle />,
+      show: hasPermission("create:user"),
     },
     {
+      segment: "accounts/new/:id",
+      title: "Create Accounts",
+      icon: <CreditCard />,
+      show: hasPermission("create:user"),
+    },
+    {
+      segment: "sub-admin/new/:id",
+      title: "Create HR and Accounts",
+      icon: <UserCircle />,
+      show: hasPermission("create:user"),
+    },
+  ]
+  },
+
+
+// manage approvals
+{
+  segment: "reports",
+  title: "Manage Approvals",
+  icon: <BarChart3 />,
+  show: hasPermission("approve:approval"),
+  children: [
+    {
       segment: "shifts",
-      title: "Manage Shifts",
+      title: " Shifts",
       icon: <CalendarClock />,
       show: hasPermission("manage:shifts"),
     },
     {
       segment: "holidays",
-      title: "Manage Holidays",
+      title: " Holidays",
       icon: <Calendar />,
       show: hasPermission("manage:holidays"),
     },
+  ],
+},
+
+// reports
+{
+  segment: "reports",
+  title: "Reports",
+  icon: <BarChart3 />,
+  children: [
     {
       segment: "gate-passes",
-      title: "Manage Gate Passes",
+      title: " Gate Passes",
       icon: <ClipboardList />,
       show: hasPermission("manage:gate-passes") || hasPermission("approve_guest_pass"),
     },
@@ -414,6 +392,32 @@ export const useNavigation = () => {
       icon: <LineChart />,
       show: hasPermission("manage:attendance") || hasPermission("attendance_report"),
     },
+  ]
+},
+
+
+//settings
+{
+  segment: "settings",
+  title: "Settings",
+  icon: <Settings />,
+  children: [
+    {
+      segment: "subscriptions/new",
+      title: "Subscription",
+      icon: <CreditCard />,
+      show: hasPermission("manage:admin-users"),
+    },
+    {
+      segment: "guest-pass",
+      title: "Guest Pass Settings",
+      icon: <Settings />,
+      show: hasPermission("settings:guest-pass"),
+    },
+  ],
+},
+
+
   ];
 
   // Filter out invisible items and headers with no children
@@ -425,6 +429,13 @@ export const useNavigation = () => {
       }
       return true;
     }
+    
+    // If route has children, filter them first
+    if (route.children) {
+      route.children = route.children.filter(child => child.show !== false);
+    }
+    
+    // Show parent if it's visible, regardless of children
     return route.show !== false;
   });
 };

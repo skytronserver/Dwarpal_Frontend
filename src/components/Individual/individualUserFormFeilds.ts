@@ -10,6 +10,13 @@ export const UserFormFields: Field[] = [
     validation: Yup.string().required('Name is required')
   },
   {
+    name: 'photo',
+    label: 'Photo',
+    type: 'file',
+    required: false,
+    validation: Yup.mixed().optional()
+  },
+  {
     name: 'phone_number',
     label: 'Mobile Number',
     type: 'text',
@@ -26,14 +33,13 @@ export const UserFormFields: Field[] = [
     validation: Yup.string().email('Invalid email').required('Email is required')
   },
   {
-    name: 'address',
-    label: 'Address',
-    type: 'text',
+    name: 'date_of_birth',
+    label: 'Date of Birth',
+    type: 'date',
     required: true,
-    validation: Yup.string()
-      .required('Address is required')
-      .min(5, 'Address must be at least 5 characters')
+    validation: Yup.date().required('Date of birth is required')
   },
+
   {
     name: 'blood_group',
     label: 'Blood Group',
@@ -51,29 +57,13 @@ export const UserFormFields: Field[] = [
       .required('Emergency contact is required')
   },
   {
-    name: 'photo',
-    label: 'Photo',
-    type: 'file',
-    required: false,
-    validation: Yup.mixed().optional()
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    type: 'password',
-    required: true,
-    validation: Yup.string()
-      .min(8, 'Password must be at least 8 characters')
-      .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character')
-      .required('Password is required')
-  },
-  {
-    name: 'state',
-    label: 'State',
+    name: 'address',
+    label: 'Address',
     type: 'text',
     required: true,
-    validation: Yup.string().required('State is required')
+    validation: Yup.string()
+      .required('Address is required')
+      .min(5, 'Address must be at least 5 characters')
   },
   {
     name: 'district',
@@ -83,6 +73,13 @@ export const UserFormFields: Field[] = [
     validation: Yup.string().required('District is required')
   },
   {
+    name: 'state',
+    label: 'State',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('State is required')
+  },
+  {
     name: 'pincode',
     label: 'Pincode',
     type: 'text',
@@ -90,31 +87,51 @@ export const UserFormFields: Field[] = [
     validation: Yup.string().required('Pincode is required')
   },
   {
-    name: 'id_proof_no',
-    label: 'ID Proof No',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('ID proof no is required')
-  },
-  {
-    name: 'id_proof_document',
-    label: 'ID Proof Document',
-    type: 'file',
-    required: false,
-    validation: Yup.mixed().optional()
-  },
-  {
-    name: 'kyc_document',
-    label: 'Kyc Document',
-    type: 'file',
-    required: false,
-    validation: Yup.mixed().optional()
-  },
-  {
     name: 'valid_upto',
     label: 'Valid Upto',
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid upto date is required')
-  }
+  },
+  {
+    name: 'id_proof_no',
+    label: 'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('ID proof no is required')
+  }, {
+    name: 'id_proof_document',
+    label: 'ID Proof Document(Voter Id,Passport,Driving lisense or any Govt Id)',
+    type: 'file',
+    required: true,
+    validation: Yup.mixed().required('ID proof document is required')
+  },
+  {
+    name: 'pan_number',
+    label: 'PAN Number',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('Pan number is required')
+  },
+  {
+    name: 'pan_upload',
+    label: 'PAN Upload',
+    type: 'file',
+    required: true,
+    validation: Yup.mixed().required('PAN upload is required')
+  },
+  {
+    name: 'gst_number',
+    label: 'GST Number(optional)',
+    type: 'text',
+    required: false,
+    validation: Yup.string().optional()
+  },
+  {
+    name: 'gst_upload',
+    label: 'GST Upload(optional)',
+    type: 'file',
+    required: false,
+    validation: Yup.mixed().optional()
+  },
 ]; 

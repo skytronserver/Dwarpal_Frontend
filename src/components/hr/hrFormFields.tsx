@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { Field } from '../../types/form.types';
 
-export const UserFormFields: Field[] = [
+export const HRFormFields: Field[] = [
   {
     name: 'name',
     label: 'Name',
@@ -14,14 +14,15 @@ export const UserFormFields: Field[] = [
     label: 'Photo',
     type: 'file',
     required: false,
-    validation:Yup.mixed().optional()
+    validation: Yup.mixed().optional()
   },
   {
     name: 'role',
     label: 'Role',
     type: 'select',
     required: true,
-    options: [],
+    disabled: true,
+    options: [{ label: 'HR', value: 'HR' }],
     validation: Yup.string().required('Role is required')
   },
   {
@@ -29,15 +30,17 @@ export const UserFormFields: Field[] = [
     label: 'Organization',
     type: 'select',
     required: true,
+    disabled: true,
     validation: Yup.string().required('Organization is required')
   },
   {
-    name: 'designation',
-    label: 'Company Designation',
-    type: 'text',
+    name: 'department',
+    label: 'Department',
+    type: 'select',
     required: true,
-    validation: Yup.string().required('Designation is required'),
-    options: []
+    disabled: true,
+    options: [{ label: 'HR', value: 'HR' }],
+    validation: Yup.string().required('Department is required')
   },
   {
     name: 'phone_number',
@@ -45,15 +48,15 @@ export const UserFormFields: Field[] = [
     type: 'text',
     required: true,
     validation: Yup.string()
-      .matches(/^\\d{10}$/, 'Phone number must be 10 digits')
+      .matches(/^\d{10}$/, 'Phone number must be 10 digits')
       .required('Phone number is required')
   },
   {
-    name:'email',
-    label:'Email',
-    type:'email',
-    required:true,
-    validation:Yup.string().email('Invalid email').required('Email is required')
+    name: 'email',
+    label: 'Email',
+    type: 'email',
+    required: true,
+    validation: Yup.string().email('Invalid email').required('Email is required')
   },
   {
     name: 'emergency_contact',
@@ -107,52 +110,57 @@ export const UserFormFields: Field[] = [
     validation: Yup.string().required('Pincode is required')
   },
   {
-    name:'id_proof_no',
-    label:'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
-    type:'text',
-    required:true,
-    validation:Yup.string().required('ID proof no is required')
+    name: 'pan',
+    label: 'PAN Number',
+    type: 'text',
+    required: true,
+    validation: Yup.string()
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number')
+      .required('PAN number is required')
   },
   {
-    name:'id_proof_document',
-    label:'ID Proof Document(Voter Id,Passport,Driving lisense or any Govt Id)',
-    type:'file',
-    required:false,
-    validation:Yup.mixed().optional()
+    name: 'pan_upload',
+    label: 'PAN Document',
+    type: 'file',
+    required: false,
+    validation: Yup.mixed().optional()
   },
   {
-    name:'pan',
-    label:'PAN Number',
-    type:'text',
-    required:true,
-    validation:Yup.string().required('Pan is required')
+    name: 'id_proof_no',
+    label: 'ID Proof Number (Voter Id,Passport,Driving lisense or any Govt Id)',
+    type: 'text',
+    required: true,
+    validation: Yup.string().required('ID proof number is required')
   },
   {
-    name:'pan_upload',
-    label:'PAN Upload',
-    type:'file',
-    required:false,
-    validation:Yup.mixed().optional()
+    name: 'id_proof_document',
+    label: 'ID Proof Document (Voter Id,Passport,Driving lisense or any Govt Id)',
+    type: 'file',
+    required: false,
+    validation: Yup.mixed().optional()
   },
   {
-    name:'gst_no',
-    label:'GST Number(optional)',
-    type:'text',
-    required:true,
-    validation:Yup.string().required('GST no is required')
-  },  
-  {
-    name:'gst_upload',
-    label:'GST Upload(optional)',
-    type:'file',
-    required:false,
-    validation:Yup.mixed().optional()
+    name: 'gst_no',
+    label: 'GST Number (optional)',
+    type: 'text',
+    required: false,
+    validation: Yup.string().optional()
   },
   {
-    name:'valid_upto',
-    label:'Valid Upto',
-    type:'date',
-    required:true,
-    validation:Yup.date().required('Valid upto date is required')
+    name: 'gst_upload',
+    label: 'GST Document (optional)',
+    type: 'file',
+    required: false,
+    validation: Yup.mixed().optional()
+  },
+  {
+    name: 'valid_upto',
+    label: 'Valid Until',
+    type: 'date',
+    required: true,
+    validation: Yup.date().required('Valid until date is required')
   },
 ]; 
+
+
+  

@@ -21,15 +21,37 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Chip
+  Chip,
+  ThemeProvider,
+  createTheme
 } from "@mui/material";
 import { DynamicFormProps, Field } from "../../types/form.types";
 import { useTheme } from "@mui/material/styles";
 
+// Create a theme with overrides to remove required field asterisks
+const theme = createTheme({
+  components: {
+    MuiFormLabel: {
+      styleOverrides: {
+        asterisk: {
+          display: 'none'
+        }
+      }
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        asterisk: {
+          display: 'none'
+        }
+      }
+    }
+  }
+});
+
 const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormProps) => {
   const [formData, setFormData] = useState<Record<string, any>>(initialValues || {});
   const [openModal, setOpenModal] = useState(false);
-  const theme = useTheme();
+  const muiTheme = useTheme();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -69,23 +91,23 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   const commonStyles = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '8px',
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: muiTheme.palette.background.paper,
       '&:hover': {
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: muiTheme.palette.background.paper,
         '& fieldset': {
-          borderColor: theme.palette.primary.main,
+          borderColor: muiTheme.palette.primary.main,
         }
       },
       '&.Mui-focused': {
         '& fieldset': {
-          borderColor: theme.palette.primary.main,
+          borderColor: muiTheme.palette.primary.main,
         }
       }
     },
     '& .MuiInputLabel-root': {
-      color: theme.palette.text.primary,
+      color: muiTheme.palette.text.primary,
       '&.Mui-focused': {
-        color: theme.palette.primary.main,
+        color: muiTheme.palette.primary.main,
       }
     },
     '& .MuiInputBase-input': {
@@ -181,7 +203,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
       case "select":
         return (
           <FormControl fullWidth sx={commonStyles}>
-            <InputLabel>{field.label}</InputLabel>
+            <InputLabel required={false}>{field.label}</InputLabel>
             <Select
               name={field.name}
               value={formData[field.name] || field.defaultValue || ""}
@@ -232,7 +254,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 checked={formData[field.name] || false}
                 onChange={handleInputChange}
                 sx={{
-                  color: theme.palette.primary.main,
+                  color: muiTheme.palette.primary.main,
                   '& .MuiSvgIcon-root': {
                     border: '2px solid #bdbdbd',
                     borderRadius: '4px',
@@ -267,7 +289,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
       case "radio":
         return (
           <FormControl component="fieldset">
-            <FormLabel sx={{ color: theme.palette.text.primary }}>{field.label}</FormLabel>
+            <FormLabel sx={{ color: muiTheme.palette.text.primary }}>{field.label}</FormLabel>
             <RadioGroup
               name={field.name}
               value={formData[field.name] || field.defaultValue || ""}
@@ -280,9 +302,9 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                   control={
                     <Radio 
                       sx={{
-                        color: theme.palette.primary.main,
+                        color: muiTheme.palette.primary.main,
                         '&.Mui-checked': {
-                          color: theme.palette.primary.main,
+                          color: muiTheme.palette.primary.main,
                         },
                         '&:hover': {
                           backgroundColor: 'rgba(255, 131, 97, 0.08)',
@@ -307,13 +329,13 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 onChange={handleInputChange}
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: theme.palette.primary.main,
+                    color: muiTheme.palette.primary.main,
                     '&:hover': {
                       backgroundColor: 'rgba(255, 131, 97, 0.08)',
                     },
                   },
                   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: theme.palette.primary.main,
+                    backgroundColor: muiTheme.palette.primary.main,
                   }
                 }}
               />
@@ -381,7 +403,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
 
         return (
           <FormControl fullWidth sx={commonStyles}>
-            <InputLabel>{field.label}</InputLabel>
+            <InputLabel required={false}>{field.label}</InputLabel>
             <Select
               multiple
               name={field.name}
@@ -424,6 +446,31 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
           </FormControl>
         );
 
+      case "time":
+        return (
+          <FormControl fullWidth sx={commonStyles}>
+            <TextField
+              fullWidth
+              name={field.name}
+              label={field.label}
+              type="time"
+              value={formData[field.name] || ""}
+              onChange={handleInputChange}
+              required={field.required}
+              disabled={field.disabled}
+              sx={commonStyles}
+              InputLabelProps={{
+                shrink: true,
+                required: false
+              }}
+              inputProps={{
+                step: 300 // 5 min steps, adjust as needed
+              }}
+              helperText={field.helperText}
+            />
+          </FormControl>
+        );
+
       default:
         return (
           <FormControl fullWidth sx={commonStyles}>
@@ -438,7 +485,10 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               disabled={field.disabled}
               sx={commonStyles}
               placeholder={field.placeholder || ''}
-              InputLabelProps={{ shrink: field.type === 'date' }}
+              InputLabelProps={{ 
+                shrink: field.type === 'date' || Boolean(formData[field.name]) || Boolean(field.defaultValue),
+                required: false
+              }}
               helperText={field.helperText}
             />
           </FormControl>
@@ -450,145 +500,147 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   const nonSwitchFields = fields.filter(field => field.type !== "switch");
 
   return (
-    <Paper 
-      elevation={0} 
-      sx={{ 
-        borderRadius: '16px',
-        p: { xs: 2, sm: 3, md: 4 },
-        backgroundColor: theme.palette.background.paper,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-      }}
-    >
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2.5}>
-          {nonSwitchFields.map((field) => (
-            <Grid item xs={12} sm={field.type === 'radio' ? 12 : 6} key={field.name}>
-              {renderField(field)}
-            </Grid>
-          ))}
-          
-          {switchFields.length > 0 && (
-            <Grid item xs={12} sm={6}>
-              <Button
-                variant="outlined"
-                onClick={handleModalOpen}
-                sx={{
-                  width: '100%',
-                  py: 1.5,
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontSize: '0.95rem',
-                  fontWeight: 500,
-                  borderColor: '#e2e8f0',
-                  color: '#2c3e50',
-                  '&:hover': {
-                    borderColor: '#cbd5e1',
-                    backgroundColor: '#ffffff',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                  }
-                }}
-              >
-                Select Privileges
-              </Button>
-            </Grid>
-          )}
-
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{
-                mt: 2,
-                py: 1,
-                borderRadius: '8px',
-                textTransform: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 500,
-                backgroundColor: theme.palette.primary.main,
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.dark,
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                },
-              }}
-            >
-              Submit
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-
-      <Dialog 
-        open={openModal} 
-        onClose={handleModalClose}
-        PaperProps={{
-          sx: {
-            borderRadius: '16px',
-            minWidth: '360px',
-            backgroundColor: theme.palette.background.paper,
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-          }
+    <ThemeProvider theme={theme}>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          borderRadius: '16px',
+          p: { xs: 2, sm: 3, md: 4 },
+          backgroundColor: muiTheme.palette.background.paper,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         }}
       >
-        <DialogTitle sx={{ 
-          pb: 1,
-          pt: 2.5,
-          px: 3,
-          typography: 'h6',
-          fontWeight: 600,
-          color: '#2c3e50',
-        }}>
-          Privileges
-        </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <Box sx={{ 
-            py: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 1.5,
-          }}>
-            {switchFields.map((field) => (
-              <Box 
-                key={field.name} 
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2.5}>
+            {nonSwitchFields.map((field) => (
+              <Grid item xs={12} sm={field.type === 'radio' ? 12 : 6} key={field.name}>
+                {renderField(field)}
+              </Grid>
+            ))}
+            
+            {switchFields.length > 0 && (
+              <Grid item xs={12} sm={6}>
+                <Button
+                  variant="outlined"
+                  onClick={handleModalOpen}
+                  sx={{
+                    width: '100%',
+                    py: 1.5,
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    borderColor: '#e2e8f0',
+                    color: '#2c3e50',
+                    '&:hover': {
+                      borderColor: '#cbd5e1',
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                    }
+                  }}
+                >
+                  Select Privileges
+                </Button>
+              </Grid>
+            )}
+
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
                 sx={{
-                  p: 2,
+                  mt: 2,
+                  py: 1,
                   borderRadius: '8px',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
+                  textTransform: 'none',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  backgroundColor: muiTheme.palette.primary.main,
                   '&:hover': {
-                    borderColor: '#cbd5e1',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                  }
+                    backgroundColor: muiTheme.palette.primary.dark,
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  },
                 }}
               >
-                {renderField(field)}
-              </Box>
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button 
-            onClick={handleModalClose}
-            variant="contained"
-            sx={{
-              px: 4,
-              py: 1,
-             width:10,
-              borderRadius: '6px',
-              textTransform: 'none',
-              fontSize: '0.95rem',
-              fontWeight: 500,
-              backgroundColor: theme.palette.primary.main,
-              '&:hover': {
-                backgroundColor: theme.palette.primary.dark,
-              }
-            }}
-          >
-            Done
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Paper>
+                Submit
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+
+        <Dialog 
+          open={openModal} 
+          onClose={handleModalClose}
+          PaperProps={{
+            sx: {
+              borderRadius: '16px',
+              minWidth: '360px',
+              backgroundColor: muiTheme.palette.background.paper,
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            pb: 1,
+            pt: 2.5,
+            px: 3,
+            typography: 'h6',
+            fontWeight: 600,
+            color: '#2c3e50',
+          }}>
+            Privileges
+          </DialogTitle>
+          <DialogContent sx={{ px: 3 }}>
+            <Box sx={{ 
+              py: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1.5,
+            }}>
+              {switchFields.map((field) => (
+                <Box 
+                  key={field.name} 
+                  sx={{
+                    p: 2,
+                    borderRadius: '8px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    '&:hover': {
+                      borderColor: '#cbd5e1',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                    }
+                  }}
+                >
+                  {renderField(field)}
+                </Box>
+              ))}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button 
+              onClick={handleModalClose}
+              variant="contained"
+              sx={{
+                px: 4,
+                py: 1,
+               width:10,
+                borderRadius: '6px',
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                backgroundColor: muiTheme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: muiTheme.palette.primary.dark,
+                }
+              }}
+            >
+              Done
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Paper>
+    </ThemeProvider>
   );
 };
 

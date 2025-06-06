@@ -23,3 +23,11 @@ body {
 [data-testid="MenuOpenIcon"].MuiSvgIcon-root {
   color: #fff !important;
 }
+
+
+.css-5fbijw-MuiListSubheader-root {
+  height: 49px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-radius: 10px !important;
+}
