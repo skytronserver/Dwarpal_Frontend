@@ -30,6 +30,16 @@ export const HolidayFormFields: Field[] = [
         validation: Yup.string()
             .required('End date is required'),
     },
+    {
+        name: 'holiday_type',
+        label: 'Holiday Type',
+        type: 'select',
+        required: true,
+        options: [
+            { label: 'Public', value: 'public' },
+            { label: 'Company', value: 'company' },
+        ],
+    },
     // {
     //     name: 'description',
     //     label: 'Description',

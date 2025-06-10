@@ -7,6 +7,7 @@ import { useCreateGuestPassMutation } from '../../services/gatePassApi';
 import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
 import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
 import { useGetUsersQuery } from '../../services/UserApi';
+import { useAuth } from '../../hooks/useAuth';
 
 interface GatePassFormProps {
     onSuccess?: () => void;
@@ -18,12 +19,15 @@ interface GatePassFormValues {
 }
 
 const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
-    // const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const initialData = location.state?.gatepassData;
     const [createGatePass, { isLoading }] = useCreateGuestPassMutation();
-    const [values, setValues] = React.useState<GatePassFormValues | undefined>(initialData);
+    const [values, setValues] = React.useState<GatePassFormValues | undefined>({
+        ...initialData,
+        organization_to_visit: initialData?.organization_to_visit || user?.organization
+    });
 
     const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
     const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
@@ -49,9 +53,12 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
     const formFields = React.useMemo(() => {
         return GatePassFormFields.map(field => {
             if (field.name === 'organization_to_visit') {
+                const orgValue = values?.organization_to_visit || user?.organization;
                 return {
                     ...field,
-                    options: organizationOptions
+                    options: organizationOptions,
+                    value: orgValue,
+                    defaultValue: orgValue
                 };
             }
             if (field.name === 'department_to_visit') {
@@ -70,7 +77,7 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
             }
             return field;
         });
-    }, [organizationOptions, departmentOptions, approverOptions, values]);
+    }, [organizationOptions, departmentOptions, approverOptions, values, user?.organization]);
 
     const handleFormChange = (newValues: GatePassFormValues) => {
         setValues(newValues);
@@ -108,7 +115,7 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
                 <DynamicForm
                     fields={formFields}
                     onSubmit={handleSubmit}
-                    initialValues={initialData || {}}
+                    initialValues={values || {}}
                     onChange={handleFormChange}
                 />
             )}

@@ -3,7 +3,7 @@ export type LoginTypes = {
     password: string;
 }
 
-export type UserRole = 'SUPERADMIN' | 'ADMIN' | 'EMPLOYEE';
+export type UserRole = 'SUPERADMIN' | 'ADMIN' | 'HR' | 'EMPLOYEE';
 
 export interface User {
   id: string;

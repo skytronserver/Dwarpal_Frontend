@@ -28,8 +28,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useGetOrganisationsQuery } from "../services/OrganisationApi";
-import { Box, InputBase, IconButton, Paper, List, ListItem, ListItemText, ListItemIcon, Typography, Fade } from "@mui/material";
-import { styled, alpha } from '@mui/material/styles';
+import { Box, InputBase, IconButton, Paper} from "@mui/material";
+import { styled } from '@mui/material/styles';
 
 interface NavigationHeader {
   kind: "header" | "divider";
@@ -109,7 +109,7 @@ const OrgListItem = styled('div')(({ theme }) => ({
 
 export const useNavigation = () => {
   const { data: organizations } = useGetOrganisationsQuery({ search: '', page: 1, page_size: 10 });
-  const { hasPermission,user } = useAuth();
+  const { hasPermission } = useAuth();
   const [search, setSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -298,24 +298,6 @@ export const useNavigation = () => {
     },
 
     // suder admin close 
-    {
-      segment: "shifts/new/:id",
-      title: "Create Shift",
-      icon: <CalendarClock />,
-      show: hasPermission("create:shift"),
-    },
-    {
-      segment: "holidays/new/:id",
-      title: "Create Holiday",
-      icon: <CalendarPlus />,
-      show: hasPermission("create:holiday"),
-    },
-    {
-      segment: "gate-passes/new/:id",
-      title: "Create Gate Pass",
-      icon: <FileCheck />,
-      show: hasPermission("can_create_guest_pass") || hasPermission("create:guest-pass"),
-    },
 
   // Admin
 
@@ -323,7 +305,7 @@ export const useNavigation = () => {
     segment:"company",
     title: "Create Users",
     icon: <UserPlus />,
-    show: hasPermission("create:user"),
+    show: hasPermission("create:user") || hasPermission("create:employee"),
     children: [{
       segment: "hr/new/:id",
       title: "Create HR",
@@ -341,6 +323,30 @@ export const useNavigation = () => {
       title: "Create HR and Accounts",
       icon: <UserCircle />,
       show: hasPermission("create:user"),
+    },
+    {
+      segment: "employee/new/:id",
+      title: "Create Employee",
+      icon: <UserCircle />,
+      show: hasPermission("create:employee"),
+    },
+    {
+      segment: "shifts/new/:id",
+      title: "Create Shift",
+      icon: <CalendarClock />,
+      show: hasPermission("create:shift"),
+    },
+    {
+      segment: "holidays/new/:id",
+      title: "Create Holiday",
+      icon: <CalendarPlus />,
+      show: hasPermission("create:holiday"),
+    },
+    {
+      segment: "gate-passes/new/:id",
+      title: "Create Gate Pass",
+      icon: <FileCheck />,
+      show: hasPermission("can_create_guest_pass") || hasPermission("create:guest-pass"),
     },
   ]
   },
@@ -365,6 +371,12 @@ export const useNavigation = () => {
       icon: <Calendar />,
       show: hasPermission("manage:holidays"),
     },
+    {
+      segment: "guest-pass",
+      title: " Gate Passes Settings",
+      icon: <ClipboardList />,
+      show: hasPermission("manage:gate-passes settings") || hasPermission("view:guest-pass settings"),
+    },
   ],
 },
 
@@ -373,12 +385,13 @@ export const useNavigation = () => {
   segment: "reports",
   title: "Reports",
   icon: <BarChart3 />,
+  show: hasPermission("view:shifts") || hasPermission("view:holidays") || hasPermission("view:guest-pass") || hasPermission("view:users") || hasPermission("manage:gate-passes") || hasPermission("manage:attendance") || hasPermission("attendance_report"),
   children: [
     {
       segment: "gate-passes",
       title: " Gate Passes",
       icon: <ClipboardList />,
-      show: hasPermission("manage:gate-passes") || hasPermission("approve_guest_pass"),
+      show: hasPermission("manage:gate-passes") || hasPermission("approve_guest_pass") || hasPermission("view:guest-pass"),
     },
     {
       segment: "gate-passes/:id",
@@ -391,6 +404,24 @@ export const useNavigation = () => {
       title: "Attendance Analytics",
       icon: <LineChart />,
       show: hasPermission("manage:attendance") || hasPermission("attendance_report"),
+    },
+    {
+      segment:"users",
+      title: "Users",
+      icon: <Users />,
+      show: hasPermission("view:users"),
+    },
+    {
+      segment: "shifts",
+      title: " Shifts",
+      icon: <CalendarClock />,
+      show: hasPermission("view:shifts"),
+    },
+    {
+      segment: "holidays",
+      title: " Holidays",
+      icon: <Calendar />,
+      show: hasPermission("view:holidays"),
     },
   ]
 },
