@@ -1,4 +1,4 @@
-import { Grid, Typography, Paper, Box, Card, CardContent, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar } from "@mui/material";
+import { Grid, Typography, Paper, Box, Card, CardContent, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Button, Modal } from "@mui/material";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -6,6 +6,7 @@ import EventBusyIcon from '@mui/icons-material/EventBusy';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../hooks/useAuth";
+import React from 'react';
 
 // Dummy data for all employees analytics
 const companyOverview = {
@@ -25,12 +26,27 @@ const departmentWiseAttendance = [
   { department: 'Operations', present: 57, late: 1, absent: 1 },
 ];
 
-const topEmployees = [
-  { id: 1, name: 'John Doe', department: 'IT', attendance: 100, avatar: '👨‍💻' },
-  { id: 2, name: 'Jane Smith', department: 'HR', attendance: 98, avatar: '👩‍💼' },
-  { id: 3, name: 'Mike Johnson', department: 'Finance', attendance: 97, avatar: '👨‍💼' },
-  { id: 4, name: 'Sarah Wilson', department: 'IT', attendance: 96, avatar: '👩‍💻' },
+// Dummy data for all employees
+const allEmployees = [
+  { id: 1, name: 'John Doe', department: 'IT', attendance: 100, avatar: '👨‍💻', status: 'Excellent' },
+  { id: 2, name: 'Jane Smith', department: 'HR', attendance: 98, avatar: '👩‍💼', status: 'Excellent' },
+  { id: 3, name: 'Mike Johnson', department: 'Finance', attendance: 97, avatar: '👨‍💼', status: 'Excellent' },
+  { id: 4, name: 'Sarah Wilson', department: 'IT', attendance: 96, avatar: '👩‍💻', status: 'Excellent' },
+  { id: 5, name: 'Tom Brown', department: 'Operations', attendance: 92, avatar: '👨‍💼', status: 'Good' },
+  { id: 6, name: 'Emily Davis', department: 'Marketing', attendance: 89, avatar: '👩‍💼', status: 'Good' },
+  { id: 7, name: 'David Lee', department: 'IT', attendance: 88, avatar: '👨‍💻', status: 'Good' },
+  { id: 8, name: 'Lisa Anderson', department: 'HR', attendance: 87, avatar: '👩‍💼', status: 'Good' },
+  { id: 9, name: 'James Wilson', department: 'Finance', attendance: 85, avatar: '👨‍💼', status: 'Average' },
+  { id: 10, name: 'Maria Garcia', department: 'Operations', attendance: 84, avatar: '👩‍💼', status: 'Average' },
+  { id: 11, name: 'Robert Taylor', department: 'IT', attendance: 82, avatar: '👨‍💻', status: 'Average' },
+  { id: 12, name: 'Jennifer Moore', department: 'Marketing', attendance: 80, avatar: '👩‍💼', status: 'Average' },
+  { id: 13, name: 'Michael Brown', department: 'IT', attendance: 78, avatar: '👨‍💻', status: 'Needs Improvement' },
+  { id: 14, name: 'Amanda White', department: 'HR', attendance: 75, avatar: '👩‍💼', status: 'Needs Improvement' },
+  { id: 15, name: 'Kevin Martin', department: 'Finance', attendance: 73, avatar: '👨‍💼', status: 'Needs Improvement' }
 ];
+
+// Top performers (employees with attendance >= 95%)
+const topEmployees = allEmployees.filter(emp => emp.attendance >= 95);
 
 const monthlyTrend = [
   { month: 'Jan', averageAttendance: 96, averagePunctuality: 94 },
@@ -42,8 +58,30 @@ const monthlyTrend = [
 const AttendanceAnalytics = () => {
   const navigate = useNavigate();
   const {hasRole} = useAuth();
+  const [openModal, setOpenModal] = React.useState(false);
+
   const handleEmployeeClick = (employeeId: number) => {
     navigate(`/attendance/${employeeId}`);
+  };
+
+  // Get the appropriate employee list based on role
+  const displayEmployees = hasRole(['HR', 'ADMIN']) ? topEmployees : allEmployees;
+
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '90%',
+    maxWidth: 1000,
+    maxHeight: '90vh',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    overflow: 'auto',
   };
 
   return (
@@ -152,9 +190,20 @@ const AttendanceAnalytics = () => {
         </Grid>
       </Grid>
 
-      {/* Top Performers */}
+      {/* Top Performers or All Employees Table */}
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3 }}>{hasRole(['HR','ADMIN']) ? 'Top Performers' : 'Employees Attendance'}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h6">
+            {hasRole(['HR','ADMIN']) ? 'Top Performers' : 'Employees Attendance'}
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={handleOpenModal}
+          >
+            View All Employees
+          </Button>
+        </Box>
         <TableContainer>
           <Table>
             <TableHead>
@@ -166,7 +215,7 @@ const AttendanceAnalytics = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {topEmployees.map((employee) => (
+              {displayEmployees.map((employee) => (
                 <TableRow 
                   key={employee.id}
                   hover
@@ -183,14 +232,18 @@ const AttendanceAnalytics = () => {
                   <TableCell>{employee.attendance}%</TableCell>
                   <TableCell>
                     <Box sx={{ 
-                      bgcolor: 'success.light',
-                      color: 'success.dark',
+                      bgcolor: employee.status === 'Excellent' ? 'success.light' :
+                              employee.status === 'Good' ? 'info.light' :
+                              employee.status === 'Average' ? 'warning.light' : 'error.light',
+                      color: employee.status === 'Excellent' ? 'success.dark' :
+                             employee.status === 'Good' ? 'info.dark' :
+                             employee.status === 'Average' ? 'warning.dark' : 'error.dark',
                       px: 2,
                       py: 0.5,
                       borderRadius: 1,
                       display: 'inline-block'
                     }}>
-                      Excellent
+                      {employee.status}
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -199,6 +252,71 @@ const AttendanceAnalytics = () => {
           </Table>
         </TableContainer>
       </Paper>
+
+      {/* All Employees Modal */}
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="all-employees-modal"
+      >
+        <Box sx={modalStyle}>
+          <Typography variant="h6" sx={{ mb: 3 }}>
+            All Employees Attendance
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Employee</TableCell>
+                  <TableCell>Department</TableCell>
+                  <TableCell>Attendance Rate</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {allEmployees.map((employee) => (
+                  <TableRow 
+                    key={employee.id}
+                    hover
+                    onClick={() => handleEmployeeClick(employee.id)}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar sx={{ mr: 2 }}>{employee.avatar}</Avatar>
+                        {employee.name}
+                      </Box>
+                    </TableCell>
+                    <TableCell>{employee.department}</TableCell>
+                    <TableCell>{employee.attendance}%</TableCell>
+                    <TableCell>
+                      <Box sx={{ 
+                        bgcolor: employee.status === 'Excellent' ? 'success.light' :
+                                employee.status === 'Good' ? 'info.light' :
+                                employee.status === 'Average' ? 'warning.light' : 'error.light',
+                        color: employee.status === 'Excellent' ? 'success.dark' :
+                               employee.status === 'Good' ? 'info.dark' :
+                               employee.status === 'Average' ? 'warning.dark' : 'error.dark',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: 1,
+                        display: 'inline-block'
+                      }}>
+                        {employee.status}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button onClick={handleCloseModal} variant="contained">
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

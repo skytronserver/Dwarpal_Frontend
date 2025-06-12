@@ -26,6 +26,8 @@ const Authentication = () => {
     };
     try {
       const response = await getLogin(data).unwrap();
+      console.log('Login Response:', response);
+      console.log('User Data:', response.data.user);
       
       if (keepLoggedIn) {
         localStorage.setItem('auth_token', response.data.token);
@@ -34,7 +36,13 @@ const Authentication = () => {
         sessionStorage.setItem('auth_token', response.data.token);
         sessionStorage.setItem('user_data', JSON.stringify(response.data.user));
       }
-      console.log(response);
+      
+      // Verify storage
+      const storedUser = keepLoggedIn 
+        ? localStorage.getItem('user_data') 
+        : sessionStorage.getItem('user_data');
+      console.log('Stored User Data:', storedUser);
+      
       showSuccessToast(response?.message);
       navigate('/dashboard');
     } catch (error: any) {

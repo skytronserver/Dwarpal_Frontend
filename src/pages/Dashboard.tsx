@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Users, Clock, Calendar, Building2, DoorClosed, Timer, TrendingUp, CheckCircle, UserCheck, Briefcase, AlertTriangle } from 'lucide-react';
+import { Users, Clock, Calendar, Building2, DoorClosed, Timer, TrendingUp, CheckCircle, UserCheck, Briefcase, AlertTriangle, Shield, CreditCard, UserPlus, Settings } from 'lucide-react';
 import {
   Grid,
   Paper,
@@ -82,9 +82,15 @@ const Dashboard: React.FC = () => {
   const { user, hasPermission } = useAuth();
   const { data: gatePassData } = useGetGuestPassesQuery({});
 
+  console.log('Dashboard User:', user);
+  console.log('User Role:', user?.role);
+  console.log('Has Permission:', hasPermission('view:dashboard'));
+
+  const userRole = user?.role?.toUpperCase();
+
   const getSuperAdminMetrics = (): DashboardMetric[] => [
     {
-      title: 'Total Organisations',
+      title: 'Total Organizations',
       value: '25',
       icon: <Building2 className="h-6 w-6" />,
       progress: 85,
@@ -93,77 +99,97 @@ const Dashboard: React.FC = () => {
       subtitle: '5 pending approvals'
     },
     {
-      title: 'Total Admin Users',
-      value: '150',
-      icon: <Users className="h-6 w-6" />,
-      progress: 75,
+      title: 'Service Providers',
+      value: '18',
+      icon: <Briefcase className="h-6 w-6" />,
+      progress: 72,
       color: 'success.main',
-      trend: '+8% this month',
-      subtitle: '142 active'
+      trend: '+5% this month'
+    },
+    {
+      title: 'Company Clients',
+      value: '32',
+      icon: <Building2 className="h-6 w-6" />,
+      progress: 65,
+      color: 'info.main',
+      trend: '+8% this month'
+    },
+    {
+      title: 'Individual Clients',
+      value: '45',
+      icon: <UserCheck className="h-6 w-6" />,
+      progress: 78,
+      color: 'secondary.main',
+      trend: '+15% this month'
     },
     {
       title: 'Total Departments',
-      value: '45',
+      value: '120',
       icon: <Building2 className="h-6 w-6" />,
-      progress: 65,
-      color: 'info.main'
+      progress: 92,
+      color: 'warning.main',
+      trend: '+10% this month'
     },
     {
-      title: 'Active Organisations',
-      value: '20',
-      icon: <Building2 className="h-6 w-6" />,
-      progress: 80,
-      color: 'warning.main'
-    },
-    {
-      title: 'System Health',
-      value: '98.5%',
-      icon: <CheckCircle className="h-6 w-6" />,
-      progress: 98.5,
-      color: 'success.main',
-      subtitle: 'All systems operational'
-    },
+      title: 'Admin Users',
+      value: '75',
+      icon: <Shield className="h-6 w-6" />,
+      progress: 88,
+      color: 'error.main',
+      trend: '+7% this month'
+    }
   ];
 
   const getAdminMetrics = (): DashboardMetric[] => [
     {
       title: 'Total Employees',
-      value: '32',
+      value: '150',
       icon: <Users className="h-6 w-6" />,
       progress: 90,
       color: 'primary.main',
-      trend: '+3 this week',
-      subtitle: '28 active today'
+      trend: '+5% this month',
+      subtitle: '142 active today'
+    },
+    {
+      title: 'HR Users',
+      value: '8',
+      icon: <UserCheck className="h-6 w-6" />,
+      progress: 100,
+      color: 'success.main',
+      subtitle: 'All active'
+    },
+    {
+      title: 'Accounts Users',
+      value: '6',
+      icon: <CreditCard className="h-6 w-6" />,
+      progress: 100,
+      color: 'info.main',
+      subtitle: 'All active'
     },
     {
       title: 'Active Shifts',
       value: '12',
       icon: <Clock className="h-6 w-6" />,
-      progress: 65,
-      color: 'success.main'
+      progress: 75,
+      color: 'secondary.main',
+      subtitle: '3 pending approval'
     },
     {
-      title: "Today's Attendance",
-      value: '28',
+      title: 'Pending Holidays',
+      value: '5',
+      icon: <Calendar className="h-6 w-6" />,
+      progress: 40,
+      color: 'warning.main',
+      subtitle: 'Needs approval'
+    },
+    {
+      title: 'Attendance Rate',
+      value: '95%',
       icon: <Timer className="h-6 w-6" />,
-      progress: 87,
-      color: 'info.main'
-    },
-    {
-      title: 'Pending Gate Passes',
-      value: gatePassData?.results?.filter(pass => !pass.is_approved).length || '0',
-      icon: <DoorClosed className="h-6 w-6" />,
-      progress: 45,
-      color: 'warning.main'
-    },
-    {
-      title: 'Department Performance',
-      value: '94%',
-      icon: <TrendingUp className="h-6 w-6" />,
-      progress: 94,
+      progress: 95,
       color: 'success.main',
-      subtitle: 'Above target'
-    },
+      trend: '+2% vs last month'
+    }
   ];
 
   const getHRMetrics = (): DashboardMetric[] => [
@@ -173,103 +199,119 @@ const Dashboard: React.FC = () => {
       icon: <Users className="h-6 w-6" />,
       progress: 100,
       color: 'primary.main',
-      trend: '+5 this month',
-      subtitle: '142 active today'
+      trend: '+3 this week'
     },
     {
-      title: 'Present Today',
-      value: '85%',
-      icon: <UserCheck className="h-6 w-6" />,
-      progress: 85,
-      color: 'success.main',
-      subtitle: '128 employees'
-    },
-    {
-      title: 'Late Today',
-      value: '10',
+      title: 'Active Shifts',
+      value: '12',
       icon: <Clock className="h-6 w-6" />,
-      progress: 15,
-      color: 'warning.main',
-      subtitle: 'Needs attention'
+      progress: 80,
+      color: 'success.main',
+      subtitle: 'All shifts running'
     },
     {
-      title: 'Department Performance',
-      value: '94%',
-      icon: <Briefcase className="h-6 w-6" />,
-      progress: 94,
-      color: 'info.main',
-      subtitle: 'Above target'
-    },
-    {
-      title: 'Leave Requests',
-      value: '8',
-      icon: <Calendar className="h-6 w-6" />,
-      progress: 30,
-      color: 'warning.main',
-      subtitle: 'Pending approval'
-    },
-  ];
-
-  const getEmployeeMetrics = (): DashboardMetric[] => {
-    const metrics: DashboardMetric[] = [];
-
-    if (hasPermission('can_create_guest_pass')) {
-      metrics.push({
-        title: 'My Gate Passes',
-        value: gatePassData?.results?.length || '0',
-        icon: <DoorClosed className="h-6 w-6" />,
-        progress: 70,
-        color: 'primary.main'
-      });
-    }
-
-    if (hasPermission('approve_guest_pass')) {
-      metrics.push({
-        title: 'Pending Approvals',
-        value: gatePassData?.results?.filter(pass => !pass.is_approved).length || '0',
-        icon: <DoorClosed className="h-6 w-6" />,
-        progress: 30,
-        color: 'warning.main'
-      });
-    }
-
-    if (hasPermission('view:attendance')) {
-      metrics.push({
-        title: 'My Attendance',
-        value: '92%',
-        icon: <Timer className="h-6 w-6" />,
-        progress: 92,
-        color: 'success.main'
-      });
-    }
-
-    metrics.push({
       title: 'Upcoming Holidays',
       value: '3',
       icon: <Calendar className="h-6 w-6" />,
       progress: 100,
-      color: 'info.main'
-    });
-
-    return metrics;
-  };
-
-  const getDashboardMetrics = () => {
-    switch (user?.role) {
-      case 'SUPERADMIN':
-        return getSuperAdminMetrics();
-      case 'ADMIN':
-        return getAdminMetrics();
-      case 'HR':
-        return getHRMetrics();
-      default:
-        return getEmployeeMetrics();
+      color: 'info.main',
+      subtitle: 'Next: New Year'
+    },
+    {
+      title: 'Gate Passes Today',
+      value: gatePassData?.results?.filter(pass => !pass.is_approved).length || '0',
+      icon: <DoorClosed className="h-6 w-6" />,
+      progress: 60,
+      color: 'warning.main',
+      subtitle: 'Pending approval'
+    },
+    {
+      title: 'Present Today',
+      value: '142',
+      icon: <UserCheck className="h-6 w-6" />,
+      progress: 95,
+      color: 'success.main',
+      subtitle: '95% attendance'
+    },
+    {
+      title: 'Settings Status',
+      value: 'Updated',
+      icon: <Settings className="h-6 w-6" />,
+      progress: 100,
+      color: 'secondary.main',
+      subtitle: 'All configurations set'
     }
-  };
+  ];
 
-  const metrics = getDashboardMetrics();
+  const renderSuperAdminAnalytics = () => (
+    <>
+      <Grid container spacing={3}>
+        {/* Client Distribution Chart */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '400px' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Client Distribution
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Company Clients', value: 32 },
+                    { name: 'Individual Clients', value: 45 },
+                    { name: 'Service Providers', value: 18 }
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {COLORS.map((color, index) => (
+                    <Cell key={`cell-${index}`} fill={color} />
+                  ))}
+                </Pie>
+                <RechartsTooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
 
-  const renderHRAnalytics = () => (
+        {/* Organization Growth Trend */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '400px' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Organization Growth Trend
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={[
+                { month: 'Jan', organizations: 15 },
+                { month: 'Feb', organizations: 18 },
+                { month: 'Mar', organizations: 20 },
+                { month: 'Apr', organizations: 22 },
+                { month: 'May', organizations: 25 }
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <RechartsTooltip />
+                <Area
+                  type="monotone"
+                  dataKey="organizations"
+                  stroke="#3498DB"
+                  fill="#3498DB"
+                  fillOpacity={0.3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
+    </>
+  );
+
+  const renderAdminAnalytics = () => (
     <>
       <Grid container spacing={3}>
         {/* Department Performance Chart */}
@@ -291,11 +333,11 @@ const Dashboard: React.FC = () => {
           </Paper>
         </Grid>
 
-        {/* Employee Status Distribution */}
+        {/* Attendance Overview */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, height: '400px' }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Today's Employee Status
+              Attendance Overview
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -318,45 +360,42 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </Paper>
         </Grid>
-      </Grid>
-    </>
-  );
 
-  const renderEmployeeAnalytics = () => (
-    <>
-      <Grid container spacing={3}>
-        {/* Attendance History Table */}
+        {/* Recent Approvals Table */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Recent Attendance History
+              Recent Approvals Pending
             </Typography>
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Requested By</TableCell>
+                    <TableCell>Department</TableCell>
                     <TableCell>Status</TableCell>
-                    <TableCell>Check In</TableCell>
-                    <TableCell>Check Out</TableCell>
+                    <TableCell>Date</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {employeeAttendanceData.map((record) => (
-                    <TableRow key={record.date}>
-                      <TableCell>{record.date}</TableCell>
+                  {[
+                    { type: 'Shift Change', requestedBy: 'John Doe', department: 'IT', status: 'Pending', date: '2024-03-15' },
+                    { type: 'Holiday', requestedBy: 'Jane Smith', department: 'HR', status: 'Pending', date: '2024-03-14' },
+                    { type: 'Gate Pass', requestedBy: 'Mike Johnson', department: 'Finance', status: 'Pending', date: '2024-03-14' },
+                  ].map((record, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{record.type}</TableCell>
+                      <TableCell>{record.requestedBy}</TableCell>
+                      <TableCell>{record.department}</TableCell>
                       <TableCell>
                         <Chip
                           label={record.status}
-                          color={
-                            record.status === 'Present' ? 'success' :
-                            record.status === 'Late' ? 'warning' : 'error'
-                          }
+                          color="warning"
                           size="small"
                         />
                       </TableCell>
-                      <TableCell>{record.checkIn}</TableCell>
-                      <TableCell>{record.checkOut}</TableCell>
+                      <TableCell>{record.date}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -364,33 +403,121 @@ const Dashboard: React.FC = () => {
             </TableContainer>
           </Paper>
         </Grid>
+      </Grid>
+    </>
+  );
 
-        {/* Monthly Attendance Trend */}
-        <Grid item xs={12}>
+  const renderHRAnalytics = () => (
+    <>
+      <Grid container spacing={3}>
+        {/* Employee Distribution */}
+        <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, height: '400px' }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Monthly Attendance Trend
+              Employee Distribution by Department
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={attendanceData}>
+              <PieChart>
+                <Pie
+                  data={departmentDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {departmentDistribution.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Gate Pass Trend */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '400px' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Gate Pass Trend
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={gatePassTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="date" />
                 <YAxis />
                 <RechartsTooltip />
-                <Area
-                  type="monotone"
-                  dataKey="attendance"
-                  stroke="#3498DB"
-                  fill="#3498DB"
-                  fillOpacity={0.3}
-                />
-              </AreaChart>
+                <Bar dataKey="approved" fill="#2ECC71" name="Approved" />
+                <Bar dataKey="rejected" fill="#E74C3C" name="Rejected" />
+              </BarChart>
             </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Recent Employee Activity */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Recent Employee Activity
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Employee</TableCell>
+                    <TableCell>Department</TableCell>
+                    <TableCell>Activity</TableCell>
+                    <TableCell>Time</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {[
+                    { employee: 'John Doe', department: 'IT', activity: 'Check In', time: '09:00 AM', status: 'On Time' },
+                    { employee: 'Jane Smith', department: 'HR', activity: 'Gate Pass Request', time: '10:30 AM', status: 'Pending' },
+                    { employee: 'Mike Johnson', department: 'Finance', activity: 'Shift Change Request', time: '11:00 AM', status: 'Pending' },
+                  ].map((record, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{record.employee}</TableCell>
+                      <TableCell>{record.department}</TableCell>
+                      <TableCell>{record.activity}</TableCell>
+                      <TableCell>{record.time}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={record.status}
+                          color={record.status === 'On Time' ? 'success' : 'warning'}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Paper>
         </Grid>
       </Grid>
     </>
   );
+
+  const getDashboardMetrics = () => {
+    switch (userRole) {
+      case 'SUPERADMIN':
+        return getSuperAdminMetrics();
+      case 'ADMIN':
+        return getAdminMetrics();
+      case 'HR':
+        return getHRMetrics();
+      default:
+        console.log('No matching role found for:', userRole);
+        return [];
+    }
+  };
+
+  const metrics = getDashboardMetrics();
 
   return (
     <Box sx={{ p: 3 }}>
@@ -400,9 +527,11 @@ const Dashboard: React.FC = () => {
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
         Here's your dashboard overview
       </Typography>
+      
+      {/* Metrics Grid */}
       <Grid container spacing={3}>
         {metrics.map((metric, index) => (
-          <Grid item xs={12} sm={6} lg={3} key={index}>
+          <Grid item xs={12} sm={6} md={4} key={index}>
             <Paper 
               sx={{ 
                 p: 2.5,
@@ -462,7 +591,9 @@ const Dashboard: React.FC = () => {
         Analytics Overview
       </Typography>
       
-      {user?.role === 'HR' ? renderHRAnalytics() : renderEmployeeAnalytics()}
+      {userRole === 'SUPERADMIN' && renderSuperAdminAnalytics()}
+      {userRole === 'ADMIN' && renderAdminAnalytics()}
+      {userRole === 'HR' && renderHRAnalytics()}
     </Box>
   );
 };
