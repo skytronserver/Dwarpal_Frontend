@@ -12,7 +12,7 @@ export const GatePassFormFields: Field[] = [
     {
         name: 'photo',
         label: 'Photo',
-        type: 'file',
+        type: 'photo-upload',
         required: true,
         validation: Yup.mixed().required('Photo is required'),
     },
@@ -181,7 +181,8 @@ export const GatePassFormFields: Field[] = [
     {
         name: 'person_to_meet',
         label: 'Person to Meet',
-        type: 'text',
+        type: 'select',
+        options: [{ label: 'Person 1', value: 1 }, { label: 'Person 2', value: 2 }],
         required: true,
         validation: Yup.string().required('Person to meet is required'),
     },

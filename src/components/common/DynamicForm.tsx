@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import { DynamicFormProps, Field } from "../../types/form.types";
 import { useTheme } from "@mui/material/styles";
+import PhotoUploadModal from "../gatePass/PhotoUploadModal";
 
 // Create a theme with overrides to remove required field asterisks
 const theme = createTheme({
@@ -51,6 +52,7 @@ const theme = createTheme({
 const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormProps) => {
   const [formData, setFormData] = useState<Record<string, any>>(initialValues || {});
   const [openModal, setOpenModal] = useState(false);
+  const [activePhotoField, setActivePhotoField] = useState<string | null>(null);
   const muiTheme = useTheme();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -471,27 +473,71 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
           </FormControl>
         );
 
+      case "photo-upload":
+        return (
+          <Box>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setActivePhotoField(field.name);
+                setOpenModal(true);
+              }}
+              sx={{ mb: 1 }}
+            >
+              {formData[field.name] ? "Change Photo" : "Upload Photo"}
+            </Button>
+            {formData[field.name] && (
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="body2" color="textSecondary">
+                  Photo selected: {formData[field.name]?.name}
+                </Typography>
+              </Box>
+            )}
+            <PhotoUploadModal
+              open={openModal && activePhotoField === field.name}
+              onClose={() => {
+                setOpenModal(false);
+                setActivePhotoField(null);
+              }}
+              onPhotoSelect={(photo) => {
+                if (photo) {
+                  setFormData(prev => {
+                    const newData = {
+                      ...prev,
+                      [field.name]: photo
+                    };
+                    onChange?.(newData);
+                    return newData;
+                  });
+                }
+              }}
+            />
+          </Box>
+        );
+
       default:
         return (
-          <FormControl fullWidth sx={commonStyles}>
+          <Box>
             <TextField
               fullWidth
               name={field.name}
               label={field.label}
               type={field.type}
-              value={formData[field.name] || field.defaultValue || ""}
+              value={formData[field.name] || ""}
               onChange={handleInputChange}
               required={field.required}
               disabled={field.disabled}
               sx={commonStyles}
-              placeholder={field.placeholder || ''}
-              InputLabelProps={{ 
-                shrink: field.type === 'date' || Boolean(formData[field.name]) || Boolean(field.defaultValue),
+              helperText={field.helperText}
+              InputLabelProps={{
+                shrink: field.type === 'date' ? true : undefined,
                 required: false
               }}
-              helperText={field.helperText}
+              inputProps={{
+                placeholder: field.type === 'date' ? 'YYYY-MM-DD' : undefined
+              }}
             />
-          </FormControl>
+          </Box>
         );
     }
   };
@@ -517,32 +563,6 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 {renderField(field)}
               </Grid>
             ))}
-            
-            {switchFields.length > 0 && (
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="outlined"
-                  onClick={handleModalOpen}
-                  sx={{
-                    width: '100%',
-                    py: 1.5,
-                    borderRadius: '8px',
-                    textTransform: 'none',
-                    fontSize: '0.95rem',
-                    fontWeight: 500,
-                    borderColor: '#e2e8f0',
-                    color: '#2c3e50',
-                    '&:hover': {
-                      borderColor: '#cbd5e1',
-                      backgroundColor: '#ffffff',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                    }
-                  }}
-                >
-                  Select Privileges
-                </Button>
-              </Grid>
-            )}
 
             <Grid item xs={12}>
               <Button
@@ -569,76 +589,78 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
           </Grid>
         </form>
 
-        <Dialog 
-          open={openModal} 
-          onClose={handleModalClose}
-          PaperProps={{
-            sx: {
-              borderRadius: '16px',
-              minWidth: '360px',
-              backgroundColor: muiTheme.palette.background.paper,
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-            }
-          }}
-        >
-          <DialogTitle sx={{ 
-            pb: 1,
-            pt: 2.5,
-            px: 3,
-            typography: 'h6',
-            fontWeight: 600,
-            color: '#2c3e50',
-          }}>
-            Privileges
-          </DialogTitle>
-          <DialogContent sx={{ px: 3 }}>
-            <Box sx={{ 
-              py: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1.5,
+        {switchFields.length > 0 && (
+          <Dialog 
+            open={openModal} 
+            onClose={handleModalClose}
+            PaperProps={{
+              sx: {
+                borderRadius: '16px',
+                minWidth: '360px',
+                backgroundColor: muiTheme.palette.background.paper,
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+              }
+            }}
+          >
+            <DialogTitle sx={{ 
+              pb: 1,
+              pt: 2.5,
+              px: 3,
+              typography: 'h6',
+              fontWeight: 600,
+              color: '#2c3e50',
             }}>
-              {switchFields.map((field) => (
-                <Box 
-                  key={field.name} 
-                  sx={{
-                    p: 2,
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    '&:hover': {
-                      borderColor: '#cbd5e1',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                    }
-                  }}
-                >
-                  {renderField(field)}
-                </Box>
-              ))}
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 2.5 }}>
-            <Button 
-              onClick={handleModalClose}
-              variant="contained"
-              sx={{
-                px: 4,
-                py: 1,
-               width:10,
-                borderRadius: '6px',
-                textTransform: 'none',
-                fontSize: '0.95rem',
-                fontWeight: 500,
-                backgroundColor: muiTheme.palette.primary.main,
-                '&:hover': {
-                  backgroundColor: muiTheme.palette.primary.dark,
-                }
-              }}
-            >
-              Done
-            </Button>
-          </DialogActions>
-        </Dialog>
+              Privileges
+            </DialogTitle>
+            <DialogContent sx={{ px: 3 }}>
+              <Box sx={{ 
+                py: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.5,
+              }}>
+                {switchFields.map((field) => (
+                  <Box 
+                    key={field.name} 
+                    sx={{
+                      p: 2,
+                      borderRadius: '8px',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      '&:hover': {
+                        borderColor: '#cbd5e1',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                      }
+                    }}
+                  >
+                    {renderField(field)}
+                  </Box>
+                ))}
+              </Box>
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2.5 }}>
+              <Button 
+                onClick={handleModalClose}
+                variant="contained"
+                sx={{
+                  px: 4,
+                  py: 1,
+                  width: 10,
+                  borderRadius: '6px',
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                  backgroundColor: muiTheme.palette.primary.main,
+                  '&:hover': {
+                    backgroundColor: muiTheme.palette.primary.dark,
+                  }
+                }}
+              >
+                Done
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
       </Paper>
     </ThemeProvider>
   );
