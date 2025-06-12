@@ -5,6 +5,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../hooks/useAuth";
 
 // Dummy data for all employees analytics
 const companyOverview = {
@@ -40,7 +41,7 @@ const monthlyTrend = [
 
 const AttendanceAnalytics = () => {
   const navigate = useNavigate();
-
+  const {hasRole} = useAuth();
   const handleEmployeeClick = (employeeId: number) => {
     navigate(`/attendance/${employeeId}`);
   };
@@ -153,7 +154,7 @@ const AttendanceAnalytics = () => {
 
       {/* Top Performers */}
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3 }}>Top Performers</Typography>
+        <Typography variant="h6" sx={{ mb: 3 }}>{hasRole(['HR','ADMIN']) ? 'Top Performers' : 'Employees Attendance'}</Typography>
         <TableContainer>
           <Table>
             <TableHead>

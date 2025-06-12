@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Users, Clock, Calendar, Building2, DoorClosed, Timer, TrendingUp, CheckCircle } from 'lucide-react';
+import { Users, Clock, Calendar, Building2, DoorClosed, Timer, TrendingUp, CheckCircle, UserCheck, Briefcase, AlertTriangle } from 'lucide-react';
 import {
   Grid,
   Paper,
@@ -9,6 +9,13 @@ import {
   LinearProgress,
   Tooltip,
   Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Avatar,
 } from '@mui/material';
 import { useGetGuestPassesQuery } from '../services/gatePassApi';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -49,6 +56,27 @@ const gatePassTrend = [
 ];
 
 const COLORS = ['#2C3E50', '#3498DB', '#8E44AD', '#F39C12', '#7F8C8D'];
+
+const employeeAttendanceData = [
+  { date: '2024-03-01', status: 'Present', checkIn: '09:00', checkOut: '17:30' },
+  { date: '2024-03-02', status: 'Present', checkIn: '09:15', checkOut: '17:45' },
+  { date: '2024-03-03', status: 'Late', checkIn: '09:30', checkOut: '17:30' },
+  { date: '2024-03-04', status: 'Present', checkIn: '09:00', checkOut: '17:30' },
+  { date: '2024-03-05', status: 'Absent', checkIn: '-', checkOut: '-' },
+];
+
+const departmentPerformance = [
+  { department: 'IT', attendance: 95, productivity: 92 },
+  { department: 'HR', attendance: 98, productivity: 95 },
+  { department: 'Finance', attendance: 94, productivity: 90 },
+  { department: 'Operations', attendance: 92, productivity: 88 },
+];
+
+const employeeStatusData = [
+  { status: 'Present', count: 85 },
+  { status: 'Late', count: 10 },
+  { status: 'Absent', count: 5 },
+];
 
 const Dashboard: React.FC = () => {
   const { user, hasPermission } = useAuth();
@@ -138,6 +166,50 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  const getHRMetrics = (): DashboardMetric[] => [
+    {
+      title: 'Total Employees',
+      value: '150',
+      icon: <Users className="h-6 w-6" />,
+      progress: 100,
+      color: 'primary.main',
+      trend: '+5 this month',
+      subtitle: '142 active today'
+    },
+    {
+      title: 'Present Today',
+      value: '85%',
+      icon: <UserCheck className="h-6 w-6" />,
+      progress: 85,
+      color: 'success.main',
+      subtitle: '128 employees'
+    },
+    {
+      title: 'Late Today',
+      value: '10',
+      icon: <Clock className="h-6 w-6" />,
+      progress: 15,
+      color: 'warning.main',
+      subtitle: 'Needs attention'
+    },
+    {
+      title: 'Department Performance',
+      value: '94%',
+      icon: <Briefcase className="h-6 w-6" />,
+      progress: 94,
+      color: 'info.main',
+      subtitle: 'Above target'
+    },
+    {
+      title: 'Leave Requests',
+      value: '8',
+      icon: <Calendar className="h-6 w-6" />,
+      progress: 30,
+      color: 'warning.main',
+      subtitle: 'Pending approval'
+    },
+  ];
+
   const getEmployeeMetrics = (): DashboardMetric[] => {
     const metrics: DashboardMetric[] = [];
 
@@ -188,6 +260,8 @@ const Dashboard: React.FC = () => {
         return getSuperAdminMetrics();
       case 'ADMIN':
         return getAdminMetrics();
+      case 'HR':
+        return getHRMetrics();
       default:
         return getEmployeeMetrics();
     }
@@ -195,10 +269,133 @@ const Dashboard: React.FC = () => {
 
   const metrics = getDashboardMetrics();
 
+  const renderHRAnalytics = () => (
+    <>
+      <Grid container spacing={3}>
+        {/* Department Performance Chart */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '400px' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Department Performance
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={departmentPerformance}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="department" />
+                <YAxis />
+                <RechartsTooltip />
+                <Bar dataKey="attendance" fill="#3498DB" name="Attendance %" />
+                <Bar dataKey="productivity" fill="#2ECC71" name="Productivity %" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Employee Status Distribution */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '400px' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Today's Employee Status
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={employeeStatusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {employeeStatusData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
+    </>
+  );
+
+  const renderEmployeeAnalytics = () => (
+    <>
+      <Grid container spacing={3}>
+        {/* Attendance History Table */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Recent Attendance History
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Check In</TableCell>
+                    <TableCell>Check Out</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {employeeAttendanceData.map((record) => (
+                    <TableRow key={record.date}>
+                      <TableCell>{record.date}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={record.status}
+                          color={
+                            record.status === 'Present' ? 'success' :
+                            record.status === 'Late' ? 'warning' : 'error'
+                          }
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>{record.checkIn}</TableCell>
+                      <TableCell>{record.checkOut}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Grid>
+
+        {/* Monthly Attendance Trend */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3, height: '400px' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Monthly Attendance Trend
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={attendanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <RechartsTooltip />
+                <Area
+                  type="monotone"
+                  dataKey="attendance"
+                  stroke="#3498DB"
+                  fill="#3498DB"
+                  fillOpacity={0.3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
+    </>
+  );
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" sx={{ mb: 1 }}>
-        Welcome, {user?.user_name || ' '}
+        Welcome, {user?.user_name || ' '} -DWARPAL
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
         Here's your dashboard overview
@@ -260,83 +457,12 @@ const Dashboard: React.FC = () => {
         ))}
       </Grid>
 
-      {/* New Analytics Section */}
+      {/* Analytics Section */}
       <Typography variant="h5" sx={{ mt: 4, mb: 3 }}>
         Analytics Overview
       </Typography>
       
-      <Grid container spacing={3}>
-        {/* Attendance Trend Chart */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, height: '400px' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Monthly Attendance Trend
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={attendanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <RechartsTooltip />
-                <Area 
-                  type="monotone" 
-                  dataKey="attendance" 
-                  stroke="#3498DB" 
-                  fill="#3498DB" 
-                  fillOpacity={0.3} 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-
-        {/* Department Distribution Chart */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, height: '400px' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Department Distribution
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={departmentDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {departmentDistribution.map(( _ , index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <RechartsTooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-
-        {/* Gate Pass Analysis Chart */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3, height: '400px' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Gate Pass Analysis
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={gatePassTrend}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <RechartsTooltip />
-                <Bar dataKey="approved" fill="#3498DB" stackId="a" name="Approved" />
-                <Bar dataKey="rejected" fill="#8E44AD" stackId="a" name="Rejected" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+      {user?.role === 'HR' ? renderHRAnalytics() : renderEmployeeAnalytics()}
     </Box>
   );
 };
