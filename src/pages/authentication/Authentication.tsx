@@ -8,7 +8,7 @@ import { useErrorToast, useSuccessToast } from '../../components/Toast';
 import './Authentication.css';
 
 const Authentication = () => {
-  const [employeeId, setEmployeeId] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -21,38 +21,17 @@ const Authentication = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data: LoginTypes = {
-      employee_code: employeeId,
+      mobile_number: mobileNumber,
       password: password
     };
     try {
       const response = await getLogin(data).unwrap();
       console.log('Login Response:', response);
-      console.log('User Data:', response.data.user);
-      
-      if (keepLoggedIn) {
-        localStorage.setItem('auth_token', response.data.token);
-        localStorage.setItem('user_data', JSON.stringify(response.data.user));
-      } else {
-        sessionStorage.setItem('auth_token', response.data.token);
-        sessionStorage.setItem('user_data', JSON.stringify(response.data.user));
-      }
-      
-      // Verify storage
-      const storedUser = keepLoggedIn 
-        ? localStorage.getItem('user_data') 
-        : sessionStorage.getItem('user_data');
-      console.log('Stored User Data:', storedUser);
-      
       showSuccessToast(response?.message);
-      navigate('/dashboard');
+      navigate('/otp-verification', { state: { mobileNumber: mobileNumber, rememberMe: keepLoggedIn } });
     } catch (error: any) {
-      showErrorToast(error?.data?.message);
-      console.error('Login failed:', {
-        status: error?.status,
-        data: error?.data,
-        error: error,
-        message: error?.message || 'An unknown error occurred'
-      });
+      console.log('Login failed:', error);
+      showErrorToast(error?.data?.error || error?.message || 'Login failed. Please try again.');
     }
   };
 
@@ -144,16 +123,16 @@ const Authentication = () => {
                   <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 mt-6 sm:mt-8">
                     <motion.div className="space-y-5" variants={fadeIn}>
                       <div>
-                        <label htmlFor="employeeId" className="block text-sm font-medium text-white mb-2">
-                          Employee ID
+                          <label htmlFor="mobileNumber" className="block text-sm font-medium text-white mb-2">
+                            Mobile Number
                         </label>
                         <div className="relative">
                           <input
                             type="text"
-                            id="employeeId"
-                            value={employeeId}
-                            onChange={(e) => setEmployeeId(e.target.value)}
-                            placeholder="Enter your Employee ID"
+                            id="mobileNumber"
+                            value={mobileNumber}
+                            onChange={(e) => setMobileNumber(e.target.value)}
+                            placeholder="Enter your Mobile Number"
                             className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
                           />
                         </div>

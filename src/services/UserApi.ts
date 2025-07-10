@@ -6,7 +6,12 @@ export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
   endpoints: (builder) => ({
-    getUsers: builder.query<UserResponse, { search?: string; page?: number; page_size?: number }>({
+    getUsers: builder.query<UserResponse, { 
+      search?: string; 
+      page?: number; 
+      page_size?: number;
+      organization?: string | number;
+    }>({
       query: (params) => ({
         url: API_ENDPOINTS.users.list,
         params,

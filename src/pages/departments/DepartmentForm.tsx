@@ -22,7 +22,12 @@ interface DepartmentFormValues {
 const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const { id, orgId } = useParams();
-    const { data: departmentData, isLoading: isDepartmentLoading } = useGetDepartmentsQuery({page: 1, search: searchQuery, page_size: 10});
+    const { data: departmentData, isLoading: isDepartmentLoading } = useGetDepartmentsQuery({
+        page: 1, 
+        search: searchQuery, 
+        page_size: 10,
+        organization: orgId
+    });
     const { data: organizationData, isLoading: isOrgLoading } = organisationApi.useGetOrganizationByIdQuery(Number(orgId), { 
         skip: !orgId,
         refetchOnMountOrArgChange: true
@@ -36,7 +41,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
             return {
                 ...departmentData.data,
                 organization: departmentData.data.organization?.id,
-                departments: [{ name: departmentData.data.name }]
+                name: departmentData.data.name
             };
         }
         
@@ -44,18 +49,20 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
         if (!isEditMode && orgId && organizationData?.data) {
             return {
                 organization: organizationData.data.id,
-                departments: [{ name: '' }] // Initialize with one empty department
+                name: '' // Initialize with empty name
             };
         }
         
-        return undefined;
+        return {
+            name: '' // Default empty name
+        };
     }, [departmentData, organizationData, isEditMode, orgId]);
 
     const formFields = React.useMemo(() => {
         const fields = [...DepartmentFormFields];
         const orgField = fields.find(f => f.name === 'organization');
         if (orgField && organizationData?.data) {
-            orgField.options = [{ label: organizationData.data.name, value: organizationData.data.id }];
+            orgField.options = [{ label: organizationData.data.client_name, value: organizationData.data.id }];
             orgField.defaultValue = organizationData.data.id;
         }
         return fields;
@@ -63,6 +70,8 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
 
     const handleSubmit = async (values: DepartmentFormValues) => {
         try {
+            console.log('Form Values:', values);
+            
             if (isEditMode) {
                 // Handle single department edit
                 const formData = new FormData();
@@ -72,6 +81,11 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
                     }
                 });
                 
+                console.log('Edit Mode FormData entries:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0], pair[1]);
+                }
+                
                 const response = await editDepartment({ 
                     id: parseInt(id!), 
                     data: formData 
@@ -79,28 +93,36 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
                 console.log('Department updated successfully:', response);
                 onSuccess?.();
             } else {
-                // Handle multiple departments creation
-                const departments = values.departments || [];
-                const organization = values.organization;
+                // Handle department creation
+                const formData = new FormData();
+                formData.append('organization', values.organization.toString());
                 
-                // Create each department
-                for (const dept of departments) {
-                    const formData = new FormData();
-                    formData.append('organization', organization.toString());
-                    formData.append('name', dept.name);
-                    
-                    await createDepartment(formData).unwrap();
+                const departmentName = values.name;
+                console.log('Department Name:', departmentName);
+                
+                if (!departmentName || typeof departmentName !== 'string') {
+                    console.error('Department name is missing or invalid:', departmentName);
+                    throw new Error('Department name is required');
                 }
                 
-                console.log('Departments created successfully');
-                navigate('/departments');
+                formData.append('name', departmentName);
+                
+                console.log('Create Mode FormData entries:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0], pair[1]);
+                }
+                
+                const response = await createDepartment(formData).unwrap();
+                console.log('Department created successfully:', response);
+                navigate(`/client/${orgId}/departments`);
             }
         } catch (error) {
             console.error('Error handling department:', error);
+            throw error;
         }
     };
 
-    console.log(modifiedInitialData,'modifiedInitialData');
+    console.log('Initial Form Data:', modifiedInitialData);
 console.log(departmentData,'departmentData');
     return (
         <Box sx={{ p: 3 }}>
@@ -160,7 +182,7 @@ console.log(departmentData,'departmentData');
                                         <ListItemButton>
                                             <ListItemText 
                                                 primary={department.name}
-                                                secondary={`Organization: ${department.organization?.name || 'N/A'}`}
+                                                secondary={`Organization: ${department.organization?.client_name || 'N/A'}`}
                                             />
                                         </ListItemButton>
                                     </ListItem>

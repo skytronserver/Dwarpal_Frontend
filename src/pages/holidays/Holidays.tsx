@@ -4,7 +4,7 @@ import { parse } from 'date-fns/parse';
 import { startOfWeek } from 'date-fns/startOfWeek';
 import { getDay } from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { useGetHolidaysQuery, useEditHolidayMutation } from "../../services/holidayApi";
+import { useGetHolidaysQuery, useEditHolidayMutation, useApproveHolidayMutation } from "../../services/holidayApi";
 import { enUS } from 'date-fns/locale/en-US';
 import { useState } from 'react';
 import { Box, Typography, Paper, Modal, Button, List, ListItem, CircularProgress, ToggleButton, ToggleButtonGroup, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
@@ -15,6 +15,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
+import { useSuccessToast, useErrorToast } from '../../components/Toast';
 
 const locales = {
     'en-US': enUS
@@ -35,6 +36,7 @@ interface Holiday {
     holiday_name: string;
     is_active: boolean;
     created_by: number;
+    is_approved?: boolean;
 }
 
 interface CalendarEvent {
@@ -42,7 +44,7 @@ interface CalendarEvent {
     title: string;
     start: Date;
     end: Date;
-    isVerified: boolean;
+    is_approved: boolean;
     createdBy: number;
     name: string;
 }
@@ -58,17 +60,18 @@ const Holidays = () => {
     const navigate = useNavigate();
     const { hasRole, hasPermission } = useAuth();
     const [approvalComment, setApprovalComment] = useState('');
-
+    const [approveHoliday] = useApproveHolidayMutation();
+    const showSuccessToast = useSuccessToast();
+    const showErrorToast = useErrorToast();
     const events: CalendarEvent[] = data?.results.map((holiday: Holiday) => ({
         id: holiday.id,
         title: `${holiday.holiday_name} ${holiday.is_active ? '✓' : '⏳'}`,
         start: new Date(holiday.holiday_from_date),
         end: new Date(holiday.holiday_to_date),
-        isVerified: holiday.is_active,
+        is_approved: holiday.is_approved,
         createdBy: holiday.created_by,
         name: holiday.holiday_name
     })) || [];
-
     const handleEventClick = (event: CalendarEvent) => {
         setSelectedEvent(event);
         setIsModalOpen(true);
@@ -101,15 +104,11 @@ const Holidays = () => {
     const handleApproveConfirm = async () => {
         if (holidayToApprove) {
             try {
-                const formData = new FormData();
-                formData.append('is_active', 'true');
-                if (approvalComment) {
-                    formData.append('comment', approvalComment);
-                }
-                await editHoliday({ id: holidayToApprove, data: formData }).unwrap();
-                window.location.reload();
-            } catch (error) {
+                await approveHoliday(holidayToApprove).unwrap();
+                showSuccessToast('Holiday approved successfully');
+            } catch (error: any) {
                 console.error('Error approving holiday:', error);
+                showErrorToast(error?.data?.message || 'Error approving holiday');
             }
         }
         setIsApproveModalOpen(false);
@@ -192,7 +191,7 @@ const Holidays = () => {
                         onSelectEvent={handleEventClick}
                         eventPropGetter={(event: CalendarEvent) => ({
                             style: {
-                                backgroundColor: event.isVerified ? '#2e7d32' : '#ed6c02',
+                                backgroundColor: event.is_approved ? '#2e7d32' : '#ed6c02',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '3px',
@@ -224,11 +223,11 @@ const Holidays = () => {
                                     <TableCell>
                                         <Typography
                                             sx={{
-                                                color: event.isVerified ? 'success.main' : 'warning.main',
+                                                color: event.is_approved ? 'success.main' : 'warning.main',
                                                 fontWeight: 600,
                                             }}
                                         >
-                                            {event.isVerified ? '✓ Verified' : '⏳ Pending'}
+                                            {event.is_approved ? '✓ Verified' : '⏳ Pending'}
                                         </Typography>
                                     </TableCell>
                                     <TableCell>User {event.createdBy}</TableCell>
@@ -241,7 +240,7 @@ const Holidays = () => {
                                             >
                                                 <EditIcon />
                                             </IconButton>
-                                            {hasPermission('approve:approval') && !event.isVerified && (
+                                            {hasPermission('approve:approval') && !event.is_approved && (
                                                 <IconButton
                                                     size="small"
                                                     onClick={() => handleApproveClick(event.id)}
@@ -347,13 +346,13 @@ const Holidays = () => {
                                         Status:
                                     </Typography>
                                     <Typography sx={{
-                                        color: selectedEvent.isVerified ? 'success.main' : 'warning.main',
+                                        color: selectedEvent.is_approved ? 'success.main' : 'warning.main',
                                         fontWeight: 600,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 1
                                     }}>
-                                        {selectedEvent.isVerified ? '✓ Verified' : '⏳ Pending Verification'}
+                                        {selectedEvent.is_approved ? '✓ Approved' : '⏳ Pending'}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -389,8 +388,8 @@ const Holidays = () => {
                                         >
                                             Edit
                                         </Button>
-                                        {!selectedEvent.isVerified && (
-                                            <Button
+                                    {!selectedEvent.is_approved && (
+                                            <Button     
                                                 variant="contained"
                                                 color="success"
                                                 onClick={() => handleApproveClick(selectedEvent.id)}

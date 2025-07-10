@@ -15,14 +15,14 @@ export const SubscriptionFormFields: Field[] = [
     type: 'select',
     required: true,
     options: [
-      { value: '1', label: '1 Month' },
-      { value: '3', label: '3 Months' },
-      { value: '6', label: '6 Months' },
-      { value: '1', label: '1 Years' },
-      { value: '2', label: '2 Years' },
-      { value: '3', label: '3 Years' },
-      { value: '4', label: '4 Years' },
-      { value: '5', label: '5 Years' },
+      { value: '1_month', label: '1 Month' },
+      { value: '3_months', label: '3 Months' },
+      { value: '6_months', label: '6 Months' },
+      { value: '1_year', label: '1 Year' },
+      { value: '2_years', label: '2 Years' },
+      { value: '3_years', label: '3 Years' },
+      { value: '4_years', label: '4 Years' },
+      { value: '5_years', label: '5 Years' },
     ],
     validation: Yup.string().required('Duration is required')
   },
@@ -50,22 +50,22 @@ export const SubscriptionFormFields: Field[] = [
       .required('Privileges are required')
   },
   {
-    name: 'max_employees',
+    name: 'employee_range',
     label: 'Number of Employees',
     type: 'select',
     required: true,
     options: [
-      { value: '1', label: '1-10' },
-      { value: '2', label: '10-100' },
-      { value: '3', label: '100-1000' },
-      { value: '4', label: '1000-10000' },
-      { value: '5', label: '10000-100000' },
+      { value: '1-10', label: '1-10' },
+      { value: '11-100', label: '11-100' },
+      { value: '101-1000', label: '101-1000' },
+      { value: '1001-10000', label: '1001-10000' },
+      { value: '10001-100000', label: '10001-100000' },
     ],
     validation: Yup.string()
       .required('Number of employees is required')
     },
     {
-      name:'no_of_devices',
+      name:'number_of_door_locks',
       label:'Number of DoorLocks',
       type:'number',
       required:true,
@@ -74,7 +74,7 @@ export const SubscriptionFormFields: Field[] = [
         .required('Number of devices is required')
     },
     {
-      name:'no_of_cameras',
+      name:'number_of_cameras',
       label:'Number of Cameras',
       type:'number',
       required:true,
@@ -83,7 +83,7 @@ export const SubscriptionFormFields: Field[] = [
         .required('Number of cameras is required') 
     },
     {
-      name:'guest_pass_limit',
+      name:'guest_pass_limit_per_month',
       label:'Guest Pass Limit (per month)',
       type:'number',
       required:true,

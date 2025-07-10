@@ -3,6 +3,7 @@ import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
+const ComingSoon = lazy(() => import('../pages/ComingSoon'));
 const Organisations = lazy(() => import('../pages/organisation/Organisations'));
 const ViewOrganisation = lazy(() => import('../pages/organisation/ViewOrganisation'));
 const OrganisationForm = lazy(() => import('../pages/organisation/OrganisationForm'));
@@ -53,6 +54,14 @@ const adminRoutes:RouteConfig[] = [
         group: 'dashboard'
     },
     {
+        path: '/coming-soon',
+        element: ComingSoon,
+        title: 'Coming Soon',
+        icon: Clock,
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE', 'HR', 'ACCOUNTS'] as UserRole[],
+        group: 'manage'
+    },
+    {
         path: '/client/organisations',
         element: Organisations,
         title: 'Manage Organisations',
@@ -93,6 +102,14 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     }, 
     {
+        path: 'org/client/:orgId/users',
+        element: ManageUsers,
+        title: 'Manage Users',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
+    }, 
+    {
         path: 'company/employee/new/:id',
         element: EmployeeForm,
         title: 'Create Employee',
@@ -110,10 +127,10 @@ const adminRoutes:RouteConfig[] = [
     },
     {
         path: 'company/accounts/new/:id',
-        element: CompanyAccountsUserForm,
+        element: AccountsUserForm,
         title: 'Create accounts user',
         icon: Users,
-        allowedRoles: ['SUPERADMIN','ADMIN'] as UserRole[],
+        allowedRoles: ['ADMIN'] as UserRole[],
         group: 'create'
     },
     {
@@ -253,7 +270,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     },
     {
-        path: '/gate-passes/:id',
+        path: '/reports/gate-passes/:id',
         element: ViewGatePass,
         title: 'View Gate Pass',
         icon: Gate,

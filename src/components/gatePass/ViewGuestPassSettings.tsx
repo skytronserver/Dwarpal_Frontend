@@ -18,44 +18,14 @@ import { openModal } from '../../features/slices/modalSlice';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { RootState } from '../../features/store';
 import { ModalState } from "../../features/slices/modalSlice";
+import { GuestPassSettings,   useViewGuestPassSettingsQuery } from '../../services/gatePassApi';
 
-// Demo data for guest pass settings
-const demoGuestPassSettings = [
-  {
-    id: 1,
-    visitorName: 'John Doe',
-    purpose: 'Business Meeting',
-    validFrom: '2024-03-20 09:00 AM',
-    validUntil: '2024-03-20 05:00 PM',
-    status: 'Pending',
-    issuerName: 'Admin Smith',
-    visitorType: 'Business',
-  },
-  {
-    id: 2,
-    visitorName: 'Jane Smith',
-    purpose: 'Personal Visit',
-    validFrom: '2024-03-21 10:00 AM',
-    validUntil: '2024-03-21 02:00 PM',
-    status: 'Pending',
-    issuerName: 'Admin Johnson',
-    visitorType: 'Personal',
-  },
-  {
-    id: 3,
-    visitorName: 'Mike Wilson',
-    purpose: 'Maintenance',
-    validFrom: '2024-03-22 08:00 AM',
-    validUntil: '2024-03-22 06:00 PM',
-    status: 'Active',
-    issuerName: 'Admin Davis',
-    visitorType: 'Service',
-  },
-];
 
 const ViewGuestPassSettings: React.FC = () => {
   const dispatch = useDispatch();
   const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
+  const { data: guestPassSettings, isLoading, error } = useViewGuestPassSettingsQuery();
+
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -113,7 +83,7 @@ const ViewGuestPassSettings: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {demoGuestPassSettings.map((pass) => (
+          {guestPassSettings?.results?.map((pass: GuestPassSettings) => (
               <TableRow
                 key={pass.id}
                 sx={{ '&:hover': { backgroundColor: '#f8f8f8' } }}

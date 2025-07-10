@@ -1,6 +1,7 @@
 export type LoginTypes = {
-    employee_code: string;
-    password: string;
+    mobile_number: string;
+    password?: string;
+    otp?: string;
 }
 
 export type UserRole = 'SUPERADMIN' | 'ADMIN' | 'HR' | 'EMPLOYEE';
@@ -22,6 +23,8 @@ export interface LoginResponseTypes {
     token: string;
     user: User;
   };
+  success: boolean;
+  error?: string;
   message: string;
-  status: string;
+  status_code: number;
 }

@@ -3,7 +3,7 @@ import { useDeleteDepartmentMutation, useGetDepartmentsQuery } from "../../servi
 import { formatFieldName } from "../../utils/formatFeildName";
 import CommonTable from "../../components/common/CommonTable";
 import { Box, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 
 import { openModal } from '../../features/slices/modalSlice';
@@ -14,6 +14,7 @@ import { ModalState } from '../../features/slices/modalSlice';
 
 const ManageDepartments = () => {
   const navigate = useNavigate();
+  const { orgId } = useParams(); // Get orgId from URL params
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -21,6 +22,7 @@ const ManageDepartments = () => {
     search: searchTerm,
     page: page,
     page_size: pageSize,
+    organization: orgId // Add organization filter when orgId is present
   });
 
   const columns = data?.results?.[0]
@@ -33,7 +35,7 @@ const ManageDepartments = () => {
         };
 
         if (key === 'organization') {
-          column.renderCell = (params: any) => params.row.organization?.name;
+          column.renderCell = (params: any) => params.row.organization?.client_name;
         }
 
         if (key === 'integrate_with_ai_camera') {
@@ -64,12 +66,21 @@ const ManageDepartments = () => {
   };
 
   const handleView = (row: any) => {
-    navigate(`/departments/${row.id}`, { state: { department: row } });
+    if (orgId) {
+      navigate(`/client/${orgId}/departments/${row.id}`, { state: { department: row } });
+    } else {
+      navigate(`/departments/${row.id}`, { state: { department: row } });
+    }
   };
 
 
   const handleEdit = (row: any) => {
-    navigate(`/departments/new/${row.id}`);
+    // Update navigation to include orgId if present
+    if (orgId) {
+      navigate(`/client/${orgId}/departments/new/${row.id}`);
+    } else {
+      navigate(`/departments/new/${row.id}`);
+    }
   }
 
 

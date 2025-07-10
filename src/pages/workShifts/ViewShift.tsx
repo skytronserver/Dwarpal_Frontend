@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import { AccessTime, Person, Schedule, Timer, CheckCircle, Assignment, PendingActions, Close } from "@mui/icons-material";
 import { Box, Paper, Typography, Button, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Chip, TextField } from "@mui/material";
 import { useAuth } from "../../hooks/useAuth";
-import { useGetShiftByIdQuery, useEditShiftMutation } from "../../services/shiftApi";
+import { useGetShiftByIdQuery, useEditShiftMutation, useApproveShiftMutation } from "../../services/shiftApi";
 import { useState } from "react";
+import { useSuccessToast, useErrorToast } from "../../components/Toast";
 
 interface Shift {
     id: number;
@@ -14,6 +15,7 @@ interface Shift {
     total_work_time: number;
     created_by: number;
     is_active: boolean;
+    is_approved: boolean;
     comment?: string;
 }
 
@@ -25,18 +27,17 @@ const ViewShift = () => {
     const { hasPermission } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [comment, setComment] = useState('');
+    const [approveShift] = useApproveShiftMutation();
+    const showSuccessToast = useSuccessToast();
+    const showErrorToast = useErrorToast();
 
     const handleApprove = async () => {
         try {
-            const formData = new FormData();
-            formData.append('is_active', 'true');
-            if (comment) {
-                formData.append('comment', comment);
-            }
-            await editShift({ id: Number(id), data: formData }).unwrap();
-            window.location.reload();
-        } catch (error) {
+            await approveShift(Number(id)).unwrap();
+            showSuccessToast('Shift approved successfully');
+        } catch (error: any) {
             console.error('Error approving shift:', error);
+            showErrorToast(error?.data?.message || 'Error approving shift');
         }
         setIsModalOpen(false);
         setComment('');
@@ -81,8 +82,8 @@ const ViewShift = () => {
                     </Typography>
                     <Chip
                         icon={shift?.is_active ? <CheckCircle /> : <PendingActions />}
-                        label={shift?.is_active ? "Approved" : "Pending"}
-                        color={shift?.is_active ? "success" : "warning"}
+                        label={shift?.is_approved ? "Approved" : "Pending"}
+                        color={shift?.is_approved ? "success" : "warning"}
                         sx={{ 
                             fontWeight: 600,
                             '& .MuiChip-icon': {
@@ -162,10 +163,10 @@ const ViewShift = () => {
                                         startIcon={<Assignment sx={{ fontSize: 16 }} />}
                                         onClick={() => navigate(`/shifts/assign/${id}`)}
                                     >
-                                        Assign
+                                        Assign  
                                     </Button>
                                 )}
-                                {hasPermission('approve:approval') && !shift?.is_active && (
+                                {hasPermission('approve:approval') && !shift?.is_approved && (
                                     <Button
                                         variant="contained"
                                         color="success"

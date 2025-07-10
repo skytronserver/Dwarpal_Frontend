@@ -23,7 +23,8 @@ import {
   DialogActions,
   Chip,
   ThemeProvider,
-  createTheme
+  createTheme,
+  Alert
 } from "@mui/material";
 import { DynamicFormProps, Field } from "../../types/form.types";
 import { useTheme } from "@mui/material/styles";
@@ -53,15 +54,68 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   const [formData, setFormData] = useState<Record<string, any>>(initialValues || {});
   const [openModal, setOpenModal] = useState(false);
   const [activePhotoField, setActivePhotoField] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const muiTheme = useTheme();
+
+  const validateFile = (file: File, fieldName: string, fieldLabel: string): string | null => {
+    // Check file type
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+    if (!allowedTypes.includes(file.type)) {
+      return 'Only PDF, PNG, and JPG files are allowed';
+    }
+
+    // Skip size validation for photo fields
+    const isPhotoField = fieldName === 'photo' || fieldLabel.toLowerCase() === 'photo';
+    if (!isPhotoField) {
+      // Check file size (256KB to 400KB)
+      // const minSize = 256 * 1024; // 256KB in bytes
+      const maxSize = 400 * 1024; // 400KB in bytes
+      if (file.size > maxSize) {
+        return 'File size must be less than 400KB';
+      }
+    }
+
+    return null;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+    setFileError(null); // Reset error on new input
+    
+    if (type === "file") {
+      const files = (e.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        // Get the field object to access the label
+        const field = fields.find(f => f.name === name);
+        const error = validateFile(file, name, field?.label || '');
+        
+        if (error) {
+          setFileError(error);
+          // Reset the file input
+          (e.target as HTMLInputElement).value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          setFormData(prev => {
+            const newData = {
+              ...prev,
+              [name]: file
+            };
+            onChange?.(newData);
+            return newData;
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+      return;
+    }
+
     const newValue = type === "checkbox" || type === "switch"
       ? (e.target as HTMLInputElement).checked
-      : type === "file"
-        ? (e.target as HTMLInputElement).files?.[0] || null
-        : value;
+      : value;
     
     setFormData(prev => {
       const newData = {
@@ -135,18 +189,39 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   };
 
   const handleArrayFieldChange = (fieldName: string, index: number, value: any) => {
+    console.log('Array Field Change:', { fieldName, index, value });
     setFormData(prev => {
-      const newArray = [...prev[fieldName]];
-      newArray[index] = { ...newArray[index], ...value };
-      return {
-        ...prev,
-        [fieldName]: newArray
+      // Parse the field path
+      const [arrayName, , fieldKey] = fieldName.split('.');
+      
+      // Get the current array
+      const currentArray = [...(prev[arrayName] || [])];
+      
+      // Ensure the object at the index exists
+      if (!currentArray[index]) {
+        currentArray[index] = {};
+      }
+      
+      // Update the specific field in the array item
+      currentArray[index] = {
+        ...currentArray[index],
+        [fieldKey]: Object.values(value)[0]
       };
+      
+      const newData = {
+        ...prev,
+        [arrayName]: currentArray
+      };
+      
+      console.log('Updated Form Data:', newData);
+      if (onChange) onChange(newData);
+      return newData;
     });
   };
 
   const renderArrayField = (field: Field) => {
     const arrayValue = formData[field.name] || [];
+    console.log('Rendering Array Field:', { fieldName: field.name, value: arrayValue });
     
     return (
       <Box sx={{ mb: 2 }}>
@@ -192,6 +267,98 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               {5 - arrayValue.length} more {field.label.toLowerCase()}{arrayValue.length === 4 ? '' : 's'} can be added
             </Typography>
           </Box>
+        )}
+      </Box>
+    );
+  };
+
+  const renderFileInput = (field: Field) => {
+    const isPhotoField = field.name === 'photo' || field.label.toLowerCase() === 'photo';
+    
+    return (
+      <Box>
+        {!formData[field.name] ? (
+          <Box>
+            <TextField
+              fullWidth
+              type="file"
+              name={field.name}
+              label={field.label}
+              onChange={handleInputChange}
+              disabled={field.disabled}
+              required={field.required}
+              InputLabelProps={{ shrink: true }}
+              sx={commonStyles}
+              inputProps={{
+                accept: isPhotoField ? 'image/png,image/jpeg' : '.pdf,.png,.jpg,.jpeg'
+              }}
+            />
+            {fileError && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {fileError}
+              </Alert>
+            )}
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, ml: 1 }}>
+              {isPhotoField ? 
+                'Accepted file types: PNG, JPG' :
+                'Accepted file types: PDF, PNG, JPG (256KB to 400KB)'}
+            </Typography>
+          </Box>
+        ) : (
+          isPhotoField ? (
+            // Photo field UI with preview
+            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <img
+                src={URL.createObjectURL(formData[field.name])}
+                alt="Preview"
+                style={{
+                  maxWidth: '200px',
+                  maxHeight: '200px',
+                  objectFit: 'contain',
+                  borderRadius: '8px'
+                }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {formData[field.name].name}
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ mt: 1 }}
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, [field.name]: null }));
+                  setFileError(null);
+                }}
+              >
+                Change Photo
+              </Button>
+            </Box>
+          ) : (
+            // Simple UI for other file types
+            <Box sx={{ mt: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: '8px' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
+                    {formData[field.name].name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Size: {(formData[field.name].size / 1024).toFixed(1)}KB
+                  </Typography>
+                </Box>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, [field.name]: null }));
+                    setFileError(null);
+                  }}
+                >
+                  Change
+                </Button>
+              </Box>
+            </Box>
+          )
         )}
       </Box>
     );
@@ -347,51 +514,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
         );
       
       case "file":
-        return (
-          <Box>
-            {!formData[field.name] ? (
-              <TextField
-                fullWidth
-                type="file"
-                name={field.name}
-                label={field.label}
-                onChange={handleInputChange}
-                disabled={field.disabled}
-                required={field.required}
-                InputLabelProps={{ shrink: true }}
-                sx={commonStyles}
-                inputProps={{
-                  accept: field.accept || 'image/*'
-                }}
-              />
-            ) : (
-              <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <img
-                  src={URL.createObjectURL(formData[field.name])}
-                  alt="Preview"
-                  style={{
-                    maxWidth: '200px',
-                    maxHeight: '200px',
-                    objectFit: 'contain',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Typography variant="caption" color="text.secondary">
-                  {formData[field.name]?.name}
-                </Typography>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{ mt: 1 }}
-                  onClick={() => setFormData(prev => ({ ...prev, [field.name]: null }))}
-                >
-                  Change
-                </Button>
-              </Box>
-            )}
-            <p style={{ color: 'grey', fontSize: '12px',marginLeft:'2px',marginTop:'2px' }}>File size must be than 256KB to 400KB</p>
-          </Box>
-        );
+        return renderFileInput(field);
 
       case "multi-select":
         const selectedValues = formData[field.name] || field.defaultValue || [];

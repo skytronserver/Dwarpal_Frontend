@@ -2,42 +2,23 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box } from '@mui/material';
-import { useAuth } from '../../hooks/useAuth';
-import { useErrorToast } from '../../components/Toast';
+import { useErrorToast, useSuccessToast } from '../../components/Toast';
 
-import { Field } from '../../types/form.types';
-import * as Yup from 'yup';
 import { individualServiceProviderFormFields } from '../../components/service-provider/individualServiceProviderFormFeilds';
+import { individualServiceProviderFormValues, useCreateIndividualMutation } from '../../services/serviceProviderService';
 
 interface ServiceProviderFormProps {
   onSuccess?: () => void;
 }
 
-interface individualServiceProviderFormValues {
-  id?: string;
-  name: string;
-  email: string;
-  phone: string;
-  service_provider_type: string;
-  company_name?: string;
-  service_type: string;
-  organization?: string;
-  department?: string;
-  photo?: File;
-  kyc_document?: File;
-  gst_no?: string;
-  upload_gst_certificate?: File;
-  valid_upto?: string;
-  [key: string]: any;
-}
+
 const ServiceProviderForm: React.FC<ServiceProviderFormProps> = ({ onSuccess }) => {
-  const { hasRole } = useAuth();
   const { id } = useParams();
   const location = useLocation();
-  // const showSuccessToast = useSuccessToast();
+  const showSuccessToast = useSuccessToast();
   const showErrorToast = useErrorToast();
   const navigate = useNavigate();
-
+  const [createIndividual] = useCreateIndividualMutation();
   const isCreateMode = location.pathname.includes('/new');
   const validEditId = !isCreateMode && id ? parseInt(id) : undefined;
 
@@ -83,8 +64,8 @@ const ServiceProviderForm: React.FC<ServiceProviderFormProps> = ({ onSuccess }) 
         // showSuccessToast(response?.message || '');
         onSuccess?.();
       } else {
-        // const response = await createServiceProvider(formData).unwrap();
-        // showSuccessToast(response?.message || '');
+        const response = await createIndividual(formData).unwrap();
+        showSuccessToast(response?.message || 'Sent For Approval');
         navigate('/service-providers');
       }
     } catch (error: any) {

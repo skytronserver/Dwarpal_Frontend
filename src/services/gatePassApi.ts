@@ -15,7 +15,16 @@ interface GuestPass {
     approved_by: number | null;
     approved_at: string | null;
 }
-
+export interface GuestPassSettings {
+    id: number;
+    visitorName: string;
+    purpose: string;
+    validFrom: string;
+    validUntil: string;
+    status: string;
+    issuerName: string;
+    visitorType: string;
+}
 interface GuestPassResponse {
     results: GuestPass[];
     count: number;
@@ -57,6 +66,15 @@ export const gatePassApi = createApi({
             }),
             invalidatesTags: ['guestPasses'],
         }),
+        viewGuestPassSettings: builder.query<GuestPassSettings, void>({
+            query: () => ({
+                url: `/guest-pass-settings/`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+        }),
         getGuestPassById: builder.query<GuestPass, number>({
             query: (guestPassId) => ({
                 url: `/api/guest-passes/view/${guestPassId}/`,
@@ -73,7 +91,8 @@ export const {
     useGetGuestPassesQuery,
     useCreateGuestPassMutation,
     useApproveGuestPassMutation,
-    useGetGuestPassByIdQuery
+    useGetGuestPassByIdQuery,
+    useViewGuestPassSettingsQuery
 } = gatePassApi;
 
 

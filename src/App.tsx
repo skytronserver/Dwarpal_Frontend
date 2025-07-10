@@ -12,6 +12,7 @@ import { CircularProgress } from '@mui/material';
 import { ToastProvider } from './context/ToastContext';
 import { PrivacyPolicy, TermsAndConditions } from './pages';
 import Home from './pages/Home/Home';
+import OTPVerification from './pages/authentication/OTPVerification';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Authentication />} />
+          <Route path="/otp-verification" element={<OTPVerification />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />

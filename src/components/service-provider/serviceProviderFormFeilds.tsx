@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 
 export const ServiceProviderFormFields: Field[] = [
   {
-    name: 'name',
+    name: 'full_name',
     label: 'Name of the Company',
     type: 'text',
     required: true,
@@ -17,7 +17,7 @@ export const ServiceProviderFormFields: Field[] = [
     validation: Yup.string().email('Invalid email').required('Email is required')
   },
   {
-    name: 'phone',
+    name: 'phone_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,
@@ -65,14 +65,14 @@ export const ServiceProviderFormFields: Field[] = [
   {
     name: 'service_type',
     label: 'Service Type',
-    type: 'select',
+    type: 'multi-select',
     required: true,
     validation: Yup.string().required('Service type is required'),
     options: [
-      { label: 'Maintenance', value: 'MAINTENANCE' },
-      { label: 'Security', value: 'SECURITY' },
-      { label: 'Installation', value: 'INSTALLATION' },
-      { label: 'Other', value: 'OTHER' }
+      { label: 'Maintenance', value: 'maintenance' },
+      { label: 'Security', value: 'security' },
+      { label: 'Installation', value: 'installation' },
+      { label: 'Other', value: 'other' }
     ]
   },
   {
@@ -147,7 +147,7 @@ export const ServiceProviderFormFields: Field[] = [
   },
   {
     name: 'valid_upto',
-    label: 'Valid Upto',
+    label: 'Company Validity',
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid upto date is required')

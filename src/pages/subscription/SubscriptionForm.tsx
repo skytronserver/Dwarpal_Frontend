@@ -5,19 +5,13 @@ import { Typography, Box, CircularProgress } from '@mui/material';
 import DynamicForm from '../../components/common/DynamicForm';
 import { SubscriptionFormFields } from '../../components/subscription/subscriptionFormFields';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
+import { SubscriptionFormValues, useCreateSubscriptionMutation } from '../../services/subscriptionService';
 
 interface SubscriptionFormProps {
   onSuccess?: () => void;
 }
 
-interface SubscriptionFormValues {
-  id?: string;
-  title: string;
-  price: number;
-  privileges: string[];
-  max_employees: number;
-  [key: string]: any;
-}
+
 
 const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ onSuccess }) => {
   // const { hasRole } = useAuth(); // Uncomment when role-based features are needed
@@ -26,6 +20,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ onSuccess }) => {
   const navigate = useNavigate();
   const showSuccessToast = useSuccessToast();
   const showErrorToast = useErrorToast();
+  const [createSubscription, { isLoading }] = useCreateSubscriptionMutation();
 
   const isCreateMode = location.pathname.includes('/new');
   const validEditId = !isCreateMode && id ? parseInt(id) : undefined;
@@ -47,19 +42,17 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ onSuccess }) => {
       if (validEditId) {
         // TODO: Add edit subscription API integration
         showSuccessToast('Subscription updated successfully!');
-        onSuccess?.();
       } else {
-        // TODO: Add create subscription API integration
+        const response = await createSubscription(formData).unwrap();
+        console.log(response);
         showSuccessToast('Subscription created successfully!');
-        navigate('/subscriptions');
+        
       }
     } catch (error: any) {
       console.error('Error handling subscription:', error);
       showErrorToast(error?.data?.message || `Failed to ${validEditId ? 'update' : 'create'} subscription`);
     }
   };
-
-  const isLoading = false; // TODO: Add loading state when API is integrated
 
   if (isLoading) {
     return (

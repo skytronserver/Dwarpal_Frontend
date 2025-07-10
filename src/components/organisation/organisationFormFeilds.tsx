@@ -20,8 +20,8 @@ export const OrganisationFormFields: Field[] = [
     validation: Yup.string().email('Invalid email').required('Email is required')
   },
   {
-    name: "contact_no",
-    label: "Contact No",
+    name: "contact_number",
+    label: "Mobile Number",
     type: "text",
     required: true,
     validation: Yup.string()
@@ -71,7 +71,7 @@ export const OrganisationFormFields: Field[] = [
     type: "select",
     required: true,
     options: [
-      { label: "Plan 1", value: "plan_1" },
+      { label: "Plan 1", value: "Standard Plan" },
       { label: "Plan 2", value: "plan_2" },
       { label: "Plan 3", value: "plan_3" },
     ],

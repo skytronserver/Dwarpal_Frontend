@@ -1,4 +1,4 @@
-import { Grid, Typography, Paper, Box, Card, CardContent, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Button, Modal } from "@mui/material";
+import { Grid, Typography, Paper, Box, Card, CardContent, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Button, Modal, TextField } from "@mui/material";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -59,6 +59,7 @@ const AttendanceAnalytics = () => {
   const navigate = useNavigate();
   const {hasRole} = useAuth();
   const [openModal, setOpenModal] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const handleEmployeeClick = (employeeId: number) => {
     navigate(`/attendance/${employeeId}`);
@@ -83,6 +84,13 @@ const AttendanceAnalytics = () => {
     p: 4,
     overflow: 'auto',
   };
+
+  const filteredEmployees = React.useMemo(() => {
+    return allEmployees.filter(employee => 
+      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.department.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -263,6 +271,14 @@ const AttendanceAnalytics = () => {
           <Typography variant="h6" sx={{ mb: 3 }}>
             All Employees Attendance
           </Typography>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Search by name or department..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ mb: 3 }}
+          />
           <TableContainer>
             <Table>
               <TableHead>
@@ -274,7 +290,7 @@ const AttendanceAnalytics = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {allEmployees.map((employee) => (
+                {filteredEmployees.map((employee) => (
                   <TableRow 
                     key={employee.id}
                     hover

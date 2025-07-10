@@ -1,4 +1,24 @@
 export const API_ENDPOINTS = {
+   serviceProviders: {
+    createFirm:'/api/service-providers/firm/',
+    createIndividual:'/api/service-providers/individual/',
+   },
+   clients: {
+    createCompany: '/api/clients/company/create/',
+    // createIndividual: '/api/clients/individual/create/',
+   },
+   accountUser: {
+    create: '/outer-accountuser/create/',
+   },
+   subscription: {
+    create: '/api/subscriptions/create/',
+   },
+   hr: {
+    create:'/create-hr/'
+   },
+   accounts: {
+    create:'/create-accounts/'
+   },
     departments: {
       list: '/api/departments/',
       create: '/api/departments/create/',  
@@ -14,8 +34,10 @@ export const API_ENDPOINTS = {
       getById: (id: number) => `/api/organizations/${id}/`,
     },
     auth: {
-      login: '/login/',
+      login: '/user/login/',
       logout: '/logout/',
+      otpVerification: '/user/verify-otp/',
+      resendOtp: '/user/resend-otp/',
       createAdmin: '/superadmin/create-admin/',
     },
     users: {
@@ -32,11 +54,13 @@ export const API_ENDPOINTS = {
       update: (id: number) => `/api/shifts/${id}/`,
       delete: (id: number) => `/api/shifts/${id}/`,
       getById: (id: number) => `/api/shifts/${id}/`,
-      assign: (id: number) => `/api/shifts/${id}/assign/`
+      assign: (id: number) => `/api/shifts/${id}/assign/`,
+      approve: (id: number) => `/shift/approve/${id}/`
     },
     holidays: {
       list: 'public/holidays/',
       create: '/api/holidays/create/',
+      approve: (id: number) => `/holidays/${id}/approve/`,
       update: (id: number) => `/public/holidays/${id}/update/`,
       delete: (id: number) => `/public/holidays/${id}/delete/`,
       getById: (id: number) => `/public/holidays/${id}/`,

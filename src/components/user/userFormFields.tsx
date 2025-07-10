@@ -40,7 +40,7 @@ export const UserFormFields: Field[] = [
     options: []
   },
   {
-    name: 'phone_number',
+    name: 'mobile_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,
@@ -82,36 +82,36 @@ export const UserFormFields: Field[] = [
     name: 'address',
     label: 'Address',
     type: 'text',
-    required: true,
-    validation: Yup.string().required('Address is required')
+    required: false,
+    validation: Yup.string().optional()
   },
   {
     name: 'district',
     label: 'District',
     type: 'text',
-    required: true,
-    validation: Yup.string().required('District is required')
+    required: false,
+    validation: Yup.string().optional()
   },
   {
     name: 'state',
     label: 'State',
     type: 'text',
-    required: true,
-    validation: Yup.string().required('State is required')
+    required: false,
+    validation: Yup.string().optional()
   },
   {
     name: 'pincode',
     label: 'Pincode',
     type: 'text',
-    required: true,
-    validation: Yup.string().required('Pincode is required')
+    required: false,
+    validation: Yup.string().optional()
   },
   {
-    name:'id_proof_no',
+    name:'id_proof_number',
     label:'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
     type:'text',
     required:true,
-    validation:Yup.string().required('ID proof no is required')
+    validation:Yup.string().required('ID proof number is required')
   },
   {
     name:'id_proof_document',
@@ -121,29 +121,15 @@ export const UserFormFields: Field[] = [
     validation:Yup.mixed().optional()
   },
   {
-    name:'pan',
+    name:'pan_number',
     label:'PAN Number',
     type:'text',
     required:true,
-    validation:Yup.string().required('Pan is required')
+    validation:Yup.string().required('PAN number is required')
   },
   {
     name:'pan_upload',
     label:'PAN Upload',
-    type:'file',
-    required:false,
-    validation:Yup.mixed().optional()
-  },
-  {
-    name:'gst_no',
-    label:'GST Number(optional)',
-    type:'text',
-    required:true,
-    validation:Yup.string().required('GST no is required')
-  },  
-  {
-    name:'gst_upload',
-    label:'GST Upload(optional)',
     type:'file',
     required:false,
     validation:Yup.mixed().optional()

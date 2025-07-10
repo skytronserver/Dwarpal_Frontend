@@ -1,68 +1,64 @@
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
-import { 
+import {
   Box, CircularProgress, Grid, List, ListItem, ListItemText, Paper, Typography,
   TextField, InputAdornment, IconButton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import { useCreateUserMutation, useUpdateUserMutation, useGetUserByIdQuery } from '../../services/UserApi';
+import { useGetUserByIdQuery } from '../../services/UserApi';
 import { useGetOrganisationsQuery } from '../../services/OrganisationApi';
-import { useGetShiftsQuery } from '../../services/shiftApi';
 import { useGetUsersQuery } from '../../services/UserApi';
 import { useAuth } from '../../hooks/useAuth';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
 import { HRFormFields } from '../../components/hr/hrFormFields';
+import { HrFormValues, useCreateHrMutation } from '../../services/hrServices';
 
 interface HRFormProps {
   onSuccess?: () => void;
 }
 
-interface HRFormValues {
-  id?: string;
-  role?: 'HR';
-  [key: string]: any;
-}
+
 
 const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const  { user } = useAuth();
+  const { user } = useAuth();
   const { id } = useParams();
   const location = useLocation();
   const showSuccessToast = useSuccessToast();
   const showErrorToast = useErrorToast();
-  
+
   const isCreateMode = location.pathname.includes('/new');
   const validEditId = !isCreateMode && id ? parseInt(id) : undefined;
-  
+
   const skip = undefined as any;
 
   const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(
     validEditId || skip,
     { skip: !validEditId }
   );
-  
-  const [editUser, { isLoading: isEditLoading }] = useUpdateUserMutation();
-  const [createUser, { isLoading: isCreateLoading }] = useCreateUserMutation();
+
+  // const [editUser, { isLoading: isEditLoading }] = useUpdateUserMutation();
+  // const [createUser, { isLoading: isCreateLoading }] = useCreateHrMutation();
+  const [createHr, { isLoading: isHrLoading }] = useCreateHrMutation();
   const navigate = useNavigate();
 
   const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
   const { data: users, isLoading: isUsersLoading } = useGetUsersQuery({ search: searchQuery, page: 1, page_size: 10 });
-  const { data: shifts, isLoading: isShiftsLoading } = useGetShiftsQuery({});
 
   const organizationOptions = organizations?.results?.map((org: any) => ({
-    label: org.name,
+    label: org.client_name,
     value: org.id
   })) || [];
 
   const modifiedInitialData = React.useMemo(() => {
     const initialData = userData || location.state?.userData;
     if (!initialData) {
-      return { 
-        role: 'HR', 
+      return {
+        role: 'HR',
         department: 'HR',
-        organization: user?.organization 
+        organization: user?.organization
       };
     }
     return {
@@ -74,7 +70,7 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
     };
   }, [userData, location.state, user]);
 
-  const [values, setValues] = React.useState<HRFormValues | undefined>(modifiedInitialData);
+  const [values, setValues] = React.useState<HrFormValues | undefined>(modifiedInitialData);
 
   const formFields = React.useMemo(() => {
     const baseFields = HRFormFields.map(field => {
@@ -109,16 +105,16 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
   }, [organizationOptions, values?.organization, user]);
 
 
-  const handleFormChange = (newValues: HRFormValues) => {
-    setValues(newValues);
-  };
+  // const handleFormChange = (newValues: HRFormValues) => {
+  //   setValues(newValues);
+  // };
 
-  const handleSubmit = async (values: HRFormValues) => {
+  const handleSubmit = async (values: HrFormValues) => {
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined && key !== 'role') {
-          if (key === 'photo' || key === 'kyc_document' || key === 'pan_upload' || key === 'id_proof_document' && value instanceof File) {
+          if ((key === 'photo' || key === 'kyc_document' || key === 'pan_upload' || key === 'id_proof_document') && value instanceof File) {
             formData.append(key, value);
           } else {
             formData.append(key, value.toString());
@@ -127,16 +123,16 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
       });
 
       if (validEditId) {
-        const response = await editUser({
-          id: validEditId,
-          formData
-        }).unwrap();
-        showSuccessToast(response?.message || '');
-        onSuccess?.();
+        // const response = await editUser({
+        //   id: validEditId,
+        //   formData
+        // }).unwrap();
+        // showSuccessToast(response?.message || '');
+        // onSuccess?.();
       } else {
-        const response = await createUser(formData).unwrap();
+        const response = await createHr(formData).unwrap();
         showSuccessToast(response?.message || '');
-        navigate('/users');
+        setValues(modifiedInitialData);
       }
     } catch (error: any) {
       console.error('Error handling HR:', error);
@@ -151,7 +147,7 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
           <Typography variant="h5" gutterBottom>
             {isCreateMode ? 'Create HR' : 'Edit HR'}
           </Typography>
-          {(isEditLoading || isCreateLoading || isUserLoading || isOrgsLoading || isShiftsLoading) ? (
+          {(isUserLoading || isOrgsLoading || isHrLoading) ? (
             <Box display="flex" justifyContent="center" my={4}>
               <CircularProgress />
             </Box>
@@ -204,7 +200,7 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
                     onClick={() => navigate(`/users/${user.id}`)}
                     sx={{ cursor: 'pointer' }}
                   >
-                    <ListItemText 
+                    <ListItemText
                       primary={`${user.name}`}
                       secondary={`${user.email || 'No email'}`}
                     />

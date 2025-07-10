@@ -115,7 +115,7 @@ export const useNavigation = () => {
 
   const filteredOrgs = useMemo(() =>
     organizations?.results?.filter(org =>
-      org.name?.toLowerCase().includes(search.toLowerCase())
+      org.client_name?.toLowerCase().includes(search.toLowerCase())
     ) ?? [], [search, organizations]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,7 +229,7 @@ export const useNavigation = () => {
                   filteredOrgs.map((org) => (
                     <OrgListItem key={org.id}>
                       <Building2 size={20} style={{ minWidth: 20 }} />
-                      <span style={{ fontSize: 16 }}>{org.name}</span>
+                      <span style={{ fontSize: 16 }}>{org.client_name}</span>
                     </OrgListItem>
                   ))
                 ) : (
@@ -244,7 +244,7 @@ export const useNavigation = () => {
         },
         ...filteredOrgs.map((organization) => ({
           segment:'client',
-          title: organization.name,
+          title: organization.client_name,
           icon: <Building2 />,
           show: hasPermission("view:organizations"),
           children: [
@@ -277,7 +277,7 @@ export const useNavigation = () => {
       ],
     },
     {
-      segment: "",
+      segment: "coming-soon",
       title: "Individual Users",
       icon: <UserCircle />,
       show: hasPermission("manage:admin-users"),
@@ -432,6 +432,7 @@ export const useNavigation = () => {
   segment: "settings",
   title: "Settings",
   icon: <Settings />,
+  show: hasPermission("manage:admin-users") || hasPermission("settings:guest-pass"),
   children: [
     {
       segment: "subscriptions/new",

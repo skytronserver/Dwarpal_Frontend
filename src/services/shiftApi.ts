@@ -44,6 +44,16 @@ export const shiftApi = createApi({
         }
       }),
     }),
+    approveShift: builder.mutation<Shift, number>({
+      query: (shiftId) => ({
+        url: API_ENDPOINTS.shifts.approve(shiftId),
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      }),
+      invalidatesTags: [{ type: 'shifts' }],
+    }),
     deleteShift: builder.mutation<Shift, number>({
       query: (shiftId) => ({
         url: API_ENDPOINTS.shifts.delete(shiftId),
@@ -85,4 +95,4 @@ export const shiftApi = createApi({
   }),
 });
 
-export const { useGetShiftsQuery, useCreateShiftMutation, useDeleteShiftMutation, useEditShiftMutation, useAssignShiftMutation, useGetShiftByIdQuery   } = shiftApi;
+export const { useGetShiftsQuery, useCreateShiftMutation, useDeleteShiftMutation, useEditShiftMutation, useAssignShiftMutation, useGetShiftByIdQuery, useApproveShiftMutation   } = shiftApi;

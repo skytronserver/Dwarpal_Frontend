@@ -12,25 +12,11 @@ export const DepartmentFormFields: Field[] = [
         options: [],
     },
     {
-        name: 'departments',
-        label: 'Department',
-        type: 'array',
+        name: 'name',
+        label: 'Department Name',
+        type: 'text',
         required: true,
-        validation: Yup.array().of(
-            Yup.object().shape({
-                name: Yup.string().required('Department name is required')
-            })
-        ).min(1, 'At least one department is required')
-         .max(5, 'Maximum 5 departments allowed'),
-        arrayFields: [
-            {
-                name: 'name',
-                label: 'Department Name',
-                type: 'text',
-                required: true,
-                placeholder: 'Enter department name',
-                validation: Yup.string().required('Department name is required')
-            }
-        ]
-    },
+        placeholder: 'Enter department name',
+        validation: Yup.string().required('Department name is required')
+    }
 ];

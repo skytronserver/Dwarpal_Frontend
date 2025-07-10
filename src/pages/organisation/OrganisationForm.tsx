@@ -8,8 +8,8 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import { useCreateOrganisationMutation, useEditOrganisationMutation, useGetOrganisationByIdQuery, useGetOrganisationsQuery } from '../../services/OrganisationApi';
-
+import { useCreateCompanyMutation, ClientFormValues } from '../../services/clientService';
+import { useEditOrganisationMutation, useGetOrganisationsQuery, useGetOrganisationByIdQuery } from '../../services/OrganisationApi';
 interface OrganisationFormProps {
     onSuccess?: () => void;
 }
@@ -31,25 +31,23 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
     const isEditMode = Boolean(id && id !== ':id' && !isNaN(parseInt(id)));
     const organisationData = data?.data;
     const [editOrganisation, { isLoading: isEditLoading }] = useEditOrganisationMutation();
-    const [createOrganisation, { isLoading: isCreateLoading }] = useCreateOrganisationMutation();
-
+    const [createCompany, { isLoading: isCreateLoading }] = useCreateCompanyMutation();
     const handleSubmit = async (values: OrganisationFormValues) => {
         console.log('Submit triggered with values:', values);
-
-        const orgs = new FormData();
-        Object.keys(values).forEach(key => {
-            if (values[key] !== null && values[key] !== undefined) {
-                if (typeof values[key] === 'boolean') {
-                    orgs.append(key, values[key] ? 'True' : 'False');
-                } else {
-                    orgs.append(key, values[key]);
-                }
-            }
-        });
 
         try {
             if (isEditMode) {
                 console.log('Executing edit operation with ID:', id);
+                const orgs = new FormData();
+                Object.keys(values).forEach(key => {
+                    if (values[key] !== null && values[key] !== undefined) {
+                        if (typeof values[key] === 'boolean') {
+                            orgs.append(key, values[key] ? 'True' : 'False');
+                        } else {
+                            orgs.append(key, values[key]);
+                        }
+                    }
+                });
                 await editOrganisation({
                     id: parseInt(id!),
                     data: orgs
@@ -57,7 +55,20 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
                 onSuccess?.();
             } else {
                 console.log('Executing create operation');
-                await createOrganisation(orgs).unwrap();
+                const clientData: ClientFormValues = {
+                    client_name: values.name || '',
+                    email: values.email || '',
+                    contact_number: values.contact_number || '',
+                    address: values.address || '',
+                    district: values.district || '',
+                    state: values.state || '',
+                    pincode: values.pincode || '',
+                    subscription: values.subscription || '',
+                    valid_upto: values.valid_upto || '',
+                    pan_number: values.pan_number || '',
+                    gst_number: values.gst_number || ''
+                };
+                await createCompany(clientData).unwrap();
                 navigate('/organisations');
             }
         } catch (error) {
@@ -125,13 +136,13 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
                                         onClick={() => navigate(`/organisations/${org.id}`)}
                                         sx={{ cursor: 'pointer' }}
                                     >
-                                        <ListItemText primary={org.name} secondary={org.address} />
+                                        <ListItemText primary={org.client_name} secondary={org.address} />
                                     </ListItem>
                                 ))}
                             </List>
                         )}
                     </Paper>
-                </Grid>
+                </Grid> 
             </Grid>
         </Box>
     );

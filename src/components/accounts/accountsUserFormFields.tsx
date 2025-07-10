@@ -17,6 +17,32 @@ export const AccountsUserFormFields: Field[] = [
     validation: Yup.mixed().optional()
   },
   {
+    name: 'role',
+    label: 'Role',
+    type: 'select',
+    required: true,
+    disabled: true,
+    options: [{ label: 'Account', value: 'ACCOUNT_USER' }],
+    validation: Yup.string().required('Role is required')
+  },
+  {
+    name: 'organization',
+    label: 'Organization',
+    type: 'select',
+    required: true,
+    disabled: true,
+    validation: Yup.string().required('Organization is required')
+  },
+  {
+    name: 'department',
+    label: 'Department',
+    type: 'select',
+    required: true,
+    disabled: true,
+    options: [{ label: 'Accounts', value: 'ACCOUNTS' }],
+    validation: Yup.string().required('Department is required')
+  },
+  {
     name: 'phone_number',
     label: 'Mobile Number',
     type: 'text',
@@ -30,7 +56,7 @@ export const AccountsUserFormFields: Field[] = [
     label: 'Email',
     type: 'email',
     required: true,
-    validation: Yup.string().email('Invalid email address').required('Email is required')
+    validation: Yup.string().email('Invalid email').required('Email is required')
   },
   {
     name: 'emergency_contact',
@@ -46,11 +72,8 @@ export const AccountsUserFormFields: Field[] = [
     label: 'Date of Birth',
     type: 'date',
     required: true,
-    validation: Yup.date()
-      .max(new Date(), 'Date of birth cannot be in the future')
-      .required('Date of birth is required')
+    validation: Yup.date().required('Date of birth is required')
   },
-
   {
     name: 'blood_group',
     label: 'Blood Group',
@@ -78,7 +101,7 @@ export const AccountsUserFormFields: Field[] = [
     type: 'text',
     required: true,
     validation: Yup.string().required('State is required')
-  },  
+  },
   {
     name: 'pincode',
     label: 'Pincode',
@@ -87,55 +110,57 @@ export const AccountsUserFormFields: Field[] = [
     validation: Yup.string().required('Pincode is required')
   },
   {
-    name: 'valid_upto',
-    label: 'Valid Upto',
-    type: 'date',
+    name: 'pan',
+    label: 'PAN Number',
+    type: 'text',
     required: true,
-    validation: Yup.date().required('Valid upto date is required')
+    validation: Yup.string()
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number')
+      .required('PAN number is required')
   },
   {
-    name: 'id_proof_number',
-    label: 'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
+    name: 'pan_upload',
+    label: 'PAN Document',
+    type: 'file',
+    required: false,
+    validation: Yup.mixed().optional()
+  },
+  {
+    name: 'id_proof_no',
+    label: 'ID Proof Number (Voter Id,Passport,Driving lisense or any Govt Id)',
     type: 'text',
     required: true,
     validation: Yup.string().required('ID proof number is required')
   },
   {
-    name: 'id_proof_image',
-    label: 'ID Proof Image',
+    name: 'id_proof_document',
+    label: 'ID Proof Document (Voter Id,Passport,Driving lisense or any Govt Id)',
     type: 'file',
-    required: true,
-    validation: Yup.mixed().required('ID proof image is required'),
-    accept: 'image/*'
+    required: false,
+    validation: Yup.mixed().optional()
   },
   {
-    name: 'pan',
-    label: 'PAN Number',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('PAN is required')
-  },
-  {
-    name: 'pan_upload',
-    label: 'PAN Upload',
-    type: 'file',
-    required: true,
-    validation: Yup.mixed().required('PAN upload is required'),
-    accept: 'image/*'
-  },    
-  {
-    name: 'gst_number',
-    label: 'GST Number(optional)',
+    name: 'gst_no',
+    label: 'GST Number (optional)',
     type: 'text',
     required: false,
     validation: Yup.string().optional()
   },
   {
     name: 'gst_upload',
-    label: 'GST Upload(optional)',
+    label: 'GST Document (optional)',
     type: 'file',
     required: false,
     validation: Yup.mixed().optional()
   },
- 
-];
+  {
+    name: 'valid_upto',
+    label: 'Valid Until',
+    type: 'date',
+    required: true,
+    validation: Yup.date().required('Valid until date is required')
+  },
+]; 
+
+
+  
