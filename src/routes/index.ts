@@ -238,6 +238,14 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },
     {
+        path: '/reports/users',
+        element: ManageUsers,
+        title: 'Manage Users',
+        icon: Users,
+        allowedRoles: ['HR'] as UserRole[],
+        group: 'manage'
+    },
+    {
         path: '/reports/holidays',
         element: Holidays,
         title: 'Holidays',
@@ -290,7 +298,7 @@ const adminRoutes:RouteConfig[] = [
         element: ViewGuestPassSettings,
         title: 'View Guest Pass Settings',
         icon: Gate,
-        allowedRoles: ['ADMIN'] as UserRole[],
+        allowedRoles: ['ADMIN','HR'] as UserRole[],
         group: 'manage'
     },
     {

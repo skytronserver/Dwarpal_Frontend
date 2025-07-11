@@ -39,7 +39,7 @@ export const EmployeeFormFields: Field[] = [
     validation: Yup.mixed().optional()
   },
   {
-    name: 'phone_number',
+    name: 'mobile_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,

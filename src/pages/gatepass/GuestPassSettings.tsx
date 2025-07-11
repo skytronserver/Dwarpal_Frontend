@@ -2,21 +2,22 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import GuestPassSettingsForm from '../../components/gatePass/GuestPassSettingsForm';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
+import { useGuestPassSettingsMutation } from '../../services/gatePassApi';
 
 const GuestPassSettings: React.FC = () => {
     const navigate = useNavigate();
     const showSuccessToast = useSuccessToast();
     const showErrorToast = useErrorToast();
-
+    const [guestPassSettings] = useGuestPassSettingsMutation();
     const handleSubmit = async (values: any) => {
         try {
-            // TODO: Implement API call to save settings
-            console.log('Saving settings:', values);
-            showSuccessToast('Guest pass settings saved successfully');
+            const response = await guestPassSettings(values).unwrap();
+            console.log('Guest pass settings saved successfully:', response);
+            showSuccessToast(response?.message || '');
             navigate('/gate-passes');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving settings:', error);
-            showErrorToast('Failed to save guest pass settings');
+            showErrorToast(error?.data?.detail || '');
         }
     };
 

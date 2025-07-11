@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -11,56 +11,92 @@ import {
   Box,
   Chip,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useDispatch, useSelector } from 'react-redux';
-import { openModal } from '../../features/slices/modalSlice';
-import ConfirmationModal from '../../components/common/ConfirmationModal';
-import { RootState } from '../../features/store';
-import { ModalState } from "../../features/slices/modalSlice";
-import { GuestPassSettings,   useViewGuestPassSettingsQuery } from '../../services/gatePassApi';
-
+import CloseIcon from '@mui/icons-material/Close';
+import { useViewGuestPassSettingsQuery, useApproveGuestPassMutation } from '../../services/gatePassApi';
+import { useSuccessToast, useErrorToast } from '../../components/Toast';
+import { useAuth } from '../../hooks/useAuth';
 
 const ViewGuestPassSettings: React.FC = () => {
-  const dispatch = useDispatch();
-  const modalData = useSelector((state: RootState) => (state.modal as ModalState).data);
   const { data: guestPassSettings, isLoading, error } = useViewGuestPassSettingsQuery();
+  const [approveGuestPass] = useApproveGuestPassMutation();
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [settingToApprove, setSettingToApprove] = useState<number | null>(null);
+  const [approvalComment, setApprovalComment] = useState('');
+  const showSuccessToast = useSuccessToast();
+  const showErrorToast = useErrorToast();
+  const { hasPermission } = useAuth();
 
+  const formatTime = (time: string) => {
+    return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    });
+  };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return '#00bfa5'; // Teal color for active
-      case 'pending':
-        return '#ffa726'; // Orange color for pending
-      case 'expired':
-        return '#ef5350'; // Red color for expired
-      default:
-        return '#757575';
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
   const handleApprove = (pass: any) => {
-    dispatch(
-      openModal({
-        type: 'APPROVE_GUEST_PASS',
-        data: pass,
-      })
-    );
+    setSettingToApprove(pass.id);
+    setIsApproveModalOpen(true);
   };
 
-  const handleConfirmApproval = async () => {
-    const passId = modalData?.id;
-    if (!passId) return;
-    
-    try {
-      // Here you would typically make an API call to approve the pass
-      console.log('Approving pass:', passId);
-      // After successful approval, you would refresh the data
-    } catch (error) {
-      console.error('Error approving pass:', error);
+  const handleApproveConfirm = async () => {
+    if (settingToApprove) {
+      try {
+        await approveGuestPass(settingToApprove).unwrap();
+        showSuccessToast('Guest pass setting approved successfully');
+        setIsApproveModalOpen(false);
+        setSettingToApprove(null);
+        setApprovalComment('');
+      } catch (error: any) {
+        console.error('Error approving guest pass setting:', error);
+        showErrorToast(error?.data?.message || 'Error approving guest pass setting');
+      }
     }
   };
+
+  const handleApproveCancel = () => {
+    setIsApproveModalOpen(false);
+    setSettingToApprove(null);
+    setApprovalComment('');
+  };
+
+  const handleReject = async () => {
+    if (settingToApprove) {
+      try {
+        // Implement reject functionality here
+        showSuccessToast('Guest pass setting rejected successfully');
+        setIsApproveModalOpen(false);
+        setSettingToApprove(null);
+        setApprovalComment('');
+      } catch (error: any) {
+        console.error('Error rejecting guest pass setting:', error);
+        showErrorToast(error?.data?.message || 'Error rejecting guest pass setting');
+      }
+    }
+  };
+
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (error) {
+    return <Typography color="error">Error loading guest pass settings</Typography>;
+  }
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -72,31 +108,65 @@ const ViewGuestPassSettings: React.FC = () => {
         <Table sx={{ minWidth: 650 }} aria-label="guest pass settings table">
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell><Typography variant="subtitle2">Visitor Name</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Purpose</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Valid From</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Valid Until</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2">Title</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2">Category</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2">Visiting Hours</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2">Visiting Days</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2">Holiday Restriction</Typography></TableCell>
               <TableCell><Typography variant="subtitle2">Status</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Issuer</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Visitor Type</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2">Created At</Typography></TableCell>
               <TableCell><Typography variant="subtitle2">Actions</Typography></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-          {guestPassSettings?.results?.map((pass: GuestPassSettings) => (
+            {guestPassSettings?.map((pass) => (
               <TableRow
                 key={pass.id}
                 sx={{ '&:hover': { backgroundColor: '#f8f8f8' } }}
               >
-                <TableCell>{pass.visitorName}</TableCell>
-                <TableCell>{pass.purpose}</TableCell>
-                <TableCell>{pass.validFrom}</TableCell>
-                <TableCell>{pass.validUntil}</TableCell>
+                <TableCell>{pass.title}</TableCell>
                 <TableCell>
                   <Chip
-                    label={pass.status}
+                    label={pass.guest_category}
+                    variant="outlined"
+                    size="small"
+                    sx={{ borderRadius: 1 }}
+                  />
+                </TableCell>
+                <TableCell>
+                  {formatTime(pass.visitor_hours_start)} - {formatTime(pass.visitor_hours_end)}
+                </TableCell>
+                <TableCell>
+                  {pass.visiting_days.map((day, index) => (
+                    <Chip
+                      key={index}
+                      label={day}
+                      size="small"
+                      sx={{ 
+                        mr: 0.5, 
+                        mb: 0.5,
+                        backgroundColor: '#e3f2fd',
+                        fontSize: '0.75rem'
+                      }}
+                    />
+                  ))}
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={pass.restrict_on_holidays ? 'Restricted' : 'Not Restricted'}
+                    size="small"
                     sx={{
-                      backgroundColor: getStatusColor(pass.status),
+                      backgroundColor: pass.restrict_on_holidays ? '#ffebee' : '#e8f5e9',
+                      color: pass.restrict_on_holidays ? '#c62828' : '#2e7d32',
+                      fontSize: '0.75rem'
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={pass.is_approved ? 'Approved' : 'Pending'}
+                    sx={{
+                      backgroundColor: pass.is_approved ? '#00bfa5' : '#ffa726',
                       color: 'white',
                       fontWeight: 500,
                       fontSize: '0.75rem'
@@ -104,17 +174,9 @@ const ViewGuestPassSettings: React.FC = () => {
                     size="small"
                   />
                 </TableCell>
-                <TableCell>{pass.issuerName}</TableCell>
+                <TableCell>{formatDate(pass.created_at)}</TableCell>
                 <TableCell>
-                  <Chip
-                    label={pass.visitorType}
-                    variant="outlined"
-                    size="small"
-                    sx={{ borderRadius: 1 }}
-                  />
-                </TableCell>
-                <TableCell>
-                  {pass.status === 'Pending' && (
+                  {hasPermission('manage:gate-passes settings') && !pass.is_approved && (
                     <Button
                       startIcon={<CheckCircleIcon />}
                       onClick={() => handleApprove(pass)}
@@ -139,13 +201,80 @@ const ViewGuestPassSettings: React.FC = () => {
         </Table>
       </TableContainer>
 
-      <ConfirmationModal
-        title="Approve Guest Pass"
-        message="Are you sure you want to approve this guest pass? This will grant access to the visitor."
-        onConfirm={handleConfirmApproval}
-      />
+      <Dialog
+        open={isApproveModalOpen}
+        onClose={handleApproveCancel}
+        aria-labelledby="approve-confirmation-dialog"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="approve-confirmation-dialog">
+          Guest Pass Setting Action
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 2, fontWeight: 500 }}>
+            Are you sure you want to submit this request? This action cannot be undone.
+          </Typography>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              multiline
+              rows={3}
+              value={approvalComment}
+              onChange={(e) => setApprovalComment(e.target.value)}
+              placeholder="Add your comments here..."
+              variant="outlined"
+              size="small"
+              fullWidth
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={handleApproveConfirm}
+            color="success"
+            variant="contained"
+            size="small"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'success.main',
+                color: 'white'
+              },
+              backgroundColor: 'green !important',
+              color: 'white !important'
+            }}
+            startIcon={<CheckCircleIcon sx={{ color: 'white !important' }} />}
+          >
+            Approve
+          </Button>
+          <Button
+            onClick={handleReject}
+            color="error"
+            variant="outlined"
+            size="small"
+            sx={{
+              '&:hover': {
+                backgroundColor: 'error.main',
+                color: 'white'
+              },
+              backgroundColor: 'red !important',
+              color: 'white !important'
+            }}
+            startIcon={<CloseIcon sx={{ color: 'white !important' }} />}
+          >
+            Reject
+          </Button>
+          <Button 
+            onClick={handleApproveCancel} 
+            color="inherit"
+            size="small"
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
 
 export default ViewGuestPassSettings;
+

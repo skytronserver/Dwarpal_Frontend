@@ -38,7 +38,7 @@ const PREDEFINED_SETTINGS = {
 
 const GuestPassSettingsFormFields: Field[] = [
     {
-        name: 'settings_type',
+        name: 'title',
         label: 'Title',
         type: 'text',
         required: false,
@@ -51,10 +51,10 @@ const GuestPassSettingsFormFields: Field[] = [
         required: true,
         validation: Yup.string().required('Guest category is required'),
         options: [
-            { label: 'Regular Visitor', value: 'regular' },
-            { label: 'VIP', value: 'vip' },
-            { label: 'Contractor', value: 'contractor' },
-            { label: 'Service Provider', value: 'service_provider' }
+            { label: 'Vendor', value: 'Vendor' },
+            { label: 'Interviewee', value: 'Interviewee' },
+            { label: 'Contractor', value: 'Contractor' },
+            { label: 'Visitor', value: 'Visitor' }
         ]
     },
     {

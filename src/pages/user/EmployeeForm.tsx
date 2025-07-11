@@ -235,7 +235,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
         const response = await createUser(formData).unwrap();
         console.log('User created successfully:', response);
         showSuccessToast(response?.message || '');
-        navigate('/users');
+        navigate('/reports/users');
       }
     } catch (error: any) {
       console.error('Error handling user:', error);
