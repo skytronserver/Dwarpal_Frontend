@@ -2,9 +2,9 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress} from '@mui/material';
-import { useCreateUserMutation, useUpdateUserMutation, useGetUserByIdQuery } from '../../services/UserApi';
+import { useCreateUserMutation, useGetUserByIdQuery } from '../../services/UserApi';
 import { EmployeeFormFields } from '../../components/user/employeeFormFeilds';
-import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
+import { useGetOrganisationsQuery } from '../../services/OrganisationApi';
 import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
 import { Field } from '../../types/form.types';
 import * as Yup from 'yup';
@@ -14,7 +14,7 @@ import { useSuccessToast, useErrorToast } from '../../components/Toast';
 
 interface Organization {
   id: number;
-  name: string;
+  client_name: string;
   address: string;
   gst_no: string;
   no_of_employees: string;
@@ -68,7 +68,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
     { skip: !validEditId }
   );
   
-  const [editUser, { isLoading: isEditLoading }] = useUpdateUserMutation();
+  // const [editUser, { isLoading: isEditLoading }] = useUpdateUserMutation();
   const [createUser, { isLoading: isCreateLoading }] = useCreateUserMutation();
   const navigate = useNavigate();
 
@@ -83,15 +83,15 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
     userOrganization ? Number(userOrganization) : undefined
   );
 
-  const organizations = (organizationsData as ApiResponse<Organization>)?.results || [];
-  const departments = (departmentsData as ApiResponse<Department>)?.results || [];
+  const organizations = (organizationsData as unknown as ApiResponse<Organization>)?.results || [];
+  const departments = (departmentsData as unknown as ApiResponse<Department>)?.results || [];
 
   const filteredDepartments = React.useMemo(() => {
     return departments.filter(dep => dep.organization.id === selectedOrg);
   }, [departments, selectedOrg]);
 
   const organizationOptions = organizations.map((org) => ({
-    label: org.name,
+    label: org.client_name,
     value: org.id
   }));
 
@@ -203,7 +203,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          if (key === 'photo' || key === 'kyc_document' && value instanceof File) {
+          if (key === 'photo' || key === 'kyc_document' || key === 'id_proof_image' || key === 'pan_upload' && value instanceof File) {
             formData.append(key, value);
           } else if (key === 'assigned_permissions' && Array.isArray(value)) {
             value.forEach((permission, index) => {
@@ -224,13 +224,13 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
       }
 
       if (validEditId) {
-        const response = await editUser({
-          id: validEditId,
-          formData
-        }).unwrap();
-        console.log('User updated successfully:', response);
-        showSuccessToast(response?.message || '');
-        onSuccess?.();
+        // const response = await editUser({
+        //   id: validEditId,
+        //   formData
+        // }).unwrap();
+        // console.log('User updated successfully:', response);
+        // showSuccessToast(response?.message || '');
+        // onSuccess?.();
       } else {
         const response = await createUser(formData).unwrap();
         console.log('User created successfully:', response);
@@ -239,7 +239,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
       }
     } catch (error: any) {
       console.error('Error handling user:', error);
-      showErrorToast(error?.data?.message || '');
+      showErrorToast(error?.data?.detail || '');
     }
   };
 
@@ -248,7 +248,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
       <Typography variant="h4" sx={{ mb: 3 }}>
         {validEditId ? 'Edit Employee' : 'Create Employee'}
       </Typography>
-      {(isEditLoading || isCreateLoading || isOrgsLoading || isDepsLoading || isUserLoading || isShiftsLoading) ? (
+        {(isCreateLoading || isOrgsLoading || isDepsLoading || isUserLoading || isShiftsLoading) ? (
         <Box display="flex" justifyContent="center" my={4}>
           <CircularProgress />
         </Box>

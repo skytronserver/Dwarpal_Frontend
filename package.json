@@ -24,6 +24,7 @@
     "@types/react-big-calendar": "^1.16.1",
     "@types/react-webcam": "^3.0.0",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "formik": "^2.4.6",
     "framer-motion": "^12.3.1",
     "icons": "^1.0.0",

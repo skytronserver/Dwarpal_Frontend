@@ -26,6 +26,11 @@ import {
   createTheme,
   Alert
 } from "@mui/material";
+import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { PickersDay } from '@mui/x-date-pickers/PickersDay';
+import dayjs from 'dayjs';
 import { DynamicFormProps, Field } from "../../types/form.types";
 import { useTheme } from "@mui/material/styles";
 import PhotoUploadModal from "../gatePass/PhotoUploadModal";
@@ -636,6 +641,61 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               }}
             />
           </Box>
+        );
+
+      case 'multidate':
+        return (
+          <FormControl fullWidth sx={{ ...commonStyles, mb: 2 }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Box>
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>{field.label}</Typography>
+                <StaticDatePicker
+                  displayStaticWrapperAs="desktop"
+                  value={null}
+                  onChange={(newDate) => {
+                    if (newDate) {
+                      const dateStr = dayjs(newDate).format('YYYY-MM-DD');
+                      const currentDates = formData[field.name] || [];
+                      const newDates = currentDates.includes(dateStr)
+                        ? currentDates.filter((date: string) => date !== dateStr)
+                        : [...currentDates, dateStr];
+                      
+                      setFormData(prev => {
+                        const newData = {
+                          ...prev,
+                          [field.name]: newDates
+                        };
+                        onChange?.(newData);
+                        return newData;
+                      });
+                    }
+                  }}
+                  slots={{
+                    day: (dayProps) => {
+                      const dateStr = dayjs(dayProps.day).format('YYYY-MM-DD');
+                      const isSelected = (formData[field.name] || []).includes(dateStr);
+                      
+                      return (
+                        <PickersDay 
+                          {...dayProps} 
+                          selected={isSelected}
+                          sx={{
+                            '&.Mui-selected': {
+                              backgroundColor: '#ff0000 !important',
+                              color: 'white !important',
+                              '&:hover': {
+                                backgroundColor: '#cc0000 !important',
+                              }
+                            }
+                          }}
+                        />
+                      );
+                    }
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
+          </FormControl>
         );
 
       default:

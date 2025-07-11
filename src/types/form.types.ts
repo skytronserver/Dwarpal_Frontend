@@ -1,5 +1,19 @@
 import * as Yup from 'yup';
 
+export type FieldType =
+  | 'text'
+  | 'password'
+  | 'email'
+  | 'number'
+  | 'date'
+  | 'multidate'
+  | 'select'
+  | 'checkbox'
+  | 'radio'
+  | 'file'
+  | 'switch'
+  | 'array';
+
 export interface Field {
     name: string;
     label: string;

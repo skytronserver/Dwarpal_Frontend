@@ -42,7 +42,7 @@ export const API_ENDPOINTS = {
     },
     users: {
       list: '/api/users/',
-      create: '/api/createuser/',
+      createEmployee: '/hr/create-employee/',
       update: (id: number) => `/api/users/${id}/`,
       delete: (id: number) => `/api/users/${id}/`,
       getById: (id: number) => `/api/users/${id}/`,
@@ -50,7 +50,7 @@ export const API_ENDPOINTS = {
     },
     shifts: {
       list: '/api/shifts/',
-      create: '/api/shifts/create/',
+      create: '/shift/create/',
       update: (id: number) => `/api/shifts/${id}/`,
       delete: (id: number) => `/api/shifts/${id}/`,
       getById: (id: number) => `/api/shifts/${id}/`,

@@ -31,7 +31,8 @@ const calculateTotalWorkTime = (startTime: string, endTime: string): string => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
-    return `${hours} hours ${minutes} minutes`;
+    // Format as HH:MM:00
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
 };
 
 const calculateWorkingHours = (values: ShiftFormValues): { normal: string; holiday: string } => {
@@ -51,12 +52,9 @@ const calculateWorkingHours = (values: ShiftFormValues): { normal: string; holid
     
     if (!totalTime || !workingDays.length) return { normal: '', holiday: '' };
 
-    // Robustly extract hours and minutes
-    const hoursMatch = totalTime.match(/(\d+) hours?/);
-    const minutesMatch = totalTime.match(/(\d+) minutes?/);
-    const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
-    const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0;
-
+    // Parse the HH:MM:00 format
+    const [hours, minutes] = totalTime.split(':').map(Number);
+    
     const normalDays = workingDays.filter(day => 
         !['Saturday', 'Sunday'].includes(day)
     ).length;
@@ -68,9 +66,15 @@ const calculateWorkingHours = (values: ShiftFormValues): { normal: string; holid
     const normalMinutes = (hours * 60 + minutes) * normalDays;
     const holidayMinutes = (hours * 60 + minutes) * holidayDays;
 
+    // Format as HH:MM:00
+    const normalHours = Math.floor(normalMinutes / 60);
+    const normalMins = normalMinutes % 60;
+    const holidayHours = Math.floor(holidayMinutes / 60);
+    const holidayMins = holidayMinutes % 60;
+
     return {
-        normal: `${Math.floor(normalMinutes / 60)} hours ${normalMinutes % 60} minutes`,
-        holiday: `${Math.floor(holidayMinutes / 60)} hours ${holidayMinutes % 60} minutes`
+        normal: `${normalHours.toString().padStart(2, '0')}:${normalMins.toString().padStart(2, '0')}:00`,
+        holiday: `${holidayHours.toString().padStart(2, '0')}:${holidayMins.toString().padStart(2, '0')}:00`
     };
 };
 
@@ -128,7 +132,7 @@ const ShiftForm: React.FC<ShiftFormProps> = ({ onSuccess }) => {
                 showSuccessToast('Shift updated successfully');
             } else {
                 await createShift(shifts).unwrap();
-                navigate('/shifts');
+                navigate('/reports/shifts');
                 showSuccessToast('Shift created successfully');
             }
         } catch (error: any) {

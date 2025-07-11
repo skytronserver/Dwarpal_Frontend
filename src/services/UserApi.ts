@@ -22,7 +22,7 @@ export const userApi = createApi({
     }),
     createUser: builder.mutation<User, FormData>({
       query: (formData) => ({
-        url: API_ENDPOINTS.users.create,
+        url: API_ENDPOINTS.users.createEmployee,
         method: 'POST',
         body: formData,
         headers: {
