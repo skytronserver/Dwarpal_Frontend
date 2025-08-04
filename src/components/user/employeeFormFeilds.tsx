@@ -140,7 +140,7 @@ export const EmployeeFormFields: Field[] = [
   },  
   {
     name: 'valid_upto',
-    label: 'Valid Upto',
+    label: 'User Validity',
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid upto date is required')

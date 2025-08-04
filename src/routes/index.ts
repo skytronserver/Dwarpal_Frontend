@@ -35,6 +35,7 @@ const HRUserForm = lazy(()=>import('../pages/hr/HRUser'))
 const GuestPassSettings = lazy(() => import('../pages/gatepass/GuestPassSettings'));
 const ViewGuestPassSettings = lazy(() => import('../components/gatePass/ViewGuestPassSettings'));
 const EmployeeForm = lazy(() => import('../pages/user/EmployeeForm'));
+const UserAttendence = lazy(() => import('../pages/attendance/UserAttendence'));
 export interface RouteConfig {
     path: string;
     element: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -270,7 +271,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },
     {
-        path: 'company/gate-passes/new/:id',
+        path: '/gate-passes/new/:id',
         element: GatePassForm,
         title: 'Create Gate Pass',
         icon: Gate,
@@ -332,7 +333,15 @@ const adminRoutes:RouteConfig[] = [
         icon: Users,
         allowedRoles: ['ADMIN'] as UserRole[],
         group: 'create'
-    }   
+    },
+    {
+        path: 'reports/attendance',
+        element: UserAttendence,
+        title: 'Attendance',
+        icon: Clock,
+        allowedRoles: ['EMPLOYEE'] as UserRole[],
+        group: 'manage'
+    }
 ]
 
 export { adminRoutes }; 

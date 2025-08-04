@@ -3,7 +3,7 @@ import { Field } from '../../types/form.types';
 
 export const DepartmentFormFields: Field[] = [
     {
-        name: 'organization',
+        name: 'organization_id',
         label: 'Organisation',
         type: 'select',
         required: true,

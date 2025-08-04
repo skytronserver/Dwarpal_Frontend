@@ -109,7 +109,7 @@ const OrgListItem = styled('div')(({ theme }) => ({
 
 export const useNavigation = () => {
   const { data: organizations } = useGetOrganisationsQuery({ search: '', page: 1, page_size: 10 });
-  const { hasPermission } = useAuth();
+  const { hasPermission, canCreateGatePass } = useAuth();
   const [search, setSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -342,15 +342,15 @@ export const useNavigation = () => {
       icon: <CalendarPlus />,
       show: hasPermission("create:holiday"),
     },
-    {
-      segment: "gate-passes/new/:id",
-      title: "Create Gate Pass",
-      icon: <FileCheck />,
-      show: hasPermission("can_create_guest_pass") || hasPermission("create:guest-pass"),
-    },
   ]
   },
-
+  // gate pass create
+  {
+    segment: "gate-passes/new/:id",
+    title: "Create Gate Pass",
+    icon: <FileCheck />,
+    show: hasPermission("can_create_guest_pass"),
+  },
 
 // manage approvals
 {
@@ -385,7 +385,9 @@ export const useNavigation = () => {
   segment: "reports",
   title: "Reports",
   icon: <BarChart3 />,
-  show: hasPermission("view:shifts") || hasPermission("view:holidays") || hasPermission("view:guest-pass") || hasPermission("view:users") || hasPermission("manage:gate-passes") || hasPermission("manage:attendance") || hasPermission("attendance_report"),
+  show: hasPermission("view:shifts") || hasPermission("view:holidays") || hasPermission("view:guest-pass") || hasPermission("view:users") || hasPermission("manage:gate-passes") 
+  || hasPermission("manage:attendance") || hasPermission("attendance_report") || hasPermission("view:guest-pass settings")
+  || hasPermission("view:holidays")||hasPermission("view:attendance"),
   children: [
     {
       segment: "gate-passes",
@@ -404,6 +406,12 @@ export const useNavigation = () => {
       title: "Attendance Analytics",
       icon: <LineChart />,
       show: hasPermission("manage:attendance") || hasPermission("attendance_report"),
+    },
+    {
+      segment: "attendance",
+      title: "Attendance",
+      icon: <Calendar />,
+      show: hasPermission("view:attendance"),
     },
     {
       segment:"users",

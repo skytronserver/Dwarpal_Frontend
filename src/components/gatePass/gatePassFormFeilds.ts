@@ -18,12 +18,12 @@ export const GatePassFormFields: Field[] = [
     },
     {
         name: 'contact_number',
-        label: 'Contact Number',
+        label: 'Mobile Number',
         type: 'text',
         required: true,
         validation: Yup.string()
             .matches(/^[0-9]{10,15}$/, 'Enter a valid phone number')
-            .required('Contact number is required'),
+            .required('Mobile number is required'),
     },
     {
         name: 'email',
@@ -59,50 +59,8 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.string(),
     },
     {
-        name: 'district',
-        label: 'District',
-        type: 'text',
-        required: false,
-        validation: Yup.string(),
-    },
-    {
-        name: 'state',
-        label: 'State',
-        type: 'text',
-        required: false,
-        validation: Yup.string(),
-    },
-    {
         name: 'pincode',
         label: 'Pincode',
-        type: 'text',
-        required: false,
-        validation: Yup.string(),
-    },
-    // {
-    //     name: 'company_name',
-    //     label: 'Company/Organization Name',
-    //     type: 'text',
-    //     required: false,
-    //     validation: Yup.string(),
-    // },
-    // {
-    //     name: 'designation',
-    //     label: 'Designation/Role',
-    //     type: 'text',
-    //     required: false,
-    //     validation: Yup.string(),
-    // },
-    {
-        name: 'emergency_contact_number',
-        label: 'Emergency Contact Number',
-        type: 'text',
-        required: false,
-        validation: Yup.string().matches(/^[0-9]{10,15}$/, 'Enter a valid phone number'),
-    },
-    {
-        name: 'emergency_contact_name',
-        label: 'Emergency Contact Name',
         type: 'text',
         required: false,
         validation: Yup.string(),
@@ -142,19 +100,19 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.date(),
     },
     {
-        name: 'access_validity_end',
-        label: 'Access Valid To',
-        type: 'date',
-        required: false,
-        validation: Yup.date(),
-    }, 
-    {
         name: 'start_time',
         label: 'Start Time',
         type: 'time',
         required: false,
         validation: Yup.string(),
     },
+    {
+        name: 'access_validity_end',
+        label: 'Access Valid To',
+        type: 'date',
+        required: false,
+        validation: Yup.date(),
+    }, 
     {
         name: 'end_time',
         label: 'End Time',
@@ -172,7 +130,7 @@ export const GatePassFormFields: Field[] = [
     },
     {
         name: 'department_to_visit',
-        label: 'Department',
+        label: 'Visiting Department',
         type: 'multi-select',
         required: true,
         options: [{ label: 'Department 1', value: 1 }, { label: 'Department 2', value: 2    }],

@@ -111,7 +111,7 @@ export const CompanyAccountsUserFormFields: Field[] = [
   },
   {
     name: 'valid_upto',
-    label: 'Valid Until',
+    label: 'Company Validity',
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid until date is required')
@@ -146,18 +146,5 @@ export const CompanyAccountsUserFormFields: Field[] = [
     required: false,
     validation: Yup.mixed().optional()
   },
-  {
-    name: 'gst_no',
-    label: 'GST Number (optional)',
-    type: 'text',
-    required: false,
-    validation: Yup.string().optional()
-  },  
-  {
-    name: 'gst_upload',
-    label: 'GST Document (optional)',
-    type: 'file',
-    required: false,
-    validation: Yup.mixed().optional()
-  }
+
 ];

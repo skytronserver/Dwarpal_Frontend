@@ -28,6 +28,7 @@ export const useAuth = () => {
   };
 
   const canCreateGatePass = (): boolean => {
+    console.log(userData?.assigned_permissions,'ppppppppppppppppp');
     return !!(userData?.assigned_permissions?.includes('can_create_guest_pass') && checkPermission('create:gate-pass'));
   };
 

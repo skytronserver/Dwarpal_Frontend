@@ -30,25 +30,51 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
     });
 
     const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
-    const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
-    const updatedDepartments = departments?.results?.filter((dep: any) =>
-        dep.organization?.[0]?.id === values?.organization_to_visit
-    );
-    const {data: users,isLoading:isUsersLoading} = useGetUsersQuery({});
-    const approverOptions = users?.results?.map((user: any) => ({
-        label: user.name,
-        value: user.id,    
-    })) || [{ label: 'Default Approver', value: 25 }];
+    const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({
+        organization: values?.organization_to_visit
+    });
+
+    // Get all users for the organization
+    const {data: users, isLoading: isUsersLoading} = useGetUsersQuery({
+        organization: values?.organization_to_visit,
+        search: '',
+        page: 1,
+        page_size: 100
+    });
 
     const organizationOptions = organizations?.results?.map((org: Organisation) => ({
-        label: org.name,
+        label: org.client_name,
         value: org.id
     })) || [];
 
-    const departmentOptions = updatedDepartments?.map((dep: any) => ({
+    const departmentOptions = departments?.results?.map((dep: any) => ({
         label: dep.name,
         value: dep.id
     })) || [];
+
+    // Filter users based on selected departments
+    const filteredUsers = React.useMemo(() => {
+        if (!users?.results || !values?.department_to_visit?.length) return [];
+        
+        return users.results.filter((user: any) => {
+            // Check if the user's department matches any of the selected departments
+            return values.department_to_visit.some((deptId: number) => 
+                user.department === deptId || // For direct department ID match
+                user.department?.id === deptId || // For nested department object
+                (Array.isArray(user.department) && user.department.some((d: any) => d.id === deptId)) // For array of departments
+            );
+        });
+    }, [users?.results, values?.department_to_visit]);
+
+    const userOptions = React.useMemo(() => {
+        if (filteredUsers.length === 0) {
+            return [{ label: 'No employees found', value: '', disabled: true }];
+        }
+        return filteredUsers.map((user: any) => ({
+            label: `${user.name}${user.designation ? ` (${user.designation})` : ''}`,
+            value: user.id
+        }));
+    }, [filteredUsers]);
 
     const formFields = React.useMemo(() => {
         return GatePassFormFields.map(field => {
@@ -58,7 +84,8 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
                     ...field,
                     options: organizationOptions,
                     value: orgValue,
-                    defaultValue: orgValue
+                    defaultValue: orgValue,
+                    disabled: true // Make organization field disabled
                 };
             }
             if (field.name === 'department_to_visit') {
@@ -66,20 +93,34 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
                     ...field,
                     options: departmentOptions,
                     disabled: !values?.organization_to_visit,
-                    helperText: !values?.organization_to_visit ? 'Please select an organization first' : undefined
+                    helperText: !values?.organization_to_visit ? 'Please select an organization first' : 
+                              departmentOptions.length === 0 ? 'No departments available for selected organization' : undefined
                 };
             }
-            if (field.name === 'assigned_approver') {
+            if (field.name === 'person_to_meet') {
+                const noUsersFound = values?.department_to_visit?.length > 0 && filteredUsers.length === 0;
                 return {
                     ...field,
-                    options: approverOptions
+                    options: userOptions,
+                    disabled: !values?.department_to_visit?.length || noUsersFound,
+                    helperText: !values?.department_to_visit?.length ? 'Please select department(s) first' :
+                               noUsersFound ? 'No employees found in selected department(s)' : undefined
                 };
             }
             return field;
         });
-    }, [organizationOptions, departmentOptions, approverOptions, values, user?.organization]);
+    }, [organizationOptions, departmentOptions, userOptions, values, user?.organization, filteredUsers.length]);
 
     const handleFormChange = (newValues: GatePassFormValues) => {
+        // Reset dependent fields when organization changes
+        if (newValues.organization_to_visit !== values?.organization_to_visit) {
+            newValues.department_to_visit = [];
+            newValues.person_to_meet = null;
+        }
+        // Reset person to meet when department changes
+        if (JSON.stringify(newValues.department_to_visit) !== JSON.stringify(values?.department_to_visit)) {
+            newValues.person_to_meet = null;
+        }
         setValues(newValues);
     };
 

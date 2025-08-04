@@ -56,7 +56,7 @@ export const ROLE_PERMISSIONS = {
   ],
   EMPLOYEE: [
     'view:dashboard',
-    'manage:holidays',
+    'view:holidays',
     'view:attendance',
   ]
 } as const;

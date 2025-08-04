@@ -123,19 +123,5 @@ export const individualServiceProviderFormFields: Field[] = [
     required: true,
     validation: Yup.mixed().required('PAN upload is required')
   },
-  {
-    name: 'gst_no',
-    label: 'GST Number(optional)',
-    type: 'text',
-    required: true,
-    validation: Yup.string().required('GST number is required')
-  },
-  {
-    name: 'gst_upload',
-    label: 'GST Upload(optional)',
-    type: 'file',
-    required: true,
-    validation: Yup.mixed().required('GST upload is required')
-  },
 ];
 

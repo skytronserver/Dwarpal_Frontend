@@ -88,7 +88,7 @@ export const UserFormFields: Field[] = [
   },
   {
     name: 'valid_upto',
-    label: 'Valid Upto',
+    label: 'User Validity',
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid upto date is required')
@@ -119,19 +119,5 @@ export const UserFormFields: Field[] = [
     type: 'file',
     required: true,
     validation: Yup.mixed().required('PAN upload is required')
-  },
-  {
-    name: 'gst_number',
-    label: 'GST Number(optional)',
-    type: 'text',
-    required: false,
-    validation: Yup.string().optional()
-  },
-  {
-    name: 'gst_upload',
-    label: 'GST Upload(optional)',
-    type: 'file',
-    required: false,
-    validation: Yup.mixed().optional()
   },
 ]; 

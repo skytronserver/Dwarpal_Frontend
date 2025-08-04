@@ -79,7 +79,7 @@ export const OrganisationFormFields: Field[] = [
   },
   {
     name: 'valid_upto',
-    label: 'Valid Upto',
+    label: 'Company Validity',
     type: 'date',
     required: true,
     validation: Yup.date().required('Valid upto date is required')

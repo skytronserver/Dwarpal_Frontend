@@ -47,7 +47,8 @@ export const API_ENDPOINTS = {
       delete: (id: number) => `/api/users/${id}/`,
       getById: (id: number) => `/api/users/${id}/`,
       adminCreate: '/api/admins/create/',
-    },
+      attendanceReport: `/api/user-attendance-report/`,
+      },
     shifts: {
       list: '/api/shifts/',
       create: '/shift/create/',
@@ -79,5 +80,12 @@ export const API_ENDPOINTS = {
       create: '/api/guest-passes/create/',
       approve: (guestPassId: number) => `/api/guest-passes/approve/${guestPassId}/`,
       getById: (guestPassId: number) => `/api/guest-passes/view/${guestPassId}/`,
+    },
+
+    dashboard: {
+      superAdmin: '/api/dashboard/superadmin/',
+      admin: '/api/dashboard/admin/',
+      hr: '/api/dashboard/hr/',
+      employee: '/api/dashboard/employee/',
     }
-  };
+  }; 

@@ -206,9 +206,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSuccess }) => {
           if (key === 'photo' || key === 'kyc_document' || key === 'id_proof_image' || key === 'pan_upload' && value instanceof File) {
             formData.append(key, value);
           } else if (key === 'assigned_permissions' && Array.isArray(value)) {
-            value.forEach((permission, index) => {
-              formData.append(`assigned_permissions[${index}]`, permission);
-            });
+            // Send the permissions array directly without additional stringification
+            formData.append('assigned_permissions', value.join(','));
           } else {
             formData.append(key, value.toString());
           }

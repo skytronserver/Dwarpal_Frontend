@@ -9,6 +9,7 @@ import { holidayApi } from "../services/holidayApi";
 import { gatePassApi } from "../services/gatePassApi";
 import { accountsApi } from "../services/accountsServices";
 import { accountUserApi } from "../services/accountUserServices";
+import dashboardServices from "../services/dashboardServices";
 
 const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
         [gatePassApi.reducerPath]: gatePassApi.reducer,
         [accountsApi.reducerPath]: accountsApi.reducer,
         [accountUserApi.reducerPath]: accountUserApi.reducer,
+        [dashboardServices.reducerPath]: dashboardServices.reducer,
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware().concat(
@@ -33,7 +35,8 @@ const store = configureStore({
             holidayApi.middleware,
             gatePassApi.middleware,
             accountsApi.middleware,
-            accountUserApi.middleware
+            accountUserApi.middleware,
+            dashboardServices.middleware,
         ),
     devTools: true,
 })

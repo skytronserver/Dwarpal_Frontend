@@ -40,7 +40,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
         if (isEditMode && departmentData?.data) {
             return {
                 ...departmentData.data,
-                organization: departmentData.data.organization?.id,
+                organization_id: departmentData.data.organization?.id,
                 name: departmentData.data.name
             };
         }
@@ -48,7 +48,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
         // For new department creation with orgId in URL
         if (!isEditMode && orgId && organizationData?.data) {
             return {
-                organization: organizationData.data.id,
+                organization_id: organizationData.data.id,
                 name: '' // Initialize with empty name
             };
         }
@@ -60,7 +60,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
 
     const formFields = React.useMemo(() => {
         const fields = [...DepartmentFormFields];
-        const orgField = fields.find(f => f.name === 'organization');
+        const orgField = fields.find(f => f.name === 'organization_id');
         if (orgField && organizationData?.data) {
             orgField.options = [{ label: organizationData.data.client_name, value: organizationData.data.id }];
             orgField.defaultValue = organizationData.data.id;
@@ -95,7 +95,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
             } else {
                 // Handle department creation
                 const formData = new FormData();
-                formData.append('organization', values.organization.toString());
+                formData.append('organization_id', values.organization_id.toString());
                 
                 const departmentName = values.name;
                 console.log('Department Name:', departmentName);

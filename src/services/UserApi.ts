@@ -2,6 +2,26 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_ENDPOINTS } from "../config/endpoints";
 import { User, UserResponse } from "../types/user.types";
 
+interface UserAttendance {
+  report: Array<{
+    user: string;
+    department: string;
+    date: string;
+    in_times: string[];
+    out_times: string[];
+    official_in_time: string;
+    official_out_time: string;
+    break_time: string;
+    total_work_time: string;
+    status: string;
+  }>;
+  summary: {
+    total_present: number;
+    total_late: number;
+    total_absent: number;
+  };
+}
+
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
@@ -65,8 +85,17 @@ export const userApi = createApi({
         headers: {
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
-      }),
+      })
     }),
+    getUserAttendance: builder.query<UserAttendance, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.users.attendanceReport,
+        params: { id },
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      })
+    })
   })
 });
 
@@ -76,5 +105,6 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useGetUserByIdQuery,
-  useCreateAdminMutation
+  useCreateAdminMutation,
+  useGetUserAttendanceQuery
 } = userApi; 
