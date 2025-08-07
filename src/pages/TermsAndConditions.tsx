@@ -146,9 +146,8 @@ const TermsAndConditions: React.FC = () => {
                 <Typography paragraph sx={{ color: '#2c3e50' }}>
                   For any questions or concerns regarding these Terms or the App, please contact:
                   <br />
-                  📧 support@skytrack.in
+                  📧 support@dwarpal.in
                   <br />
-                  📍 Skytrack Technologies Pvt. Ltd., Guwahati, Assam
                 </Typography>
               </Box>
             </Paper>
@@ -166,7 +165,7 @@ const TermsAndConditions: React.FC = () => {
                   }
                 }}
               >
-                Back to Login
+                Back to Login 
               </Link>
             </Box>
           </motion.div>

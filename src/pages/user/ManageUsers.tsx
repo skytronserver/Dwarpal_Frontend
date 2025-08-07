@@ -2,7 +2,7 @@ import { useState } from "react";
 import { formatFieldName } from "../../utils/formatFeildName";
 import CommonTable from "../../components/common/CommonTable";
 import { Box, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { GridColDef } from '@mui/x-data-grid';
 
@@ -14,6 +14,7 @@ import { ModalState } from "../../features/slices/modalSlice";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
+  const { orgId } = useParams(); // Get orgId from URL params
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -22,6 +23,7 @@ const ManageUsers = () => {
     search: searchTerm,
     page: page,
     page_size: pageSize,
+    organization: orgId // Add organization filter when orgId is present
   });
 
   const columns = data?.results?.[0] 
@@ -81,12 +83,19 @@ const ManageUsers = () => {
   };
 
   const handleView = (row: any) => {
-    console.log(row,"pppp");
-    navigate(`/users/${row.id}`);
+    if (orgId) {
+      navigate(`/client/${orgId}/users/${row.id}`);
+    } else {
+      navigate(`/users/${row.id}`);
+    }
   };
 
   // const handleEdit = (row: any) => {
-  //   navigate(`/users/new/${row.id}`);
+  //   if (orgId) {
+  //     navigate(`/client/${orgId}/users/new/${row.id}`);
+  //   } else {
+  //     navigate(`/users/new/${row.id}`);
+  //   }
   // };
 
   // const handleDelete = (row: any) => {

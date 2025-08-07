@@ -12,10 +12,8 @@ interface HolidayFormProps {
 interface HolidayFormValues {
     id?: string;
     holiday_name: string;
-    holiday_from_date: string;
-    holiday_to_date: string;
-    description: string;
-    is_verified?: boolean;
+    holiday_dates: string[];
+    holiday_type: string;
     [key: string]: any;
 }
 
@@ -38,13 +36,8 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
             const formData = new FormData();
             
             formData.append('holiday_name', values.holiday_name);
-            formData.append('holiday_from_date', values.holiday_from_date);
-            formData.append('holiday_to_date', values.holiday_to_date);
-            formData.append('description', values.description);
-            
-            if (values.is_verified !== undefined) {
-                formData.append('is_verified', values.is_verified ? 'True' : 'False');
-            }
+            formData.append('holiday_dates', JSON.stringify(values.holiday_dates));
+            formData.append('holiday_type', values.holiday_type);
 
             if (isEditMode) {
                 await editHoliday({
@@ -53,6 +46,7 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
                 }).unwrap();
                 onSuccess?.();
             } else {
+                console.log(formData);
                 await createHoliday(formData).unwrap();
                 navigate('/holidays');
             }
@@ -74,7 +68,7 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
                 <DynamicForm
                     fields={HolidayFormFields}
                     onSubmit={handleSubmit}
-                        initialValues={holidayData || initialData || {}}
+                    initialValues={holidayData || initialData || {}}
                 />
             )}
         </Box>

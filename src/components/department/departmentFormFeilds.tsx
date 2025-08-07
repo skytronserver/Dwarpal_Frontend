@@ -3,25 +3,20 @@ import { Field } from '../../types/form.types';
 
 export const DepartmentFormFields: Field[] = [
     {
-        name: 'name',
-        label: 'Department Name',
-        type: 'text',
-        required: true,
-        validation: Yup.string().required('Department name is required')
-    },
-    {
-        name: 'organization',
+        name: 'organization_id',
         label: 'Organisation',
         type: 'select',
         required: true,
         validation: Yup.string().required('Organisation name is required'),
-        options: []
+        disabled: true,
+        options: [],
     },
     {
-        name: 'integrate_with_ai_camera',
-        label: 'Integrated with AI camera',
-        type: 'checkbox',
+        name: 'name',
+        label: 'Department Name',
+        type: 'text',
         required: true,
-        validation: Yup.boolean().required('AI camera integration is required')
+        placeholder: 'Enter department name',
+        validation: Yup.string().required('Department name is required')
     }
 ];

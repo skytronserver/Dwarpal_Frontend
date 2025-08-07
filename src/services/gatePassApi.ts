@@ -15,16 +15,32 @@ interface GuestPass {
     approved_by: number | null;
     approved_at: string | null;
 }
-
 interface GuestPassResponse {
     results: GuestPass[];
     count: number;
 }
 
+interface GuestPassSettings {
+    id: number;
+    title: string;
+    guest_category: string;
+    visitor_hours_start: string;
+    visitor_hours_end: string;
+    visiting_days: string[];
+    restrict_on_holidays: boolean;
+    is_approved: boolean;
+    approved_by: number | null;
+    approved_at: string | null;
+    created_by: number;
+    updated_by: number;
+    created_at: string;
+    updated_at: string;
+}
+
 export const gatePassApi = createApi({
     reducerPath: 'gatePassApi',
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
-    tagTypes: ['guestPasses'] as const,
+    tagTypes: ['guestPasses', 'guestPassSettings'] as const,
     endpoints: (builder) => ({
         getGuestPasses: builder.query<GuestPassResponse, { search?: string }>({
             query: (params) => ({
@@ -57,6 +73,16 @@ export const gatePassApi = createApi({
             }),
             invalidatesTags: ['guestPasses'],
         }),
+        viewGuestPassSettings: builder.query<GuestPassSettings[], void>({
+            query: () => ({
+                url: '/guest-pass-settings/',
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+            providesTags: ['guestPassSettings'],
+        }),
         getGuestPassById: builder.query<GuestPass, number>({
             query: (guestPassId) => ({
                 url: `/api/guest-passes/view/${guestPassId}/`,
@@ -66,6 +92,17 @@ export const gatePassApi = createApi({
             }),
             providesTags: [{ type: 'guestPasses', id: 'LIST' }],
         }),
+        guestPassSettings: builder.mutation<GuestPassSettings, GuestPassSettings>({
+            query: (guestPassSettings) => ({
+                url: `/guest-pass-settings/`,
+                method: 'POST',
+                body: guestPassSettings,
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+            invalidatesTags: ['guestPassSettings'],
+        }),
     })
 });
 
@@ -73,7 +110,9 @@ export const {
     useGetGuestPassesQuery,
     useCreateGuestPassMutation,
     useApproveGuestPassMutation,
-    useGetGuestPassByIdQuery
+    useGetGuestPassByIdQuery,
+    useViewGuestPassSettingsQuery,
+    useGuestPassSettingsMutation
 } = gatePassApi;
 
 

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_ENDPOINTS } from "../config/endpoints";
 
-interface DepartmentResponse {
+export interface DepartmentResponse {
     count: number;
     total_pages: number;
     current_page: number;
@@ -9,12 +9,15 @@ interface DepartmentResponse {
     data?: Department;
 }
 
-interface Department {
+export interface Department {
     id: number;
     name: string;
     organization: {
         id: number;
-        name: string;
+        client_name: string;
+        address: string;
+        no_of_employees: string;
+        access_control: boolean;
     };
     integrate_with_ai_camera: boolean;
 }
@@ -24,7 +27,12 @@ export const departmentApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
     tagTypes: ['Department'],
     endpoints: (builder) => ({
-        getDepartments: builder.query<DepartmentResponse, { search?: string; page?: number; page_size?: number }>({
+        getDepartments: builder.query<DepartmentResponse, { 
+            search?: string; 
+            page?: number; 
+            page_size?: number;
+            organization?: string | number;
+        }>({
             query: (params) => ({
                 url: API_ENDPOINTS.departments.list,
                 params,

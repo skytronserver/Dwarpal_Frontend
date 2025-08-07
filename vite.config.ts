@@ -9,5 +9,7 @@ export default defineConfig({
     host: true,
     strictPort: true,
     open: true,
+    allowedHosts: ['localhost', 'dwarpal.in','7c72df056364.ngrok-free.app'],
   }
+  
 })

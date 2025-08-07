@@ -1,37 +1,30 @@
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DynamicForm from '../../components/common/DynamicForm';
-import { Typography, Box, CircularProgress} from '@mui/material';
-import { useCreateUserMutation, useCreateAdminMutation, useUpdateUserMutation, useGetUserByIdQuery } from '../../services/UserApi';
+import { 
+  Box, CircularProgress, Grid, Typography
+} from '@mui/material';
+import { useCreateAdminMutation, useUpdateUserMutation, useGetUserByIdQuery } from '../../services/UserApi';
 import { UserFormFields } from '../../components/user/userFormFields';
-import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
-import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
-import { Field } from '../../types/form.types';
-import * as Yup from 'yup';
-import { useGetShiftsQuery } from '../../services/shiftApi';
-import { useAuth } from '../../hooks/useAuth';
+import { useGetOrganisationsQuery } from '../../services/OrganisationApi';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
+
 interface UserFormProps {
   onSuccess?: () => void;
 }
 
 interface UserFormValues {
   id?: string;
-  role?: 'SUPER_ADMIN' | 'ADMIN' | 'EMPLOYEE';
-  canCreateAdmin?: boolean;
-  canManageEmployees?: boolean;
-  canViewReports?: boolean;
+  role: 'ADMIN';
   [key: string]: any;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
-  const { hasRole } = useAuth();
-  const { id } = useParams();
+  const { id, orgId } = useParams<{ id: string; orgId: string }>();
   const location = useLocation();
   const showSuccessToast = useSuccessToast();
   const showErrorToast = useErrorToast();
   
-  // Check if we're actually in create mode despite having an ID in the URL
   const isCreateMode = location.pathname.includes('/new');
   const validEditId = !isCreateMode && id ? parseInt(id) : undefined;
   
@@ -43,180 +36,113 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   );
   
   const [editUser, { isLoading: isEditLoading }] = useUpdateUserMutation();
-  const [createUser, { isLoading: isCreateLoading }] = useCreateUserMutation();
   const [createAdmin, { isLoading: isCreateAdminLoading }] = useCreateAdminMutation();
   const navigate = useNavigate();
 
   const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
-  const { data: departments, isLoading: isDepsLoading } = useGetDepartmentsQuery({});
-  const updatedDepartments = departments?.results?.filter((dep: any) => dep.organization?.[0]?.id === userData?.organization);
-  const { data: shifts, isLoading: isShiftsLoading } = useGetShiftsQuery({});
-
-  console.log(updatedDepartments,'updatedDepartments');
-  const organizationOptions = organizations?.results?.map((org: Organisation) => ({
-    label: org.name,
-    value: org.id
-  })) || [];
-
-  const departmentOptions = updatedDepartments?.map((dep: any) => ({
-    label: dep.name,
-    value: dep.id
-  })) || [];
 
   const modifiedInitialData = React.useMemo(() => {
     const initialData = userData || location.state?.userData;
     if (!initialData) {
-      return null;
+      return { 
+        role: 'ADMIN',
+        organization: orgId
+      };
     }
-
     return {
       ...initialData,
-      organization: typeof initialData.organization === 'string'
-        ? organizationOptions.find(option => option.label === initialData.organization)?.value
-        : initialData.organization,
-      department: typeof initialData.department === 'string'
-        ? departmentOptions.find(option => option.label === initialData.department)?.value
-        : initialData.department,
-      shift: typeof initialData.shift === 'string'
-        ? shifts?.results?.find(shift => shift.id === initialData.shift)?.shift_name
-        : initialData.shift
+      organization: orgId,
+      role: 'ADMIN'
     };
-  }, [userData, location.state?.userData, organizationOptions, departmentOptions, shifts]);
-
-
-  const [values, setValues] = React.useState<UserFormValues | undefined>(modifiedInitialData);
+  }, [userData, location.state, orgId]);
 
   const formFields = React.useMemo(() => {
-    const baseFields = UserFormFields.map(field => {
+    return UserFormFields.map(field => {
       if (field.name === 'role') {
         return {
           ...field,
-          options: hasRole(['SUPERADMIN']) 
-            ? [{ label: 'Admin', value: 'ADMIN' }]
-            : hasRole(['ADMIN'])
-            ? [{ label: 'Employee', value: 'EMPLOYEE' }]
-            : []
+          disabled: true,
+          defaultValue: 'ADMIN',
+          value: 'ADMIN',
+          options: [{ label: 'Admin', value: 'ADMIN' }]
         };
       }
       if (field.name === 'organization') {
+        const org = organizations?.results?.find(org => org.id.toString() === orgId);
         return {
           ...field,
-          options: organizationOptions,
-          disabled: values?.role === 'EMPLOYEE'
+          disabled: true,
+          defaultValue: orgId,
+          value: orgId,
+          options: org ? [{ 
+            label: org.client_name, 
+            value: org.id 
+          }] : []
         };
       }
-      // Remove department from base fields
-      if (field.name === 'department') {
-        return null;
-      }
       return field;
-    }).filter(Boolean) as Field[];
-
-    // Modify this condition to include when creating/editing an admin
-    const shouldShowPermissions = hasRole(['ADMIN']) || 
-      (values?.role === 'ADMIN') || 
-      (userData?.role === 'ADMIN');
-
-    if (shouldShowPermissions) {
-      const permissionFields: Field[] = [
-        {
-          name: 'department',
-          label: 'Department',
-          type: 'select',
-          required: true,
-          validation: Yup.string().required('Department is required'),
-          options: departmentOptions,
-          disabled: !values?.organization,
-          helperText: !values?.organization ? 'Please select an organization first' : undefined
-        },
-        {
-          name: 'shift  ',
-          label: 'Shift',
-          type: 'select',
-          required: false,
-          validation: Yup.string().required('Shift is required'),
-          options: shifts?.results?.map((shift: any) => ({
-            label: shift.shift_name,
-            value: shift.id
-          })) || [],
-        },
-        {
-          name: 'assigned_permissions',
-          label: 'Select Priviledges',
-          type: 'multi-select',
-          required: false,
-          validation: Yup.array().of(Yup.string()),
-          options: [
-            { label: 'Create Guest Pass', value: 'can_create_guest_pass' },
-            { label: 'View Guest Pass', value: 'view_guest_pass' },
-            { label: 'Attendance Report', value: 'attendance_report' },
-            { label: 'Approve Guest Pass', value: 'approve_guest_pass' }
-          ]
-        }
-      ];
-      return [...baseFields, ...permissionFields];
-    }
-
-    return baseFields;
-  }, [organizationOptions, departmentOptions, values, hasRole, userData]);
-
-  const handleFormChange = (newValues: UserFormValues) => {
-    setValues(newValues);
-  };
+    });
+  }, [organizations, orgId]);
 
   const handleSubmit = async (values: UserFormValues) => {
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && key !== 'role') {
-          if (key === 'photo' || key === 'kyc_document' && value instanceof File) {
+        if (value !== null && value !== undefined) {
+          if (key === 'id_proof_document' || key === 'pan_upload' || key === 'photo') {
+            if (value instanceof File) {
+              formData.append(key, value);
+            }
+          } else if (key === 'valid_upto') {
             formData.append(key, value);
-          } else {
+          } else if (key !== 'role') {
             formData.append(key, value.toString());
           }
         }
       });
+      formData.append('role', 'ADMIN');
+      if (orgId) {
+        formData.append('organization', orgId);
+      }
 
       if (validEditId) {
         const response = await editUser({
           id: validEditId,
           formData
         }).unwrap();
-        console.log('User updated successfully:', response);
-        showSuccessToast(response?.message || '');
+        showSuccessToast(response?.message || 'Admin updated successfully');
         onSuccess?.();
       } else {
-        const response = hasRole(['SUPERADMIN']) && values.role === 'ADMIN'
-          ? await createAdmin(formData).unwrap()
-          : await createUser(formData).unwrap();
-        console.log('User created successfully:', response);
-        showSuccessToast(response?.message || '');
-        navigate('/users');
+        const response = await createAdmin(formData).unwrap();
+        showSuccessToast(response?.message || 'Admin created successfully');
+        // navigate('/org/client/1/users');
       }
     } catch (error: any) {
-      console.error('Error handling user:', error);
-      showErrorToast(error?.data?.message || '');
+      console.error('Error handling admin:', error);
+      showErrorToast(error?.data?.message || 'Error processing admin user');
     }
   };
 
-
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        {validEditId ? 'Edit User' : 'Create User'}
-      </Typography>
-      {(isEditLoading || isCreateLoading || isCreateAdminLoading || isOrgsLoading || isDepsLoading || isUserLoading || isShiftsLoading) ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <DynamicForm
-          fields={formFields}
-          onSubmit={handleSubmit}
-          initialValues={values}
-          onChange={handleFormChange}
-        />
-      )}
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Typography variant="h5" gutterBottom>
+            {isCreateMode ? 'Create Admin' : 'Edit Admin'}
+          </Typography>
+          {(isEditLoading || isCreateAdminLoading || isUserLoading || isOrgsLoading) ? (
+            <Box display="flex" justifyContent="center" my={4}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <DynamicForm
+              fields={formFields}
+              onSubmit={handleSubmit}
+              initialValues={modifiedInitialData}
+            />
+          )}
+        </Grid>
+      </Grid>
     </Box>
   );
 };

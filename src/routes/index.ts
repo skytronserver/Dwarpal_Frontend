@@ -1,10 +1,9 @@
-import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClosed as Gate } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Building, Clock, Calendar, DoorClosed as Gate, Plus } from 'lucide-react';
 import { lazy } from 'react';
 import { UserRole } from '../types/auth.types';
 
-
-
 const Dashboard = lazy(() => import('../pages/Dashboard'));
+const ComingSoon = lazy(() => import('../pages/ComingSoon'));
 const Organisations = lazy(() => import('../pages/organisation/Organisations'));
 const ViewOrganisation = lazy(() => import('../pages/organisation/ViewOrganisation'));
 const OrganisationForm = lazy(() => import('../pages/organisation/OrganisationForm'));
@@ -25,7 +24,18 @@ const HolidayForm = lazy(() => import('../pages/holidays/HolidaysForm'))
 const ViewUser = lazy(() => import('../pages/user/ViewUser'));
 const AttendanceDetail = lazy(() => import('../pages/attendance/AttendanceDetail'));
 const AttendanceAnalytics = lazy(() => import('../pages/attendance/AttendanceAnalytics'));
-
+const AccountsUserForm = lazy(() => import('../pages/account/AccountUserForm'));
+const IndividualUserForm = lazy(() => import('../pages/individualUser/individualUserForm'));
+const SubscriptionForm = lazy(() => import('../pages/subscription/SubscriptionForm'));
+const ServiceProviderForm = lazy(() => import('../pages/service-provider/ServiceProviderForm'));
+const IndividualServiceProviderForm = lazy(() => import('../pages/service-provider/IndividualServiceProviderForm'));
+const HRForm = lazy(() => import('../pages/hr/HRForm'));
+const CompanyAccountsUserForm = lazy(()=>import('../pages/account/CompanyAccountsUser'))
+const HRUserForm = lazy(()=>import('../pages/hr/HRUser'))
+const GuestPassSettings = lazy(() => import('../pages/gatepass/GuestPassSettings'));
+const ViewGuestPassSettings = lazy(() => import('../components/gatePass/ViewGuestPassSettings'));
+const EmployeeForm = lazy(() => import('../pages/user/EmployeeForm'));
+const UserAttendence = lazy(() => import('../pages/attendance/UserAttendence'));
 export interface RouteConfig {
     path: string;
     element: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -41,19 +51,27 @@ const adminRoutes:RouteConfig[] = [
         element: Dashboard,
         title: 'Dashboard',
         icon: LayoutDashboard,
-        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE','HR'] as UserRole[],
         group: 'dashboard'
     },
     {
-        path: '/organisations',
+        path: '/coming-soon',
+        element: ComingSoon,
+        title: 'Coming Soon',
+        icon: Clock,
+        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE', 'HR', 'ACCOUNTS'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/client/organisations',
         element: Organisations,
         title: 'Manage Organisations',
         icon: Building2,
         allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
-        group: 'manage'
+        group: 'create'
     },
     {
-        path: '/organisations/new/:id',
+        path: '/client/organisations/new/:id',
         element: OrganisationForm,
         title: 'Create Organisation',
         icon: Building2,
@@ -61,15 +79,15 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     },
     {
-        path: '/departments',                       
+        path: '/org/client/:orgId/departments',                       
         element: ManageDepartments,     
         title: 'Manage Departments',
         icon: Building,
         allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
-        group: 'manage'
+        group: 'create'
     },
     {
-        path: '/departments/new/:id',
+        path: '/org/client/:orgId/departments/new/:id',
         element: DepartmentForm,
         title: 'Create Department',
         icon: Building,
@@ -77,15 +95,87 @@ const adminRoutes:RouteConfig[] = [
         group: 'create' 
     },
     {
-        path: '/users',
+        path: 'corporate-users/:id/users/new/:id',
         element: ManageUsers,
         title: 'Manage Users',
         icon: Users,
         allowedRoles: ['SUPERADMIN', 'ADMIN', 'HR','ACCOUNTS'] as UserRole[],
-        group: 'manage'
-    },  
+        group: 'create'
+    }, 
     {
-        path: '/users/new/:id',
+        path: 'org/client/:orgId/users',
+        element: ManageUsers,
+        title: 'Manage Users',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
+    }, 
+    {
+        path: 'company/employee/new/:id',
+        element: EmployeeForm,
+        title: 'Create Employee',
+        icon: Users,
+        allowedRoles: ['HR']as UserRole[],
+        group: 'create'
+    }, 
+    {
+        path: 'company/sub-admin/new/:id',
+        element: HRUserForm,
+        title: 'Create HR',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: 'company/accounts/new/:id',
+        element: AccountsUserForm,
+        title: 'Create accounts user',
+        icon: Users,
+        allowedRoles: ['ADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/accounts/new/:id',
+        element: AccountsUserForm,
+        title: 'Create accounts user',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/client/individualForm',
+        element: IndividualUserForm,
+        title: 'Create Individual User',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/settings/subscriptions/new',
+        element: SubscriptionForm,
+        title: 'Create Subscription',
+        icon: Plus,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/service-provider/new/:id',
+        element: ServiceProviderForm,
+        title: 'Create Service Provider',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/service-provider/individual/new/:id',
+        element: IndividualServiceProviderForm,
+        title: 'Create Individual Service Provider',
+        icon: Users,
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: '/org/client/:orgId/users/new/:id',
         element: UserForm,
         title: 'Create User',
         icon: Users,
@@ -101,19 +191,19 @@ const adminRoutes:RouteConfig[] = [
         group: 'manage'
     },       
     {
-        path: '/shifts',
+        path: 'reports/shifts',
         element: Shifts,
         title: 'Manage Shifts',
         icon: Clock,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN','HR'] as UserRole[],
         group: 'manage'
     },
     {
-        path: '/shifts/new/:id',
+        path: 'company/shifts/new/:id',
         element: ShiftForm,
         title: 'Create Shift',
         icon: Clock,
-        allowedRoles: ['ADMIN'] as UserRole[],
+        allowedRoles: ['HR'] as UserRole[],
         group: 'create'
     },
     {
@@ -121,7 +211,7 @@ const adminRoutes:RouteConfig[] = [
         element: ViewDepartment,
         title: 'Department',
         icon: Building,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
         group: 'manage'
     },
     {
@@ -129,7 +219,7 @@ const adminRoutes:RouteConfig[] = [
         element: ViewShift,
         title: 'Shift',
         icon: Clock,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['ADMIN','HR'] as UserRole[],
         group: 'manage'
     },
     {
@@ -137,7 +227,7 @@ const adminRoutes:RouteConfig[] = [
         element: ViewOrganisation,
         title: 'Organisation',
         icon: Building2,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN'] as UserRole[],
         group: 'manage'
     },
     {
@@ -145,31 +235,39 @@ const adminRoutes:RouteConfig[] = [
         element: AssignShiftForm,
         title: 'Assign Shift',
         icon: Clock,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['ADMIN','HR'] as UserRole[],
         group: 'manage'
     },
     {
-        path: '/holidays',
+        path: '/reports/users',
+        element: ManageUsers,
+        title: 'Manage Users',
+        icon: Users,
+        allowedRoles: ['HR'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/reports/holidays',
         element: Holidays,
         title: 'Holidays',
         icon: Calendar,
-        allowedRoles: ['SUPERADMIN', 'ADMIN', 'EMPLOYEE'] as UserRole[],
+        allowedRoles: ['ADMIN', 'EMPLOYEE','HR'] as UserRole[],
         group: 'manage'
     },
     {
-        path: '/holidays/new/:id',
+        path: 'company/holidays/new/:id',
         element: HolidayForm,
         title: 'Create Holiday',
         icon: Calendar,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['HR'] as UserRole[],
         group: 'create'
     },
     {
-        path: '/gate-passes',
+        path: '/reports/gate-passes',
         element: GatePasses,
         title: 'Gate Passes',
         icon: Gate,
-        allowedRoles: ['ADMIN','EMPLOYEE'] as UserRole[],
+        allowedRoles: ['ADMIN','EMPLOYEE','HR'] as UserRole[],
         group: 'manage'
     },
     {
@@ -177,15 +275,31 @@ const adminRoutes:RouteConfig[] = [
         element: GatePassForm,
         title: 'Create Gate Pass',
         icon: Gate,
-        allowedRoles: ['EMPLOYEE'] as UserRole[],
+        allowedRoles: ['EMPLOYEE', 'ADMIN','HR'] as UserRole[],
         group: 'create'
     },
     {
-        path: '/gate-passes/:id',
+        path: '/reports/gate-passes/:id',
         element: ViewGatePass,
         title: 'View Gate Pass',
         icon: Gate,
-        allowedRoles: [ 'EMPLOYEE','ADMIN'] as UserRole[],
+        allowedRoles: [ 'EMPLOYEE','ADMIN','HR'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: '/settings/guest-pass',
+        element: GuestPassSettings,
+        title: 'Guest Pass Settings',
+        icon: Gate,
+        allowedRoles: ['HR'] as UserRole[],
+        group: 'manage'
+    },
+    {
+        path: 'reports/guest-pass',
+        element: ViewGuestPassSettings,
+        title: 'View Guest Pass Settings',
+        icon: Gate,
+        allowedRoles: ['ADMIN','HR'] as UserRole[],
         group: 'manage'
     },
     {
@@ -193,15 +307,15 @@ const adminRoutes:RouteConfig[] = [
         element: AttendanceDetail,
         title: 'Attendance',
         icon: Clock,
-        allowedRoles: ['ADMIN', 'EMPLOYEE'] as UserRole[],
+        allowedRoles: ['ADMIN', 'EMPLOYEE','HR'] as UserRole[],
         group: 'manage'
     },
     {
-        path: '/attendance/analytics',
+        path: 'reports/attendance/analytics',
         element: AttendanceAnalytics,
         title: 'Attendance Analytics',
         icon: Clock,
-        allowedRoles: [ 'ADMIN', 'EMPLOYEE'] as UserRole[],
+        allowedRoles: [ 'ADMIN', 'EMPLOYEE','HR'] as UserRole[],
         group: 'manage'
     },
     {
@@ -209,10 +323,25 @@ const adminRoutes:RouteConfig[] = [
         element: AttendanceDetail,
         title: 'Attendance Detail',
         icon: Clock,
-        allowedRoles: [ 'ADMIN', 'EMPLOYEE'] as UserRole[],
+        allowedRoles: [ 'ADMIN', 'EMPLOYEE','HR'] as UserRole[],
         group: 'manage'
-    }   
+    },
+    {
+        path: 'company/hr/new/:id',
+        element: HRForm,
+        title: 'Create HR',
+        icon: Users,
+        allowedRoles: ['ADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
+        path: 'reports/attendance',
+        element: UserAttendence,
+        title: 'Attendance',
+        icon: Clock,
+        allowedRoles: ['EMPLOYEE'] as UserRole[],
+        group: 'manage'
+    }
 ]
-
 
 export { adminRoutes }; 

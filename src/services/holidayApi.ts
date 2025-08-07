@@ -21,6 +21,7 @@ interface HolidayResponse {
 export const holidayApi = createApi({
     reducerPath: 'holidayApi',
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
+    tagTypes: ['holidays'],
     endpoints: (builder) => ({
         getHolidays: builder.query<HolidayResponse, {search: string, page: number, page_size: number}>({
             query: (params) => ({
@@ -31,6 +32,7 @@ export const holidayApi = createApi({
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
             }),
+            providesTags: ['holidays'],
         }),
         createHoliday: builder.mutation<Holiday, FormData>({
             query: (holiday) => ({
@@ -42,6 +44,16 @@ export const holidayApi = createApi({
                 }
             }),
         }),
+        approveHoliday: builder.mutation<Holiday, number>({
+            query: (holidayId) => ({
+                url: API_ENDPOINTS.holidays.approve(holidayId),
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+            invalidatesTags: ['holidays'],
+        }),     
         editHoliday: builder.mutation<Holiday, { id: number, data: FormData }>({
             query: ({ id, data }) => ({
                 url: API_ENDPOINTS.holidays.update(id),
@@ -63,4 +75,4 @@ export const holidayApi = createApi({
     }),
 });
 
-export const { useGetHolidaysQuery, useCreateHolidayMutation, useEditHolidayMutation, useGetHolidayByIdQuery } = holidayApi;          
+export const { useGetHolidaysQuery, useCreateHolidayMutation, useEditHolidayMutation, useGetHolidayByIdQuery, useApproveHolidayMutation } = holidayApi;          

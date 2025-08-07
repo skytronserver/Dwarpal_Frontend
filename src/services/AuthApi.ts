@@ -22,6 +22,13 @@ export const authApiSlice = createApi({
             }
          })
       }),
+      otpVerification: builder.mutation<LoginResponseTypes, LoginTypes>({
+         query: (data) => ({
+            url: API_ENDPOINTS.auth.otpVerification,
+            body: data,
+            method: 'POST',
+         })
+      }),
       logout: builder.mutation<void, void>({
          query: () => ({
             url: API_ENDPOINTS.auth.logout,
@@ -32,8 +39,24 @@ export const authApiSlice = createApi({
                'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
             }
          })
-      })
+      }),
+      resendOtp: builder.mutation<LoginResponseTypes, Pick<LoginTypes, 'mobile_number'>>({
+         query: (data) => ({
+            url: API_ENDPOINTS.auth.resendOtp,
+            method: 'POST',
+            body: data,
+            headers: {
+               'Content-Type': 'application/json',
+               'Accept': 'application/json',
+            }
+         })
       })
    })
+})
 
-export const { useGetLoginMutation, useLogoutMutation } = authApiSlice
+export const { 
+   useGetLoginMutation, 
+   useLogoutMutation, 
+   useOtpVerificationMutation,
+   useResendOtpMutation 
+} = authApiSlice

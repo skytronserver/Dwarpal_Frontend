@@ -15,5 +15,19 @@ body {
 }
 
 .css-1umw9bq-MuiSvgIcon-root {
-  color: #fff !important; /* Replace with your desired color */
+  color: #000 !important;
+}
+
+/* Target the menu icons specifically */
+[data-testid="MenuIcon"].MuiSvgIcon-root,
+[data-testid="MenuOpenIcon"].MuiSvgIcon-root {
+  color: #fff !important;
+}
+
+
+.css-5fbijw-MuiListSubheader-root {
+  height: 49px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-radius: 10px !important;
 }
