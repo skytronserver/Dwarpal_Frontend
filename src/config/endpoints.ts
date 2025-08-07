@@ -48,6 +48,7 @@ export const API_ENDPOINTS = {
       getById: (id: number) => `/api/users/${id}/`,
       adminCreate: '/api/admins/create/',
       attendanceReport: `/api/user-attendance-report/`,
+      activateUser: (token: string) => `/activate-user/${token}/`,
       },
     shifts: {
       list: '/api/shifts/',

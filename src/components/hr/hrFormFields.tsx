@@ -43,7 +43,7 @@ export const HRFormFields: Field[] = [
     validation: Yup.string().required('Department is required')
   },
   {
-    name: 'phone_number',
+    name: 'mobile_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,
@@ -110,7 +110,7 @@ export const HRFormFields: Field[] = [
     validation: Yup.string().required('Pincode is required')
   },
   {
-    name: 'pan',
+    name: 'pan_number',
     label: 'PAN Number',
     type: 'text',
     required: true,
@@ -126,7 +126,7 @@ export const HRFormFields: Field[] = [
     validation: Yup.mixed().optional()
   },
   {
-    name: 'id_proof_no',
+    name: 'id_proof_number',
     label: 'ID Proof Number (Voter Id,Passport,Driving lisense or any Govt Id)',
     type: 'text',
     required: true,

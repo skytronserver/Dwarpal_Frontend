@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { useActivateUserMutation } from '../services/activateUser';
 
 const ActivateUser = () => {
+  const { token } = useParams();
   const [formData, setFormData] = useState({
     mobile: '',
     password: '',
@@ -12,6 +14,44 @@ const ActivateUser = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [activateUser, { isLoading }] = useActivateUserMutation();
+  const [errors, setErrors] = useState({
+    mobile: '',
+    password: '',
+    confirmPassword: '',
+    id_proof_last4: ''
+  });
+
+  const validate = () => {
+    const newErrors: typeof errors = { mobile: '', password: '', confirmPassword: '', id_proof_last4: '' };
+    // Mobile: required, 10 digits, numeric
+    if (!formData.mobile) {
+      newErrors.mobile = 'Mobile number is required.';
+    } else if (!/^\d{10}$/.test(formData.mobile)) {
+      newErrors.mobile = 'Mobile number must be 10 digits.';
+    }
+    // Password: required, min 6 chars
+    if (!formData.password) {
+      newErrors.password = 'Password is required.';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters.';
+    }
+    // Confirm Password: required, must match
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password.';
+    } else if (formData.confirmPassword !== formData.password) {
+      newErrors.confirmPassword = 'Passwords do not match.';
+    }
+    // ID Proof Last 4: required, 4 digits
+    if (!formData.id_proof_last4) {
+      newErrors.id_proof_last4 = 'Last 4 digits of ID are required.';
+    } else if (!/^\d{4}$/.test(formData.id_proof_last4)) {
+      newErrors.id_proof_last4 = 'Must be exactly 4 digits.';
+    }
+    setErrors(newErrors);
+    // Return true if no errors
+    return Object.values(newErrors).every(e => !e);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,11 +59,27 @@ const ActivateUser = () => {
       ...prev,
       [name]: value
     }));
+    setErrors(prev => ({ ...prev, [name]: '' })); // Clear error on change
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Values:', formData);
+    if (!token) {
+      console.error('Token is required');
+      return;
+    }
+    if (!validate()) {
+      return;
+    }
+    const data = {
+      mobile_number: formData.mobile,
+      password: formData.password,
+      confirm_password: formData.confirmPassword,
+      id_proof_last4: formData.id_proof_last4,
+      token: token
+    };
+    console.log('Form Values:', data);
+    activateUser(data);
   };
 
   const fadeIn = {
@@ -82,6 +138,7 @@ const ActivateUser = () => {
                   placeholder="Enter your mobile number"
                   className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
                 />
+                {errors.mobile && <p className="text-red-400 text-xs mt-1">{errors.mobile}</p>}
               </div>
 
               {/* Password */}
@@ -111,6 +168,7 @@ const ActivateUser = () => {
                     )}
                   </button>
                 </div>
+                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
               </div>
 
               {/* Confirm Password */}
@@ -140,6 +198,7 @@ const ActivateUser = () => {
                     )}
                   </button>
                 </div>
+                {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
               </div>
 
               {/* Last 4 digits of ID */}
@@ -157,6 +216,7 @@ const ActivateUser = () => {
                   maxLength={4}
                   className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
                 />
+                {errors.id_proof_last4 && <p className="text-red-400 text-xs mt-1">{errors.id_proof_last4}</p>}
               </div>
             </motion.div>
 

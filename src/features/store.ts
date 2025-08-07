@@ -10,6 +10,8 @@ import { gatePassApi } from "../services/gatePassApi";
 import { accountsApi } from "../services/accountsServices";
 import { accountUserApi } from "../services/accountUserServices";
 import dashboardServices from "../services/dashboardServices";
+import { activateUserApi } from "../services/activateUser";
+import { hrApi } from "../services/hrServices";
 
 const store = configureStore({
     reducer: {
@@ -24,6 +26,8 @@ const store = configureStore({
         [accountsApi.reducerPath]: accountsApi.reducer,
         [accountUserApi.reducerPath]: accountUserApi.reducer,
         [dashboardServices.reducerPath]: dashboardServices.reducer,
+        [activateUserApi.reducerPath]: activateUserApi.reducer,
+        [hrApi.reducerPath]: hrApi.reducer,
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware().concat(
@@ -37,7 +41,9 @@ const store = configureStore({
             accountsApi.middleware,
             accountUserApi.middleware,
             dashboardServices.middleware,
-        ),
+            activateUserApi.middleware,
+            hrApi.middleware,
+            ),
     devTools: true,
 })
 

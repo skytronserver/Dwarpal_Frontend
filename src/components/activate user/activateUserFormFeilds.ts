@@ -21,7 +21,7 @@ const activateUserFormFeilds: Field[] = [
     name: "confirmPassword",
     type: "password",   
     placeholder: "Confirm your password",
-    validation: Yup.string().required("Confirm password is required"),
+    validation: Yup.string().required("Confirm password is required").oneOf([Yup.ref('password')], "Passwords must match"),
   },
   {
     label: "Last 4 digits of ID",

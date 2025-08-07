@@ -59,14 +59,14 @@ const AccountUserForm: React.FC<AccountUserFormProps> = ({ onSuccess }) => {
       return {
         role: 'ACCOUNT_USER',
         department: 'ACCOUNTS',
-        organization: typeof user?.organization === 'object' && 'client_name' in user.organization ? user.organization.client_name : user?.organization || ''
+        organization: typeof user?.organization === 'object' && user?.organization && 'client_name' in user.organization ? user.organization?.client_name : user?.organization || ''
       };
     }
     return {
       ...initialData,
-      organization: typeof initialData.organization === 'object' && 'client_name' in initialData.organization ? initialData.organization.client_name : 
+      organization: typeof initialData.organization === 'object' && initialData.organization && 'client_name' in initialData.organization ? initialData.organization?.client_name : 
                    initialData.organization || initialData.organization_id || 
-                   (typeof user?.organization === 'object' && 'client_name' in user.organization ? user.organization.client_name : user?.organization) || '',
+                   (typeof user?.organization === 'object' && user?.organization && 'client_name' in user.organization ? user.organization.client_name : user?.organization) || '',
       department: 'ACCOUNTS',
       shift: initialData.shift?.id || initialData.shift,
       role: 'ACCOUNT_USER'
@@ -85,9 +85,9 @@ const AccountUserForm: React.FC<AccountUserFormProps> = ({ onSuccess }) => {
         };
       }
       if (field.name === 'organization') {
-        const orgValue = typeof values?.organization === 'object' && 'client_name' in values.organization ? values.organization.client_name :
+        const orgValue = typeof values?.organization === 'object' && values?.organization && 'client_name' in values.organization ? values.organization.client_name :
                         values?.organization || 
-                        (typeof user?.organization === 'object' && 'client_name' in user.organization ? user.organization.client_name : user?.organization) || '';
+                        (typeof user?.organization === 'object' && user?.organization && 'client_name' in user.organization ? user.organization.client_name : user?.organization) || '';
         return {
           ...field,
           options: organizationOptions,

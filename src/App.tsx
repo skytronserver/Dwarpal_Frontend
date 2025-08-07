@@ -26,7 +26,7 @@ const App = () => {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/activate-user" element={<ActivateUser />} />  
+          <Route path="/activate-user/:token" element={<ActivateUser />} />  
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             {adminRoutes.map((route: RouteConfig) => (
