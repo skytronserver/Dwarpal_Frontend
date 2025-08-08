@@ -115,7 +115,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
       } else {
         const response = await createAdmin(formData).unwrap();
         showSuccessToast(response?.message || 'Admin created successfully');
-        // navigate('/org/client/1/users');
+        navigate(`/org/client/${orgId}/users`);
       }
     } catch (error: any) {
       console.error('Error handling admin:', error);

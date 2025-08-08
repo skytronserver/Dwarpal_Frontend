@@ -114,7 +114,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({ onSuccess }) => {
                 
                 const response = await createDepartment(formData).unwrap();
                 console.log('Department created successfully:', response);
-                navigate(`/client/${orgId}/departments`);
+                navigate(`/org/client/${orgId}/departments`);
             }
         } catch (error) {
             console.error('Error handling department:', error);

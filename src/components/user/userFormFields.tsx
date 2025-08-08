@@ -45,7 +45,7 @@ export const UserFormFields: Field[] = [
     type: 'text',
     required: true,
     validation: Yup.string()
-      .matches(/^\\d{10}$/, 'Phone number must be 10 digits')
+      .matches(/^\d{10}$/, 'Phone number must be 10 digits')
       .required('Phone number is required')
   },
   {

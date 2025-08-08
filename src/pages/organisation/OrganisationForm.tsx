@@ -64,7 +64,7 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
       });
 
       await createCompany(formData).unwrap();
-      navigate('/organisations');
+      navigate('/client/organisations');
     }
   } catch (error) {
     console.error('Error handling organisation:', error);
