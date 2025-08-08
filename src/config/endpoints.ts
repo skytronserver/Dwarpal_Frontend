@@ -2,9 +2,11 @@ export const API_ENDPOINTS = {
    serviceProviders: {
     createFirm:'/api/service-providers/firm/',
     createIndividual:'/api/service-providers/individual/',
+    getCompanyProviderList:'api/service-providers/firms/list',
+    getIndividualProviderList:'api/service-providers/individuals/list'
    },
    clients: {
-    createCompany: '/api/clients/company/create/',
+    createCompany: '/api/organizations/create/',
     // createIndividual: '/api/clients/individual/create/',
    },
    accountUser: {

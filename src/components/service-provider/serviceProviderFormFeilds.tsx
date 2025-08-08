@@ -67,7 +67,7 @@ export const ServiceProviderFormFields: Field[] = [
     label: 'Service Type',
     type: 'multi-select',
     required: true,
-    validation: Yup.string().required('Service type is required'),
+    validation: Yup.array().min(1, 'Service type is required').required('Service type is required'),
     options: [
       { label: 'Maintenance', value: 'maintenance' },
       { label: 'Security', value: 'security' },
@@ -76,7 +76,7 @@ export const ServiceProviderFormFields: Field[] = [
     ]
   },
   {
-    name: 'authorized_person',
+    name: 'authorized_person_name',
     label: 'Authorized Person Name',
     type: 'text',
     required: true,
@@ -94,7 +94,7 @@ export const ServiceProviderFormFields: Field[] = [
       .required('Phone number is required')
   },
   {
-    name: 'designation',
+    name: 'authorized_person_designation',
     label: 'Designation of Authorized Person',
     type: 'text',
     required: true,
@@ -102,14 +102,14 @@ export const ServiceProviderFormFields: Field[] = [
   },
   // id proof of authorized person
   {
-    name: 'id_proof',
+    name: 'authorized_person_id_proof_number',
     label: 'ID Proof of Authorized Person(Aadhaar, Pan, etc.)',
     type: 'text',
     required: true,
     validation: Yup.string().required('ID proof is required')
   },
   {
-    name: 'id_proof_upload',
+    name: 'authorized_person_id_proof_document',
     label: 'Upload ID Proof of Authorized Person(Aadhaar, Pan, etc.)',
     type: 'file',
     required: true,
@@ -117,14 +117,14 @@ export const ServiceProviderFormFields: Field[] = [
     accept: '.pdf,.doc,.docx'
   },
   {
-    name: 'pan',
+    name: 'pan_number',
     label: 'PAN Number',
     type: 'text',
     required: true,
     validation: Yup.string().required('PAN is required')
   },
   {
-    name: 'pan_upload',
+    name: 'pan_file',
     label: 'PAN Upload',
     type: 'file',
     required: true,
@@ -132,14 +132,14 @@ export const ServiceProviderFormFields: Field[] = [
     accept: '.pdf,.doc,.docx'
   },
   {
-    name: 'gst_no',
+    name: 'gst_number',
     label: 'GST Number',
     type: 'text',
     required: true,
     validation: Yup.string().required('GST number is required')
   },
   {
-    name: 'upload_gst_certificate',
+    name: 'gst_file',
     label: 'Upload GST Certificate',
     type: 'file',
     required: true,

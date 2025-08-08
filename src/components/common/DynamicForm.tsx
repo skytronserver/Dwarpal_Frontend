@@ -34,6 +34,7 @@ import dayjs from 'dayjs';
 import { DynamicFormProps, Field } from "../../types/form.types";
 import { useTheme } from "@mui/material/styles";
 import PhotoUploadModal from "../gatePass/PhotoUploadModal";
+import * as Yup from 'yup';
 
 // Create a theme with overrides to remove required field asterisks
 const theme = createTheme({
@@ -60,7 +61,50 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   const [openModal, setOpenModal] = useState(false);
   const [activePhotoField, setActivePhotoField] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const muiTheme = useTheme();
+
+  // Create validation schema from fields
+  const createValidationSchema = () => {
+    const schemaObject: Record<string, any> = {};
+    
+    fields.forEach(field => {
+      if (field.validation) {
+        schemaObject[field.name] = field.validation;
+      }
+    });
+    
+    return Yup.object().shape(schemaObject);
+  };
+
+  // Validate a single field
+  const validateField = async (fieldName: string, value: any) => {
+    const schema = createValidationSchema();
+    try {
+      await schema.validateAt(fieldName, { [fieldName]: value });
+      return null;
+    } catch (error: any) {
+      return error.message;
+    }
+  };
+
+  // Validate all fields
+  const validateAllFields = async (data: Record<string, any>) => {
+    const schema = createValidationSchema();
+    try {
+      await schema.validate(data, { abortEarly: false });
+      return { isValid: true, errors: {} };
+    } catch (error: any) {
+      const errors: Record<string, string> = {};
+      if (error.inner) {
+        error.inner.forEach((err: any) => {
+          errors[err.path] = err.message;
+        });
+      }
+      return { isValid: false, errors };
+    }
+  };
 
   const validateFile = (file: File, fieldName: string, fieldLabel: string): string | null => {
     // Check file type
@@ -83,9 +127,12 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
     return null;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): Promise<void> => {
     const { name, value, type } = e.target;
-    setFileError(null); // Reset error on new input
+    setFileError(null); // Reset file error on new input
+    
+    // Mark field as touched
+    setTouchedFields(prev => ({ ...prev, [name]: true }));
     
     if (type === "file") {
       const files = (e.target as HTMLInputElement).files;
@@ -130,10 +177,21 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
       onChange?.(newData);
       return newData;
     });
+
+    // Validate the field
+    const error = await validateField(name, newValue);
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: error || ''
+    }));
   };
 
-  const handleSelectChange = (e: SelectChangeEvent<any>) => {
+  const handleSelectChange = async (e: SelectChangeEvent<any>) => {
     const { name, value } = e.target;
+    
+    // Mark field as touched
+    setTouchedFields(prev => ({ ...prev, [name]: true }));
+    
     setFormData(prev => {
       const newData = {
         ...prev,
@@ -142,10 +200,35 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
       onChange?.(newData);
       return newData;
     });
+
+    // Validate the field
+    const error = await validateField(name, value);
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: error || ''
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Mark all fields as touched
+    const allTouched: Record<string, boolean> = {};
+    fields.forEach(field => {
+      allTouched[field.name] = true;
+    });
+    setTouchedFields(allTouched);
+    
+    // Validate all fields
+    const { isValid, errors } = await validateAllFields(formData);
+    
+    if (!isValid) {
+      setFieldErrors(errors);
+      return;
+    }
+    
+    // Clear errors if validation passes
+    setFieldErrors({});
     onSubmit(formData);
   };
 
@@ -226,6 +309,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
 
   const renderArrayField = (field: Field) => {
     const arrayValue = formData[field.name] || [];
+    const hasError = touchedFields[field.name] && fieldErrors[field.name];
+    const errorMessage = fieldErrors[field.name];
     console.log('Rendering Array Field:', { fieldName: field.name, value: arrayValue });
     
     return (
@@ -273,12 +358,19 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
             </Typography>
           </Box>
         )}
+        {hasError && (
+          <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+            {errorMessage}
+          </Typography>
+        )}
       </Box>
     );
   };
 
   const renderFileInput = (field: Field) => {
     const isPhotoField = field.name === 'photo' || field.label.toLowerCase() === 'photo';
+    const hasError = touchedFields[field.name] && fieldErrors[field.name];
+    const errorMessage = fieldErrors[field.name];
     
     return (
       <Box>
@@ -292,15 +384,16 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               onChange={handleInputChange}
               disabled={field.disabled}
               required={field.required}
+              error={!!hasError}
               InputLabelProps={{ shrink: true }}
               sx={commonStyles}
               inputProps={{
                 accept: isPhotoField ? 'image/png,image/jpeg' : '.pdf,.png,.jpg,.jpeg'
               }}
             />
-            {fileError && (
+            {(fileError || hasError) && (
               <Alert severity="error" sx={{ mt: 1 }}>
-                {fileError}
+                {fileError || errorMessage}
               </Alert>
             )}
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, ml: 1 }}>
@@ -370,13 +463,16 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   };
 
   const renderField = (field: Field) => {
+    const hasError = touchedFields[field.name] && fieldErrors[field.name];
+    const errorMessage = fieldErrors[field.name];
+    
     switch (field.type) {
       case "array":
         return renderArrayField(field);
 
       case "select":
         return (
-          <FormControl fullWidth sx={commonStyles}>
+          <FormControl fullWidth sx={commonStyles} error={!!hasError}>
             <InputLabel required={false}>{field.label}</InputLabel>
             <Select
               name={field.name}
@@ -416,53 +512,65 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 </MenuItem>
               ))}
             </Select>
+            {hasError && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errorMessage}
+              </Typography>
+            )}
           </FormControl>
         );
       
       case "checkbox":
         return (
-          <FormControlLabel
-            control={
-              <Checkbox
-                name={field.name}
-                checked={formData[field.name] || false}
-                onChange={handleInputChange}
-                sx={{
-                  color: muiTheme.palette.primary.main,
-                  '& .MuiSvgIcon-root': {
-                    border: '2px solid #bdbdbd',
-                    borderRadius: '4px',
-                  },
-                  '&.Mui-checked .MuiSvgIcon-root': {
-                    border: '2px solid #000',
-                  },
-                  '&.Mui-checked': {
-                    color: '#000',
-                    '& .MuiSvgIcon-root path': {
-                      color: '#1976d2',
-                      fill: '#1976d2',
+          <Box>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name={field.name}
+                  checked={formData[field.name] || false}
+                  onChange={handleInputChange}
+                  sx={{
+                    color: muiTheme.palette.primary.main,
+                    '& .MuiSvgIcon-root': {
+                      border: '2px solid #bdbdbd',
+                      borderRadius: '4px',
                     },
-                  },
-                  '&:hover': {
-                    backgroundColor: 'rgba(5, 5, 5, 0.08)',
-                  },
-                  '&.Mui-focusVisible': {
-                    backgroundColor: 'rgba(6, 2, 0, 0.12)',
-                  }
-                }}
-              />
-            }
-            label={field.label}
-            sx={{ 
-              transition: 'all 0.3s ease', 
-              '&:hover': { transform: 'scale(1.05)' } 
-            }}
-          />
+                    '&.Mui-checked .MuiSvgIcon-root': {
+                      border: '2px solid #000',
+                    },
+                    '&.Mui-checked': {
+                      color: '#000',
+                      '& .MuiSvgIcon-root path': {
+                        color: '#1976d2',
+                        fill: '#1976d2',
+                      },
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(5, 5, 5, 0.08)',
+                    },
+                    '&.Mui-focusVisible': {
+                      backgroundColor: 'rgba(6, 2, 0, 0.12)',
+                    }
+                  }}
+                />
+              }
+              label={field.label}
+              sx={{ 
+                transition: 'all 0.3s ease', 
+                '&:hover': { transform: 'scale(1.05)' } 
+              }}
+            />
+            {hasError && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errorMessage}
+              </Typography>
+            )}
+          </Box>
         );
       
       case "radio":
         return (
-          <FormControl component="fieldset">
+          <FormControl component="fieldset" error={!!hasError}>
             <FormLabel sx={{ color: muiTheme.palette.text.primary }}>{field.label}</FormLabel>
             <RadioGroup
               name={field.name}
@@ -490,36 +598,49 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 />
               ))}
             </RadioGroup>
+            {hasError && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errorMessage}
+              </Typography>
+            )}
           </FormControl>
         );
       
       case "switch":
         return (
-          <FormControlLabel
-            control={
-              <Switch
-                name={field.name}
-                checked={formData[field.name] || false}
-                onChange={handleInputChange}
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: muiTheme.palette.primary.main,
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 131, 97, 0.08)',
+          <Box>
+            <FormControlLabel
+              control={
+                <Switch
+                  name={field.name}
+                  checked={formData[field.name] || false}
+                  onChange={handleInputChange}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: muiTheme.palette.primary.main,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 131, 97, 0.08)',
+                      },
                     },
-                  },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: muiTheme.palette.primary.main,
-                  }
-                }}
-              />
-            }
-            label={field.label}
-          />
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: muiTheme.palette.primary.main,
+                    }
+                  }}
+                />
+              }
+              label={field.label}
+            />
+            {hasError && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errorMessage}
+              </Typography>
+            )}
+          </Box>
         );
       
       case "file":
         return renderFileInput(field);
+
 
       case "multi-select":
         const selectedValues = formData[field.name] || field.defaultValue || [];
@@ -532,7 +653,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
         };
 
         return (
-          <FormControl fullWidth sx={commonStyles}>
+          <FormControl fullWidth sx={commonStyles} error={!!hasError}>
             <InputLabel required={false}>{field.label}</InputLabel>
             <Select
               multiple
@@ -573,6 +694,11 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 </MenuItem>
               ))}
             </Select>
+            {hasError && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errorMessage}
+              </Typography>
+            )}
           </FormControl>
         );
 
@@ -589,6 +715,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               required={field.required}
               disabled={field.disabled}
               sx={commonStyles}
+              error={!!hasError}
+              helperText={hasError ? errorMessage : field.helperText}
               InputLabelProps={{
                 shrink: true,
                 required: false
@@ -596,7 +724,6 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               inputProps={{
                 step: 300 // 5 min steps, adjust as needed
               }}
-              helperText={field.helperText}
             />
           </FormControl>
         );
@@ -620,6 +747,11 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                   Photo selected: {formData[field.name]?.name}
                 </Typography>
               </Box>
+            )}
+            {hasError && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                {errorMessage}
+              </Typography>
             )}
             <PhotoUploadModal
               open={openModal && activePhotoField === field.name}
@@ -693,9 +825,71 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                     }
                   }}
                 />
+                {hasError && (
+                  <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                    {errorMessage}
+                  </Typography>
+                )}
               </Box>
             </LocalizationProvider>
           </FormControl>
+        );
+
+      case 'date':
+        if (field.name === 'date_of_birth') {
+          // Calculate 18 years ago
+          const today = new Date();
+          const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+          return (
+            <TextField
+              fullWidth
+              name={field.name}
+              label={field.label}
+              type="date"
+              value={formData[field.name] || ''}
+              onChange={handleInputChange}
+              required={field.required}
+              disabled={field.disabled}
+              sx={commonStyles}
+              helperText={field.helperText}
+              InputLabelProps={{ shrink: true, required: false }}
+              inputProps={{
+                max: maxDate.toISOString().split('T')[0],
+                placeholder: 'YYYY-MM-DD',
+              }}
+              onFocus={e => {
+                // Set the default value to 18 years ago if empty
+                if (!formData[field.name]) {
+                  const eighteenAgo = maxDate.toISOString().split('T')[0];
+                  e.currentTarget.value = eighteenAgo;
+                }
+              }}
+            />
+          );
+        }
+        return (
+          <Box>
+            <TextField
+              fullWidth
+              name={field.name}
+              label={field.label}
+              type={field.type}
+              value={formData[field.name] || ""}
+              onChange={handleInputChange}
+              required={field.required}
+              disabled={field.disabled}
+              sx={commonStyles}
+              error={!!hasError}
+              helperText={hasError ? errorMessage : field.helperText}
+              InputLabelProps={{
+                shrink: field.type === 'date' ? true : undefined,
+                required: false
+              }}
+              inputProps={{
+                placeholder: field.type === 'date' ? 'YYYY-MM-DD' : undefined
+              }}
+            />
+          </Box>
         );
 
       default:
@@ -711,7 +905,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               required={field.required}
               disabled={field.disabled}
               sx={commonStyles}
-              helperText={field.helperText}
+              error={!!hasError}
+              helperText={hasError ? errorMessage : field.helperText}
               InputLabelProps={{
                 shrink: field.type === 'date' ? true : undefined,
                 required: false

@@ -49,7 +49,14 @@ const ServiceProviderForm: React.FC<ServiceProviderFormProps> = ({ onSuccess }) 
         if (value !== null && value !== undefined) {
           if ((key === 'photo' || key === 'kyc_document') && value instanceof File) {
             formData.append(key, value);
-          } else {
+          }
+          else if (key === 'id_proof_document' || key === 'pan_file') {
+            formData.append(key, value);
+          }
+          else if (key === 'service_type') {
+            formData.append(key, JSON.stringify(value));
+          }
+          else {
             formData.append(key, value.toString());
           }
         }

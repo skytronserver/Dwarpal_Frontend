@@ -54,9 +54,13 @@ const ServiceProviderForm: React.FC<ServiceProviderFormProps> = ({ onSuccess }) 
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          if ((key === 'photo' || key === 'kyc_document') && value instanceof File) {
+          if ((key === 'photo' || key === 'id_proof_document' || key === 'pan_file' || key==='authorized_person_id_proof_document' || key==='gst_file') && value instanceof File) {
             formData.append(key, value);
-          } else {
+          }
+          else if (key === 'service_type') {
+            formData.append(key, JSON.stringify(value));
+          }
+          else {
             formData.append(key, value.toString());
           }
         }
@@ -72,7 +76,7 @@ const ServiceProviderForm: React.FC<ServiceProviderFormProps> = ({ onSuccess }) 
       } else {
         const response = await createFirm(formData).unwrap();
         showSuccessToast(response?.message || 'Service provider created successfully');
-        navigate('/service-providers');
+        // navigate('/service-providers');
       }
     } catch (error: any) {
       console.error('Error handling service provider:', error);

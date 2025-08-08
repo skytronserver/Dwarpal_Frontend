@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 
 export const individualServiceProviderFormFields: Field[] = [
   {
-    name: 'name',
+    name: 'full_name',
     label: 'Full Name',
     type: 'text',
     required: true,
@@ -24,7 +24,7 @@ export const individualServiceProviderFormFields: Field[] = [
     validation: Yup.string().email('Invalid email').required('Email is required')
   },
   {
-    name: 'phone',
+    name: 'phone_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,
@@ -35,7 +35,7 @@ export const individualServiceProviderFormFields: Field[] = [
       .required('Phone number is required')
   },
   {
-    name: 'emergency_contact',
+    name: 'emergency_contact_number',
     label: 'Emergency Contact',
     type: 'text',
     required: true,
@@ -79,14 +79,14 @@ export const individualServiceProviderFormFields: Field[] = [
   {
     name: 'service_type',
     label: 'Service Type',
-    type: 'select',
+    type: 'multi-select',
     required: true,
-    validation: Yup.string().required('Service type is required'),
+    validation: Yup.array().min(1, 'Service type is required').required('Service type is required'),
     options: [
-      { label: 'Maintenance', value: 'MAINTENANCE' },
-      { label: 'Security', value: 'SECURITY' },
-      { label: 'Installation', value: 'INSTALLATION' },
-      { label: 'Other', value: 'OTHER' }
+      { label: 'Maintenance', value: 'maintenance' },
+      { label: 'Security', value: 'security' },
+      { label: 'Installation', value: 'installation' },
+      { label: 'Other', value: 'other' }
     ]
   },
   {
@@ -97,7 +97,7 @@ export const individualServiceProviderFormFields: Field[] = [
     validation: Yup.date().required('Valid upto date is required')
   },
   {
-    name: 'id_proof_no',
+    name: 'id_proof_number',
     label: 'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
     type: 'text',
     required: true,
@@ -111,13 +111,14 @@ export const individualServiceProviderFormFields: Field[] = [
     accept: '.pdf,.doc,.docx'
   },
   {
-    name: 'pan',
+    name: 'pan_number',
     label: 'PAN Number',
     type: 'text',
     required: true,
     validation: Yup.string().required('PAN is required')
-  },  {
-    name: 'pan_upload',
+  },  
+  {
+    name: 'pan_file',
     label: 'PAN Upload',
     type: 'file',
     required: true,

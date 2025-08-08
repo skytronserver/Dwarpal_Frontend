@@ -63,7 +63,25 @@ export const serviceProviderService = createApi({
                 }
             }),
         }),
+        getCompanyProviderList: builder.query<{ message: string }, FormData>({
+            query: () => ({
+                url: API_ENDPOINTS.serviceProviders.getCompanyProviderList,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+        }),
+        getIndividualProviderList: builder.query<{ message: string }, FormData>({
+            query: () => ({
+                url: API_ENDPOINTS.serviceProviders.getIndividualProviderList,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+        }),
     }),
 }); 
 
-export const { useCreateFirmMutation, useCreateIndividualMutation } = serviceProviderService;
+export const { useCreateFirmMutation, useCreateIndividualMutation, useGetCompanyProviderListQuery, useGetIndividualProviderListQuery} = serviceProviderService;

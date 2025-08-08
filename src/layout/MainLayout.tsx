@@ -50,7 +50,6 @@ const MainLayout = () => {
   };
 
   const router = React.useMemo<Router>(() => {
-    console.log(pathname,'saudsahdu')
     return {
       pathname,
       searchParams: new URLSearchParams(),

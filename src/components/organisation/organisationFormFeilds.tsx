@@ -3,7 +3,7 @@ import { Field } from '../../types/form.types';
 
 export const OrganisationFormFields: Field[] = [
   {
-    name: 'name',
+    name: 'client_name',
     label: 'Name of the Company',
     type: 'text',
     required: true,
@@ -85,21 +85,21 @@ export const OrganisationFormFields: Field[] = [
     validation: Yup.date().required('Valid upto date is required')
   },
   {
-    name:'pan_no',
+    name:'pan_number',
     label:'Pan Number',
     type:'text',
     required:true,
     validation:Yup.string().required('Pan number is required')
   },
   {
-    name:'pan_upload',
+    name:'pan_file',
     label:'PAN Upload',
     type:'file',
     required:true,
     validation:Yup.mixed().required('Pan upload is required')
   },
   {
-    name: "gst_no",
+    name: "gst_number",
     label: "GST Number",
     type: "text",
     required: true,
@@ -108,7 +108,7 @@ export const OrganisationFormFields: Field[] = [
       .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GST number format')
   },
   {
-    name: "upload_gst_certificate",
+    name: "gst_file",
     label: "Upload GST Certificate",
     type: "file",
     required: true,

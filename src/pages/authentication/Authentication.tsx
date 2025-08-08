@@ -17,9 +17,27 @@ const Authentication = () => {
   const navigate = useNavigate();
   const showSuccessToast = useSuccessToast();
   const showErrorToast = useErrorToast();
+  const [errors, setErrors] = useState<{ mobileNumber?: string; password?: string }>({});
+
+  const validate = () => {
+    const newErrors: { mobileNumber?: string; password?: string } = {};
+    if (!mobileNumber) {
+      newErrors.mobileNumber = 'Mobile number is required.';
+    } else if (!/^\d{10}$/.test(mobileNumber)) {
+      newErrors.mobileNumber = 'Mobile number must be 10 digits.';
+    }
+    if (!password) {
+      newErrors.password = 'Password is required.';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters.';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     const data: LoginTypes = {
       mobile_number: mobileNumber,
       password: password
@@ -126,29 +144,32 @@ const Authentication = () => {
                           <label htmlFor="mobileNumber" className="block text-sm font-medium text-white mb-2">
                             Mobile Number
                         </label>
-                        <div className="relative">
+                        <div className={`relative ${errors.mobileNumber ? 'mb-7' : 'mb-0'}`}>
                           <input
                             type="text"
                             id="mobileNumber"
                             value={mobileNumber}
-                            onChange={(e) => setMobileNumber(e.target.value)}
+                            onChange={(e) => { setMobileNumber(e.target.value); setErrors((prev) => ({ ...prev, mobileNumber: undefined })); }}
                             placeholder="Enter your Mobile Number"
-                            className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
+                            className={`w-full rounded-2xl border px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:ring-1 focus:ring-white text-sm transition-all duration-200 ${errors.mobileNumber ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-white/30 focus:border-white'}`}
                           />
+                          {errors.mobileNumber && (
+                            <span className="text-red-400 text-xs absolute left-0 top-full mt-1">{errors.mobileNumber}</span>
+                          )}
                         </div>
                       </div>
                       <div>
                         <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
                           Password
                         </label>
-                        <div className="relative">
+                        <div className={`relative ${errors.password ? 'mb-7' : 'mb-0'}`}>
                           <input
                             type={showPassword ? "text" : "password"}
                             id="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
                             placeholder="Enter your password"
-                            className="w-full rounded-2xl border border-white/30 px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:border-white focus:ring-1 focus:ring-white text-sm transition-all duration-200"
+                            className={`w-full rounded-2xl border px-4 h-12 text-white placeholder:text-white/60 bg-transparent focus:ring-1 focus:ring-white text-sm transition-all duration-200 ${errors.password ? 'border-red-400 focus:border-red-400 focus:ring-red-400' : 'border-white/30 focus:border-white'}`}
                           />
                           <button
                             type="button"
@@ -161,6 +182,9 @@ const Authentication = () => {
                               <HiEye className="w-5 h-5" />
                             )}
                           </button>
+                          {errors.password && (
+                            <span className="text-red-400 text-xs absolute left-0 top-full mt-1">{errors.password}</span>
+                          )}
                         </div>
                       </div>
                     </motion.div>

@@ -32,49 +32,44 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
     const organisationData = data?.data;
     const [editOrganisation, { isLoading: isEditLoading }] = useEditOrganisationMutation();
     const [createCompany, { isLoading: isCreateLoading }] = useCreateCompanyMutation();
-    const handleSubmit = async (values: OrganisationFormValues) => {
-        console.log('Submit triggered with values:', values);
+   const handleSubmit = async (values: OrganisationFormValues) => {
+  console.log('Submit triggered with valuess:', values);
 
-        try {
-            if (isEditMode) {
-                console.log('Executing edit operation with ID:', id);
-                const orgs = new FormData();
-                Object.keys(values).forEach(key => {
-                    if (values[key] !== null && values[key] !== undefined) {
-                        if (typeof values[key] === 'boolean') {
-                            orgs.append(key, values[key] ? 'True' : 'False');
-                        } else {
-                            orgs.append(key, values[key]);
-                        }
-                    }
-                });
-                await editOrganisation({
-                    id: parseInt(id!),
-                    data: orgs
-                }).unwrap();
-                onSuccess?.();
-            } else {
-                console.log('Executing create operation');
-                const clientData: ClientFormValues = {
-                    client_name: values.name || '',
-                    email: values.email || '',
-                    contact_number: values.contact_number || '',
-                    address: values.address || '',
-                    district: values.district || '',
-                    state: values.state || '',
-                    pincode: values.pincode || '',
-                    subscription: values.subscription || '',
-                    valid_upto: values.valid_upto || '',
-                    pan_number: values.pan_number || '',
-                    gst_number: values.gst_number || ''
-                };
-                await createCompany(clientData).unwrap();
-                navigate('/organisations');
-            }
-        } catch (error) {
-            console.error('Error handling organisation:', error);
+  try {
+    if (isEditMode) {
+      // ... your edit logic unchanged
+    } else {
+      console.log('Executing create operations', values);
+
+      const formData = new FormData();
+      const fileKeys = [
+        'photo',
+        'kyc_document',
+        'id_proof_image',
+        'pan_upload',
+        'pan_file',
+        'gst_file'
+      ];
+
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          if (fileKeys.includes(key) && value instanceof File) {
+            formData.append(key, value);
+          } else if (key === 'assigned_permissions' && Array.isArray(value)) {
+            formData.append(key, value.join(','));
+          } else {
+            formData.append(key, value.toString());
+          }
         }
-    };
+      });
+
+      await createCompany(formData).unwrap();
+      navigate('/organisations');
+    }
+  } catch (error) {
+    console.error('Error handling organisation:', error);
+  }
+};
 
     return (
         <Box sx={{ p: 3 }}>

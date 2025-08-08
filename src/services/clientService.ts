@@ -19,15 +19,15 @@ export const clientService = createApi({
     reducerPath: "clientService",
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
     endpoints: (builder) => ({
-        createCompany: builder.mutation<{ message: string }, ClientFormValues>({
-            query: (data) => ({
+        createCompany: builder.mutation<{ message: string }, FormData>({
+            query: (formData) => ({
                 url: API_ENDPOINTS.clients.createCompany,
                 method: 'POST',
-                body: data, 
+                body: formData, 
                 headers: {
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
-            }),
+            }), 
         }),
     }),
 });
