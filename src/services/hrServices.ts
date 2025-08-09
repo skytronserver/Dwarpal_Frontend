@@ -36,9 +36,19 @@ export const hrApi = createApi({
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
       })
+    }),
+    createHrAccounts: builder.mutation<HrResponse, FormData>({
+      query: (data) => ({
+        url: API_ENDPOINTS.hr.create,
+        method: 'POST',
+        body: data,
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      })
     })
   })
 })
 
-export const { useCreateHrMutation } = hrApi;
+export const { useCreateHrMutation, useCreateHrAccountsMutation } = hrApi;
 

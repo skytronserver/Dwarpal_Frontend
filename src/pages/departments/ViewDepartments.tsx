@@ -55,7 +55,7 @@ const ViewDepartment = () => {
                                         Organisation Name
                                     </Typography>
                                     <Typography variant="body1">
-                                        {organisation?.name}
+                                        {organisation?.client_name}
                                     </Typography>
                                 </Box>
                             </Box>

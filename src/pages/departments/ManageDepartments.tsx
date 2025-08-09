@@ -77,7 +77,7 @@ const ManageDepartments = () => {
   const handleEdit = (row: any) => {
     // Update navigation to include orgId if present
     if (orgId) {
-      navigate(`/client/${orgId}/departments/new/${row.id}`);
+      navigate(`/org/client/${orgId}/departments/new/${row.id}`);
     } else {
       navigate(`/departments/new/${row.id}`);
     }

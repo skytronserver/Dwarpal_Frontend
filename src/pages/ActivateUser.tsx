@@ -224,11 +224,12 @@ const ActivateUser = () => {
             <motion.button
               type="submit"
               variants={fadeIn}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: isLoading ? 1 : 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full rounded-2xl bg-white/20 px-6 h-12 text-base font-medium text-white shadow-sm hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 transition-all duration-200"
+              disabled={isLoading}
+              className={`w-full rounded-2xl bg-white/20 px-6 h-12 text-base font-medium text-white shadow-sm hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 transition-all duration-200${isLoading ? ' opacity-50 cursor-not-allowed' : ''}`}
             >
-              Activate Account
+              {isLoading ? 'Activating...' : 'Activate Account'}
             </motion.button>
 
             {/* Back Link */}

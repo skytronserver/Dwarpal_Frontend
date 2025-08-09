@@ -215,7 +215,7 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     },
     {
-        path: '/departments/:id',
+        path: 'client/:orgId/departments/:id',
         element: ViewDepartment,
         title: 'Department',
         icon: Building,

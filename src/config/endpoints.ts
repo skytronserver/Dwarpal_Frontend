@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
    },
    hr: {
     create:'/create-hr/',
+    createHrAccounts:'/create/hr-account-user/'
    },
   //  accounts: {
   //   create:'/create-accounts/'

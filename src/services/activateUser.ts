@@ -21,6 +21,7 @@ export const activateUserApi = createApi({
                 formData.append('password', data.password);
                 formData.append('confirm_password', data.confirm_password);
                 formData.append('id_proof_last4', data.id_proof_last4);
+                
 
                 return {
                     url: API_ENDPOINTS.users.activateUser(data.token),
@@ -30,6 +31,7 @@ export const activateUserApi = createApi({
                 };
             },
         }),
+
     }),
 });
 

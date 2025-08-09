@@ -15,6 +15,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
 import { HRUserFormFields } from '../../components/hr/HRUserFormFields';
 import { Field } from '../../types/form.types';
+import { useCreateHrMutation, useCreateHrAccountsMutation } from '../../services/hrServices';
 
 interface HRFormProps {
   onSuccess?: () => void;
@@ -38,6 +39,7 @@ const HRUser: React.FC<HRFormProps> = ({ onSuccess }) => {
   const validEditId = !isCreateMode && id ? parseInt(id) : undefined;
   
   const skip = undefined as any;
+  const [createHrAccounts, { isLoading: isCreateHrAccountsLoading }] = useCreateHrAccountsMutation();
 
   const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(
     validEditId || skip,
@@ -137,7 +139,7 @@ const HRUser: React.FC<HRFormProps> = ({ onSuccess }) => {
         showSuccessToast(response?.message || '');
         onSuccess?.();
       } else {
-        const response = await createUser(formData).unwrap();
+        const response = await createHrAccounts(formData).unwrap();
         showSuccessToast(response?.message || '');
         navigate('/users');
       }
