@@ -39,7 +39,7 @@ export const HRFormFields: Field[] = [
     type: 'select',
     required: true,
     disabled: true,
-    options: [{ label: 'HR', value: 'HR' }],
+    options: [{ label: 'HR Department', value: 'HR Department' }],
     validation: Yup.string().required('Department is required')
   },
   {

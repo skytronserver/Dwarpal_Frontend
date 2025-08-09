@@ -39,7 +39,7 @@ export const CompanyAccountsUserFormFields: Field[] = [
     type: 'select',
     disabled: true,
     required: true,
-    options: [{ label: 'Accounts', value: 'Accounts' }],
+    options: [{ label: 'Accounts Department', value: 'Accounts Department' }],
     validation: Yup.string().required('Department is required')
   },
   {

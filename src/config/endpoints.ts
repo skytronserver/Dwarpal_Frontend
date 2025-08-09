@@ -11,12 +11,13 @@ export const API_ENDPOINTS = {
    },
    accounts: {
     create: '/outer-accountuser/create/',
+    createCompanyAccounts:'/create-accounts/'
    },
    subscription: {
     create: '/api/subscriptions/create/',
    },
    hr: {
-    create:'/create-hr/'
+    create:'/create-hr/',
    },
   //  accounts: {
   //   create:'/create-accounts/'
@@ -39,7 +40,7 @@ export const API_ENDPOINTS = {
       login: '/user/login/',
       logout: '/logout/',
       otpVerification: '/user/verify-otp/',
-      resendOtp: '/user/resend-otp/',
+      resendOtp: '/resend-otp/',
       resetPassword: 'password-reset/request/',
       setPassword: 'password-reset/reset/',
       createAdmin: '/superadmin/create-admin/',

@@ -117,6 +117,7 @@ const AccountUserForm: React.FC<AccountUserFormProps> = ({ onSuccess }) => {
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
+
         if (value !== null && value !== undefined && key !== 'role') {
           if ((key === 'photo' || key === 'id_proof_document' || key === 'pan_document' || key === 'gst_file') && value instanceof File) {
             formData.append(key, value);
@@ -134,6 +135,7 @@ const AccountUserForm: React.FC<AccountUserFormProps> = ({ onSuccess }) => {
         // showSuccessToast(response?.message || '');
         // onSuccess?.();
       } else {
+        console.log(formData,'formData');
         const response : any = await createAccountUser(formData).unwrap();
         showSuccessToast(response?.message || '');
         setValues(modifiedInitialData);

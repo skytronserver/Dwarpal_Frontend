@@ -48,7 +48,7 @@ const HolidayForm: React.FC<HolidayFormProps> = ({ onSuccess }) => {
             } else {
                 console.log(formData);
                 await createHoliday(formData).unwrap();
-                navigate('/holidays');
+                navigate('/reports/holidays');
             }
         } catch (error) {
             console.error('Error handling holiday:', error);

@@ -33,7 +33,7 @@ export const accountUserApi = createApi({
   endpoints: (builder) => ({
     createAccountUser: builder.mutation<AccountUserResponse, FormData>({
       query: (data) => ({
-        url: API_ENDPOINTS.accountUser.create,
+        url: API_ENDPOINTS.accounts.createCompanyAccounts,
         method: 'POST',
         body: data,
         headers: {

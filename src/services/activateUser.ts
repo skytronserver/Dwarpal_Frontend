@@ -13,12 +13,22 @@ export const activateUserApi = createApi({
     reducerPath: 'activateUserApi',
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
     endpoints: (builder) => ({
-        activateUser: builder.mutation<ActivateUserTypes, ActivateUserTypes>({
-            query: (data) => ({
-                url: API_ENDPOINTS.users.activateUser(data.token),
-                method: 'POST',
-                body: data,
-            }),
+        // Send multipart/form-data by constructing FormData from the payload
+        activateUser: builder.mutation<unknown, ActivateUserTypes>({
+            query: (data) => {
+                const formData = new FormData();
+                formData.append('mobile_number', data.mobile_number);
+                formData.append('password', data.password);
+                formData.append('confirm_password', data.confirm_password);
+                formData.append('id_proof_last4', data.id_proof_last4);
+
+                return {
+                    url: API_ENDPOINTS.users.activateUser(data.token),
+                    method: 'POST',
+                    // Do not set Content-Type manually; the browser will set the correct multipart boundary
+                    body: formData,
+                };
+            },
         }),
     }),
 });

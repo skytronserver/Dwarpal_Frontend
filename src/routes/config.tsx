@@ -303,7 +303,7 @@ export const useNavigation = () => {
 
   {
     segment:"company",
-    title: "Create Users",
+    title: "Create",
     icon: <UserPlus />,
     show: hasPermission("create:user") || hasPermission("create:employee"),
     children: [{
@@ -313,7 +313,7 @@ export const useNavigation = () => {
       show: hasPermission("create:user"),
     },
     {
-      segment: "accounts/new/:id",
+      segment: 'company-accounts/new/:id',
       title: "Create Accounts",
       icon: <CreditCard />,
       show: hasPermission("create:user"),

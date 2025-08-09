@@ -35,7 +35,7 @@ export const ROLE_PERMISSIONS = {
     'delete:shift',
     'manage:gate-passes',
     'approve:gate-pass',
-    'view:attendance',
+    // 'view:attendance',
     'manage:attendance',
     'approve:approval',
     'approver:comment',

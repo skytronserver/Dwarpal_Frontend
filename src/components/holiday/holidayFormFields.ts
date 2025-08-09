@@ -17,6 +17,7 @@ export const HolidayFormFields: Field[] = [
         label: 'Holiday Type',
         type: 'select',
         required: true,
+        validation: Yup.string().oneOf(['public', 'company'], 'Invalid holiday type').required('Holiday type is required'),
         options: [
             { label: 'Public', value: 'public' },
             { label: 'Company', value: 'company' },

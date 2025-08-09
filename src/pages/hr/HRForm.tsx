@@ -57,14 +57,14 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
     if (!initialData) {
       return {
         role: 'HR',
-        department: 'HR',
+        department: 'HR Department',
         organization: user?.organization
       };
     }
     return {
       ...initialData,
       organization: initialData.organization?.id || initialData.organization || initialData.organization_id || user?.organization,
-      department: 'HR',
+      department: 'HR Department',
       shift: initialData.shift?.id || initialData.shift,
       role: 'HR'
     };
@@ -94,8 +94,8 @@ const HRForm: React.FC<HRFormProps> = ({ onSuccess }) => {
       if (field.name === 'department') {
         return {
           ...field,
-          value: 'HR',
-          defaultValue: 'HR'
+          value: 'HR Department',
+          defaultValue: 'HR Department'
         };
       }
       return field;

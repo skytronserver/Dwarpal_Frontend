@@ -143,6 +143,14 @@ const adminRoutes:RouteConfig[] = [
         group: 'create'
     },
     {
+        path: 'company/company-accounts/new/:id',
+        element: CompanyAccountsUserForm,
+        title: 'Create accounts user',
+        icon: Users,
+        allowedRoles: ['ADMIN'] as UserRole[],
+        group: 'create'
+    },
+    {
         path: '/client/individualForm',
         element: IndividualUserForm,
         title: 'Create Individual User',

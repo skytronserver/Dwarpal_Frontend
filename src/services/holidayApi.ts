@@ -8,7 +8,7 @@ interface Holiday {
   holiday_from_date?: string;
   holiday_to_date?: string;
   holiday_type?: string;
-  dates?: string[];
+  dates?: (string | { date: string })[];
   is_active: boolean;
   created_by: number;
   is_approved?: boolean;

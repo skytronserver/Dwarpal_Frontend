@@ -33,7 +33,7 @@ interface HolidayFromApi {
     id: number;
     holiday_name: string;
     holiday_type?: string;
-    dates?: string[];
+    dates?: (string | { date: string })[];
     holiday_from_date?: string;
     holiday_to_date?: string;
     is_approved?: boolean;
@@ -108,7 +108,9 @@ const Holidays = () => {
 
         // 2) Otherwise map dates[] entries if available
         if (holiday.dates && holiday.dates.length > 0) {
-            holiday.dates.forEach((dateStr, index) => {
+            holiday.dates.forEach((entry, index) => {
+                const dateStr = typeof entry === 'string' ? entry : entry?.date;
+                if (!dateStr) return;
                 const d = new Date(dateStr);
                 d.setHours(0, 0, 0, 0);
                 result.push({
@@ -388,9 +390,9 @@ const Holidays = () => {
                                             >
                                                 <EditIcon />
                                             </IconButton>
-                                            {editingRowId !== event.holidayId && (
+                                            {/* {editingRowId !== event.holidayId && (
                                                 <Button size="small" onClick={(e) => startRowEdit(e, event.holidayId, event.name)}>Rename</Button>
-                                            )}
+                                            )} */}
                                             {hasPermission('approve:approval') && !event.is_approved && (
                                                 <IconButton
                                                     size="small"

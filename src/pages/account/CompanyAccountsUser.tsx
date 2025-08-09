@@ -14,6 +14,7 @@ import { useGetShiftsQuery } from '../../services/shiftApi';
 import { useGetUsersQuery } from '../../services/UserApi';
 import { useAuth } from '../../hooks/useAuth';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
+import { useCreateAccountUserMutation } from '../../services/accountUserServices';
 
 interface AccountFormProps {
   onSuccess?: () => void;
@@ -45,6 +46,7 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
   
   const [editUser, { isLoading: isEditLoading }] = useUpdateUserMutation();
   const [createUser, { isLoading: isCreateLoading }] = useCreateUserMutation();
+  const [createAccountUser, { isLoading: isCreateAccountUserLoading }] = useCreateAccountUserMutation();
   const navigate = useNavigate();
 
   const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
@@ -52,7 +54,7 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
   const { data: shifts, isLoading: isShiftsLoading } = useGetShiftsQuery({});
 
   const organizationOptions = organizations?.results?.map((org: any) => ({
-    label: org.name,
+    label: org.client_name,
     value: org.id
   })) || [];
 
@@ -61,14 +63,14 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
     if (!initialData) {
       return { 
         role: 'ACCOUNT_USER', 
-        department: 'Accounts',
+        department: 'Accounts Department',
         organization: user?.organization 
       };
     }
     return {
       ...initialData,
       organization: initialData.organization?.id || initialData.organization || initialData.organization_id || user?.organization,
-      department: 'Accounts',
+      department: 'Accounts Department',
       shift: initialData.shift?.id || initialData.shift,
       role: 'ACCOUNT_USER'
     };
@@ -97,8 +99,8 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
       if (field.name === 'department') {
         return {
           ...field,
-          value: 'Accounts',
-          defaultValue: 'Accounts'
+          value: 'Accounts Department',
+          defaultValue: 'Accounts Department'
         };
       }
       return field;
@@ -116,9 +118,9 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined && key !== 'role') {
-          if (key === 'id_proof_image' && value instanceof File) {
+          if ((key === 'id_proof_document' ||key === 'photo' || key === 'kyc_document' || key === 'pan_upload' || key === 'id_proof_document') && value instanceof File) {
             formData.append(key, value);
-          } else if (key !== 'confirm_password') {
+          } else {
             formData.append(key, value.toString());
           }
         }
@@ -135,9 +137,9 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
         showSuccessToast(response?.message || '');
         onSuccess?.();
       } else {
-        const response = await createUser(formData).unwrap();
+        const response = await createAccountUser(formData).unwrap();
         showSuccessToast(response?.message || '');
-        navigate('/users');
+        navigate('/reports/users');
       }
     } catch (error: any) {
       console.error('Error handling account user:', error);
@@ -152,7 +154,7 @@ const CompanyAccountsUser: React.FC<AccountFormProps> = ({ onSuccess }) => {
           <Typography variant="h5" gutterBottom>
             {isCreateMode ? 'Create Account User' : 'Edit Account User'}
           </Typography>
-          {(isEditLoading || isCreateLoading || isUserLoading || isOrgsLoading || isShiftsLoading) ? (
+          {(isEditLoading || isCreateLoading || isUserLoading || isOrgsLoading || isShiftsLoading || isCreateAccountUserLoading) ? (
             <Box display="flex" justifyContent="center" my={4}>
               <CircularProgress />
             </Box>
