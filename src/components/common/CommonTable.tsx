@@ -10,7 +10,7 @@ import {
 } from '@mui/x-data-grid';
 import { styled, useTheme } from '@mui/material/styles';
 import { IconButton } from '@mui/material';
-import { Visibility, Edit, Delete } from '@mui/icons-material';
+import { Visibility, Edit } from '@mui/icons-material';
 
 interface TableData {
     columns: any[];
@@ -140,7 +140,7 @@ export default function CommonTable({
       visibleFields?.includes(column.field)
     );
 
-    if (onView || onEdit || onDelete) {
+    if (onView || onEdit) {
       filteredColumns.push({
         field: 'actions',
         headerName: 'Actions',
@@ -184,27 +184,13 @@ export default function CommonTable({
                 <Edit fontSize="small" />
               </IconButton>
             )}
-            {onDelete && (
-              <IconButton 
-                size="small" 
-                onClick={() => onDelete(params.row)}
-                sx={{
-                  color: 'error.main',
-                  '&:hover': {
-                    backgroundColor: 'error.lighter',
-                  }
-                }}
-              >
-                <Delete fontSize="small" />
-              </IconButton>
-            )}
           </Box>
         ),
       });
     }
     
     return filteredColumns;
-  }, [data.columns, visibleFields, onView, onEdit, onDelete]);
+  }, [data.columns, visibleFields, onView, onEdit]);
 
   return (
     <Box

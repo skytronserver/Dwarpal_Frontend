@@ -9,7 +9,7 @@ export const API_ENDPOINTS = {
     createCompany: '/api/organizations/create/',
     // createIndividual: '/api/clients/individual/create/',
    },
-   accountUser: {
+   accounts: {
     create: '/outer-accountuser/create/',
    },
    subscription: {
@@ -18,9 +18,9 @@ export const API_ENDPOINTS = {
    hr: {
     create:'/create-hr/'
    },
-   accounts: {
-    create:'/create-accounts/'
-   },
+  //  accounts: {
+  //   create:'/create-accounts/'
+  //  },
     departments: {
       list: '/api/departments/',
       create: '/api/departments/create/',  
@@ -40,6 +40,8 @@ export const API_ENDPOINTS = {
       logout: '/logout/',
       otpVerification: '/user/verify-otp/',
       resendOtp: '/user/resend-otp/',
+      resetPassword: 'password-reset/request/',
+      setPassword: 'password-reset/reset/',
       createAdmin: '/superadmin/create-admin/',
     },
     users: {
@@ -49,7 +51,8 @@ export const API_ENDPOINTS = {
       delete: (id: number) => `/api/users/${id}/`,
       getById: (id: number) => `/api/users/${id}/`,
       adminCreate: '/api/admins/create/',
-      attendanceReport: `/api/user-attendance-report/`,
+      attendanceReport: `/api/my-attendance-history/`,
+      approve: (id: number) => `/users/approve/byAdmin/${id}/`,
       activateUser: (token: string) => `/activate-user/${token}/`,
       },
     shifts: {
@@ -62,7 +65,7 @@ export const API_ENDPOINTS = {
       approve: (id: number) => `/shift/approve/${id}/`
     },
     holidays: {
-      list: 'public/holidays/',
+      list: '/api/holidays/create/',
       create: '/api/holidays/create/',
       approve: (id: number) => `/holidays/${id}/approve/`,
       update: (id: number) => `/public/holidays/${id}/update/`,
@@ -81,6 +84,7 @@ export const API_ENDPOINTS = {
     guestPasses: {
       list: '/api/guest-passes/all/',
       create: '/api/guest-passes/create/',
+      view: (guestPassId: number) => `/api/guest-passes/view/${guestPassId}/`,
       approve: (guestPassId: number) => `/api/guest-passes/approve/${guestPassId}/`,
       getById: (guestPassId: number) => `/api/guest-passes/view/${guestPassId}/`,
     },
@@ -90,5 +94,6 @@ export const API_ENDPOINTS = {
       admin: '/api/dashboard/admin/',
       hr: '/api/dashboard/hr/',
       employee: '/api/dashboard/employee/',
+      attendanceAnalytics: '/api/attendance-analytics/',
     }
   }; 

@@ -17,7 +17,7 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.mixed().required('Photo is required'),
     },
     {
-        name: 'contact_number',
+        name: 'mobile_number',
         label: 'Mobile Number',
         type: 'text',
         required: true,
@@ -38,9 +38,9 @@ export const GatePassFormFields: Field[] = [
         type: 'select',
         required: false,
         options: [
-            { label: 'Male', value: 'male' },
-            { label: 'Female', value: 'female' },
-            { label: 'Other', value: 'other' }
+            { label: 'Male', value: 'Male' },
+            { label: 'Female', value: 'Female' },
+            { label: 'Other', value: 'Other' }
         ],
         validation: Yup.string(),
     },
@@ -59,6 +59,20 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.string(),
     },
     {
+        name: 'district',
+        label: 'District',
+        type: 'text',
+        required: false,
+        validation: Yup.string(),
+    },
+    {
+        name: 'state',
+        label: 'State',
+        type: 'text',
+        required: false,
+        validation: Yup.string(),
+    },
+    {
         name: 'pincode',
         label: 'Pincode',
         type: 'text',
@@ -66,12 +80,20 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.string(),
     },
     {
+        name: 'emergency_contact_number',
+        label: 'Emergency Contact Number',
+        type: 'text',
+        required: false,
+        validation: Yup.string().matches(/^[0-9]{10,15}$/, 'Enter a valid phone number'),
+    },
+    {
         name: 'id_proof_no',
         label: 'ID Proof Number(Voter Id,Passport,Driving lisense or any Govt Id)',
         type: 'text',
         required: true,
         validation: Yup.string().required('ID proof no is required')
-      },  {
+      },
+      {
         name: 'id_proof_document',
         label: 'ID Proof Document(Voter Id,Passport,Driving lisense or any Govt Id)',
         type: 'file',
@@ -80,17 +102,12 @@ export const GatePassFormFields: Field[] = [
         accept: '.pdf,.doc,.docx'
       },
     {
-        name: 'employee_visitor_type',
+        name: 'guest_setting',
         label: 'Guest Setting',
         type: 'select',
         required: true,
-        options: [
-            { label: 'Guest setting 1', value: 'guest_setting_1' },
-            { label: 'Guest setting 2', value: 'guest_setting_2' },
-            { label: 'Guest setting 3', value: 'guest_setting_3' },
-            { label: 'Guest setting 4', value: 'guest_setting_4' }
-        ],
-        validation: Yup.string().required('Type is required'),
+        options: [],
+        validation: Yup.number().required('Guest setting is required'),
     },
     {
         name: 'access_validity_start',
@@ -121,6 +138,13 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.string(),
     },
     {
+        name: 'visit_date',
+        label: 'Visit Date',
+        type: 'date',
+        required: false,
+        validation: Yup.date(),
+    },
+    {
         name: 'organization_to_visit',
         label: 'Organization',
         type: 'select',
@@ -145,18 +169,17 @@ export const GatePassFormFields: Field[] = [
         validation: Yup.string().required('Person to meet is required'),
     },
     {
-        name: 'purpose',
+        name: 'purpose_of_visit',
         label: 'Purpose of Visit',
         type: 'text',
         required: true,
         validation: Yup.string().required('Purpose is required'),
     },
     {
-        name: 'notes',
+        name: 'notes_and_remarks',
         label: 'Notes / Remarks',
         type: 'text',
         required: false,
         validation: Yup.string(),
     },
-  
-]
+];

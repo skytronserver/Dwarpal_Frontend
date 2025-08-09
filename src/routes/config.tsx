@@ -108,7 +108,7 @@ const OrgListItem = styled('div')(({ theme }) => ({
 }));
 
 export const useNavigation = () => {
-  const { data: organizations } = useGetOrganisationsQuery({ search: '', page: 1, page_size: 10 });
+  const { data: organizations } = useGetOrganisationsQuery({ search: '', page: 1, page_size: 100 });
   const { hasPermission, canCreateGatePass } = useAuth();
   const [search, setSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -359,6 +359,12 @@ export const useNavigation = () => {
   icon: <BarChart3 />,
   show: hasPermission("approve:approval"),
   children: [
+    {
+      segment: "users",
+      title: " Users",
+      icon: <Users />,
+      show: hasPermission("manage:users"),
+    },
     {
       segment: "shifts",
       title: " Shifts",

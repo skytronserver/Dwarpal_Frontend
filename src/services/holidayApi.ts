@@ -5,16 +5,28 @@ import { API_ENDPOINTS } from "../config/endpoints";
 interface Holiday {
   id: number;
   holiday_name: string;
-  holiday_from_date: string;
-  holiday_to_date: string;
+  holiday_from_date?: string;
+  holiday_to_date?: string;
+  holiday_type?: string;
+  dates?: string[];
   is_active: boolean;
   created_by: number;
+  is_approved?: boolean;
+  approved_by?: number | null;
+  approved_at?: string | null;
+  is_deleted?: boolean;
+  updated_at?: string;
+  updated_by?: number;
+  created_at?: string;
 }
 
 interface HolidayResponse {
   count: number;
-  total_pages: number;
+  total_pages?: number;
   current_page: number;
+  page_size?: number;
+  next?: string | null;
+  previous?: string | null;
   results: Holiday[];
 }
 
@@ -23,7 +35,7 @@ export const holidayApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
     tagTypes: ['holidays'],
     endpoints: (builder) => ({
-        getHolidays: builder.query<HolidayResponse, {search: string, page: number, page_size: number}>({
+        getHolidays: builder.query<HolidayResponse, {search: string, page_size: number, page?: number}>({
             query: (params) => ({
                 url: API_ENDPOINTS.holidays.list,
                 params,
@@ -63,6 +75,7 @@ export const holidayApi = createApi({
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
             }),
+            invalidatesTags: ['holidays'],
         }),
         getHolidayById: builder.query<Holiday, number>({
             query: (id) => ({

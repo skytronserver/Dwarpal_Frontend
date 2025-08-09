@@ -74,6 +74,32 @@ interface HRDashboardResponse {
     recent_employee_activity: RecentActivity[];
 }
 
+// Added based on backend sample provided in chat
+export interface AttendanceAnalyticsResponse {
+    organization: string;
+    organization_summary: {
+        total_employees: number;
+        total_present: number;
+        total_late: number;
+        total_absent: number;
+        average_attendance: number;
+        average_punctuality: number;
+        total_overtime_hours: number;
+    };
+    department_wise: Array<{
+        department: string;
+        present: number;
+        late: number;
+        absent: number;
+    }>;
+    top_employees: Array<{
+        employee: string;
+        department: string | null;
+        attendance_percent: number;
+        status: string;
+    }>;
+}
+
 const dashboardServices = createApi({
     reducerPath: "dashboardServices",
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
@@ -113,9 +139,18 @@ const dashboardServices = createApi({
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }
             })
+        }),
+        attendendenceAnalytics: builder.query<AttendanceAnalyticsResponse, void>({
+            query: () => ({
+                url: API_ENDPOINTS.dashboard.attendanceAnalytics,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            })
         })
     })
 });
 
-export const { useSuperAdminDashboardQuery, useAdminDashboardQuery, useHrDashboardQuery, useEmployeeDashboardQuery } = dashboardServices;
+export const { useSuperAdminDashboardQuery, useAdminDashboardQuery, useHrDashboardQuery, useEmployeeDashboardQuery, useAttendendenceAnalyticsQuery } = dashboardServices;
 export default dashboardServices;

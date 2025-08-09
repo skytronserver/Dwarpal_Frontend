@@ -4,6 +4,7 @@ import DynamicForm from '../../components/common/DynamicForm';
 import { Typography, Box, CircularProgress } from '@mui/material';
 import { GatePassFormFields } from '../../components/gatePass/gatePassFormFeilds';
 import { useCreateGuestPassMutation } from '../../services/gatePassApi';
+import { useViewGuestPassSettingsQuery } from '../../services/gatePassApi';
 import { Organisation, useGetOrganisationsQuery } from '../../services/OrganisationApi';
 import { useGetDepartmentsQuery } from '../../services/DepartmentApi';
 import { useGetUsersQuery } from '../../services/UserApi';
@@ -42,6 +43,14 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
         page_size: 100
     });
 
+    // Load guest pass settings to build select options
+    const { data: settings, isLoading: isSettingsLoading } = useViewGuestPassSettingsQuery();
+
+    const guestSettingOptions = (settings || []).map((s: any) => ({
+        label: s.title || `Setting #${s.id}`,
+        value: s.id
+    }));
+
     const organizationOptions = organizations?.results?.map((org: Organisation) => ({
         label: org.client_name,
         value: org.id
@@ -52,27 +61,40 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
         value: dep.id
     })) || [];
 
+    // Map department id to name for easier comparison
+    const deptIdToName = React.useMemo(() => {
+        return new Map<number, string>(departmentOptions.map((opt: any) => [opt.value, opt.label]));
+    }, [departmentOptions]);
+
     // Filter users based on selected departments
     const filteredUsers = React.useMemo(() => {
         if (!users?.results || !values?.department_to_visit?.length) return [];
         
-        return users.results.filter((user: any) => {
-            // Check if the user's department matches any of the selected departments
-            return values.department_to_visit.some((deptId: number) => 
-                user.department === deptId || // For direct department ID match
-                user.department?.id === deptId || // For nested department object
-                (Array.isArray(user.department) && user.department.some((d: any) => d.id === deptId)) // For array of departments
-            );
+        return users.results.filter((u: any) => {
+            return values.department_to_visit.some((deptId: number) => {
+                const deptName = deptIdToName.get(deptId);
+                const userDept = u.department;
+
+                // Handle various possible shapes
+                const matchesById = userDept === deptId || userDept?.id === deptId || (Array.isArray(userDept) && userDept.some((d: any) => d?.id === deptId));
+                const matchesByName = (deptName && (
+                    userDept === deptName ||
+                    userDept?.name === deptName ||
+                    (Array.isArray(userDept) && userDept.some((d: any) => d?.name === deptName))
+                ));
+
+                return matchesById || matchesByName;
+            });
         });
-    }, [users?.results, values?.department_to_visit]);
+    }, [users?.results, values?.department_to_visit, deptIdToName]);
 
     const userOptions = React.useMemo(() => {
         if (filteredUsers.length === 0) {
             return [{ label: 'No employees found', value: '', disabled: true }];
         }
-        return filteredUsers.map((user: any) => ({
-            label: `${user.name}${user.designation ? ` (${user.designation})` : ''}`,
-            value: user.id
+        return filteredUsers.map((u: any) => ({
+            label: `${u.name || u.user_name || u.email || 'User'}${u.designation ? ` (${u.designation})` : ''}`,
+            value: u.id
         }));
     }, [filteredUsers]);
 
@@ -107,9 +129,21 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
                                noUsersFound ? 'No employees found in selected department(s)' : undefined
                 };
             }
+            if (field.name === 'guest_setting') {
+                return {
+                    ...field,
+                    options: guestSettingOptions,
+                    disabled: isSettingsLoading || guestSettingOptions.length === 0,
+                    helperText: isSettingsLoading
+                        ? 'Loading guest settings...'
+                        : guestSettingOptions.length === 0
+                            ? 'No guest settings available'
+                            : undefined
+                };
+            }
             return field;
         });
-    }, [organizationOptions, departmentOptions, userOptions, values, user?.organization, filteredUsers.length]);
+    }, [organizationOptions, departmentOptions, userOptions, values, user?.organization, filteredUsers.length, guestSettingOptions, isSettingsLoading]);
 
     const handleFormChange = (newValues: GatePassFormValues) => {
         // Reset dependent fields when organization changes
@@ -130,13 +164,20 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
             Object.entries(values).forEach(([key, value]) => {
                 if (value instanceof File) {
                     formData.append(key, value);
+                } else if (Array.isArray(value)) {
+                    // Append array items individually so backend receives multiple values
+                    value.forEach((v) => {
+                        if (v !== null && v !== undefined && v !== '') {
+                            formData.append(key, String(v));
+                        }
+                    });
                 } else if (value !== null && value !== undefined) {
                     formData.append(key, String(value));
                 }
             });
 
             await createGatePass(formData).unwrap();
-            navigate('/gate-passes');
+            navigate('/reports/gate-passes');
             onSuccess?.();
         } catch (error) {
             console.error('Failed to create gate pass:', error);
@@ -148,7 +189,7 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
             <Typography variant="h4" sx={{ mb: 3 }}>
                 {initialData ? 'Edit Gate Pass' : 'Create Gate Pass'}
             </Typography>
-            {(isLoading || isOrgsLoading || isDepsLoading || isUsersLoading) ? (
+            {(isLoading || isOrgsLoading || isDepsLoading || isUsersLoading || isSettingsLoading) ? (
                 <Box display="flex" justifyContent="center" my={4}>
                     <CircularProgress />
                 </Box>

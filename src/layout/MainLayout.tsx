@@ -99,6 +99,7 @@ const MainLayout = () => {
         navigation={useNavigation()}
         router={router}
         theme={appTheme}
+        collapseMenu={false}
         branding={{
           logo: (
             <img

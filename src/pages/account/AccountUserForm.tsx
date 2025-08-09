@@ -118,7 +118,7 @@ const AccountUserForm: React.FC<AccountUserFormProps> = ({ onSuccess }) => {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined && key !== 'role') {
-          if ((key === 'photo' || key === 'kyc_document' || key === 'pan_upload' || key === 'id_proof_document') && value instanceof File) {
+          if ((key === 'photo' || key === 'id_proof_document' || key === 'pan_document' || key === 'gst_file') && value instanceof File) {
             formData.append(key, value);
           } else {
             formData.append(key, value.toString());

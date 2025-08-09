@@ -45,7 +45,7 @@ export const organisationApi = createApi({
       }),
       providesTags: ['Organisations']
     }),
-    getOrganisations: builder.query<OrganisationListResponse, { search?: string; page?: number; page_size?: number }>({
+    getOrganisations: builder.query<OrganisationListResponse, { search?: string; page?: 1; page_size?: 100 }>({
       query: (params) => ({
         url: API_ENDPOINTS.organizations.list,
         params,

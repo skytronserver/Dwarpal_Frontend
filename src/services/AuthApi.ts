@@ -1,7 +1,6 @@
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { LoginResponseTypes } from "../types/auth.types";
-import { LoginTypes } from "../types/auth.types";
+import { LoginResponseTypes, LoginTypes, ResetPasswordResponseTypes, ResetPasswordTypes, RequestPasswordResetTypes, RequestPasswordResetResponseTypes } from "../types/auth.types";
 import { API_ENDPOINTS } from "../config/endpoints";
 
 export const authApiSlice = createApi({
@@ -50,6 +49,28 @@ export const authApiSlice = createApi({
                'Accept': 'application/json',
             }
          })
+      }),
+      requestPasswordReset: builder.mutation<RequestPasswordResetResponseTypes, RequestPasswordResetTypes>({
+        query: (data) => ({
+           url: API_ENDPOINTS.auth.resetPassword,
+           method: 'POST',
+           body: data,
+           headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+           }
+        })
+     }),
+      setPassword: builder.mutation<ResetPasswordResponseTypes, ResetPasswordTypes>({
+         query: (data) => ({
+            url: API_ENDPOINTS.auth.setPassword,
+            method: 'POST',
+            body: data,
+            headers: {
+               'Content-Type': 'application/json',
+               'Accept': 'application/json',
+            }
+         })
       })
    })
 })
@@ -58,5 +79,7 @@ export const {
    useGetLoginMutation, 
    useLogoutMutation, 
    useOtpVerificationMutation,
-   useResendOtpMutation 
+   useResendOtpMutation,
+   useRequestPasswordResetMutation,
+   useSetPasswordMutation
 } = authApiSlice

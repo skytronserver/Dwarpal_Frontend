@@ -40,6 +40,7 @@ export const ROLE_PERMISSIONS = {
     'approve:approval',
     'approver:comment',
     "manage:gate-passes settings",
+    "approve:user"
   ],
   HR: [
     "view:dashboard",
@@ -51,6 +52,7 @@ export const ROLE_PERMISSIONS = {
     "view:holidays",
     "view:shifts",
     "view:users",
+    "view:attendance",
     "settings:guest-pass",
     "view:guest-pass settings",
   ],

@@ -1,59 +1,25 @@
-import { Grid, Typography, Paper, Box, Card, CardContent, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Button, Modal, TextField } from "@mui/material";
+import { Grid, Typography, Paper, Box, Card, CardContent, LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Button, Modal, TextField, Alert, Chip } from "@mui/material";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import WorkIcon from '@mui/icons-material/Work';
+import InfoIcon from '@mui/icons-material/Info';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../hooks/useAuth";
 import React from 'react';
+import { useAttendendenceAnalyticsQuery } from "../../services/dashboardServices";
 
-// Dummy data for all employees analytics
-const companyOverview = {
-  totalEmployees: 150,
-  presentToday: 142,
-  lateToday: 5,
-  absentToday: 3,
-  averageAttendance: 95,
-  averagePunctuality: 92,
-  totalOvertimeHours: 256
+// Fallback data used if API is loading or returns empty
+const fallbackOverview = {
+  totalEmployees: 0,
+  presentToday: 0,
+  lateToday: 0,
+  absentToday: 0,
+  averageAttendance: 0,
+  averagePunctuality: 0,
+  totalOvertimeHours: 0
 };
-
-const departmentWiseAttendance = [
-  { department: 'IT', present: 45, late: 2, absent: 1 },
-  { department: 'HR', present: 15, late: 1, absent: 0 },
-  { department: 'Finance', present: 25, late: 1, absent: 1 },
-  { department: 'Operations', present: 57, late: 1, absent: 1 },
-];
-
-// Dummy data for all employees
-const allEmployees = [
-  { id: 1, name: 'John Doe', department: 'IT', attendance: 100, avatar: '👨‍💻', status: 'Excellent' },
-  { id: 2, name: 'Jane Smith', department: 'HR', attendance: 98, avatar: '👩‍💼', status: 'Excellent' },
-  { id: 3, name: 'Mike Johnson', department: 'Finance', attendance: 97, avatar: '👨‍💼', status: 'Excellent' },
-  { id: 4, name: 'Sarah Wilson', department: 'IT', attendance: 96, avatar: '👩‍💻', status: 'Excellent' },
-  { id: 5, name: 'Tom Brown', department: 'Operations', attendance: 92, avatar: '👨‍💼', status: 'Good' },
-  { id: 6, name: 'Emily Davis', department: 'Marketing', attendance: 89, avatar: '👩‍💼', status: 'Good' },
-  { id: 7, name: 'David Lee', department: 'IT', attendance: 88, avatar: '👨‍💻', status: 'Good' },
-  { id: 8, name: 'Lisa Anderson', department: 'HR', attendance: 87, avatar: '👩‍💼', status: 'Good' },
-  { id: 9, name: 'James Wilson', department: 'Finance', attendance: 85, avatar: '👨‍💼', status: 'Average' },
-  { id: 10, name: 'Maria Garcia', department: 'Operations', attendance: 84, avatar: '👩‍💼', status: 'Average' },
-  { id: 11, name: 'Robert Taylor', department: 'IT', attendance: 82, avatar: '👨‍💻', status: 'Average' },
-  { id: 12, name: 'Jennifer Moore', department: 'Marketing', attendance: 80, avatar: '👩‍💼', status: 'Average' },
-  { id: 13, name: 'Michael Brown', department: 'IT', attendance: 78, avatar: '👨‍💻', status: 'Needs Improvement' },
-  { id: 14, name: 'Amanda White', department: 'HR', attendance: 75, avatar: '👩‍💼', status: 'Needs Improvement' },
-  { id: 15, name: 'Kevin Martin', department: 'Finance', attendance: 73, avatar: '👨‍💼', status: 'Needs Improvement' }
-];
-
-// Top performers (employees with attendance >= 95%)
-const topEmployees = allEmployees.filter(emp => emp.attendance >= 95);
-
-const monthlyTrend = [
-  { month: 'Jan', averageAttendance: 96, averagePunctuality: 94 },
-  { month: 'Feb', averageAttendance: 94, averagePunctuality: 92 },
-  { month: 'Mar', averageAttendance: 95, averagePunctuality: 93 },
-  { month: 'Apr', averageAttendance: 93, averagePunctuality: 91 },
-];
 
 const AttendanceAnalytics = () => {
   const navigate = useNavigate();
@@ -61,12 +27,69 @@ const AttendanceAnalytics = () => {
   const [openModal, setOpenModal] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
 
+  const { data, isLoading } = useAttendendenceAnalyticsQuery();
+
+  const companyOverview = React.useMemo(() => {
+    if (!data || !data.organization_summary) return fallbackOverview;
+    const s = data.organization_summary;
+    return {
+      totalEmployees: s.total_employees || 0,
+      presentToday: s.total_present || 0,
+      lateToday: s.total_late || 0,
+      absentToday: s.total_absent || 0,
+      averageAttendance: Math.round(s.average_attendance || 0),
+      averagePunctuality: Math.round(s.average_punctuality || 0),
+      totalOvertimeHours: s.total_overtime_hours || 0
+    };
+  }, [data]);
+
+  const departmentWiseAttendance = React.useMemo(() => {
+    if (!data || !data.department_wise) return [];
+    return data.department_wise.map(d => ({
+      department: d.department || 'Unknown Department',
+      present: d.present || 0,
+      late: d.late || 0,
+      absent: d.absent || 0,
+      total: (d.present || 0) + (d.late || 0) + (d.absent || 0)
+    }));
+  }, [data]);
+
+  const allEmployees = React.useMemo(() => {
+    if (!data || !data.top_employees) return [];
+    return data.top_employees.map((e, idx) => ({
+      id: idx + 1,
+      name: e.employee || 'Unknown Employee',
+      department: e.department ?? 'No Department',
+      attendance: e.attendance_percent || 0,
+      avatar: '👤',
+      status: e.status || 'Unknown',
+    }));
+  }, [data]);
+
+  // Check if this is a scenario with no attendance data
+  const isEmptyAttendanceData = companyOverview.totalEmployees > 0 && companyOverview.presentToday === 0 && companyOverview.averageAttendance === 0;
+
+  // For top performers, show employees with >0% attendance, or if none exist, show a message
+  const topEmployees = allEmployees.filter(emp => emp.attendance > 0);
+  const hasTopPerformers = topEmployees.length > 0;
+
+  const monthlyTrend = [
+    { month: 'Jan', averageAttendance: companyOverview.averageAttendance, averagePunctuality: companyOverview.averagePunctuality },
+  ];
+
   const handleEmployeeClick = (employeeId: number) => {
     navigate(`/attendance/${employeeId}`);
   };
 
-  // Get the appropriate employee list based on role
-  const displayEmployees = hasRole(['HR', 'ADMIN']) ? topEmployees : allEmployees;
+  // Determine what to display based on role and data availability
+  const getDisplayEmployees = () => {
+    if (hasRole(['HR', 'ADMIN'])) {
+      return hasTopPerformers ? topEmployees : allEmployees.slice(0, 5); // Show first 5 if no top performers
+    }
+    return allEmployees;
+  };
+
+  const displayEmployees = getDisplayEmployees();
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
@@ -83,20 +106,27 @@ const AttendanceAnalytics = () => {
     boxShadow: 24,
     p: 4,
     overflow: 'auto',
-  };
+  } as const;
 
   const filteredEmployees = React.useMemo(() => {
     return allEmployees.filter(employee => 
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.department.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, allEmployees]);
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" sx={{ mb: 4 }}>
-        Company-wide Attendance Analytics
+        {data?.organization ? `${data.organization} Attendance Analytics` : 'Company-wide Attendance Analytics'}
       </Typography>
+
+      {/* Alert for empty attendance data */}
+      {isEmptyAttendanceData && (
+        <Alert severity="info" icon={<InfoIcon />} sx={{ mb: 3 }}>
+          No attendance records found for today. This might be a weekend, holiday, or no employees have checked in yet.
+        </Alert>
+      )}
 
       {/* Today's Overview */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -112,9 +142,14 @@ const AttendanceAnalytics = () => {
               </Typography>
               <LinearProgress 
                 variant="determinate" 
-                value={(companyOverview.presentToday/companyOverview.totalEmployees) * 100} 
+                value={companyOverview.totalEmployees ? (companyOverview.presentToday/companyOverview.totalEmployees) * 100 : 0} 
                 sx={{ height: 8, borderRadius: 2 }}
               />
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                {companyOverview.totalEmployees ? 
+                  `${Math.round((companyOverview.presentToday/companyOverview.totalEmployees) * 100)}% present` : 
+                  'No data'}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -128,6 +163,9 @@ const AttendanceAnalytics = () => {
               </Box>
               <Typography variant="h4">
                 {companyOverview.lateToday}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                employees arrived late
               </Typography>
             </CardContent>
           </Card>
@@ -143,6 +181,9 @@ const AttendanceAnalytics = () => {
               <Typography variant="h4">
                 {companyOverview.averageAttendance}%
               </Typography>
+              <Typography variant="caption" color="text.secondary">
+                overall company average
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -152,10 +193,13 @@ const AttendanceAnalytics = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <EventBusyIcon sx={{ color: 'error.main', mr: 1 }} />
-                <Typography variant="h6">Total Overtime</Typography>
+                <Typography variant="h6">Total Absent</Typography>
               </Box>
               <Typography variant="h4">
-                {companyOverview.totalOvertimeHours}h
+                {companyOverview.absentToday}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                employees absent today
               </Typography>
             </CardContent>
           </Card>
@@ -167,51 +211,118 @@ const AttendanceAnalytics = () => {
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" sx={{ mb: 3 }}>Department-wise Attendance</Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={departmentWiseAttendance}>
-                <XAxis dataKey="department" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="present" fill="#4CAF50" name="Present" />
-                <Bar dataKey="late" fill="#FFC107" name="Late" />
-                <Bar dataKey="absent" fill="#F44336" name="Absent" />
-              </BarChart>
-            </ResponsiveContainer>
+            {departmentWiseAttendance.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={departmentWiseAttendance}>
+                  <XAxis 
+                    dataKey="department" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                    interval={0}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="present" fill="#4CAF50" name="Present" />
+                  <Bar dataKey="late" fill="#FFC107" name="Late" />
+                  <Bar dataKey="absent" fill="#F44336" name="Absent" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography color="text.secondary">
+                  No department data available
+                </Typography>
+              </Box>
+            )}
           </Paper>
         </Grid>
 
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ mb: 3 }}>Monthly Trends</Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyTrend}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="averageAttendance" fill="#2196F3" name="Attendance %" />
-                <Bar dataKey="averagePunctuality" fill="#4CAF50" name="Punctuality %" />
-              </BarChart>
-            </ResponsiveContainer>
+            <Typography variant="h6" sx={{ mb: 3 }}>Company Overview</Typography>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Total Employees
+              </Typography>
+              <Typography variant="h5" sx={{ mb: 2 }}>
+                {companyOverview.totalEmployees}
+              </Typography>
+            </Box>
+            
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Attendance Rate
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Typography variant="h5" sx={{ mr: 2 }}>
+                  {companyOverview.averageAttendance}%
+                </Typography>
+                <Chip 
+                  label={companyOverview.averageAttendance >= 90 ? "Excellent" : 
+                         companyOverview.averageAttendance >= 75 ? "Good" :
+                         companyOverview.averageAttendance >= 60 ? "Average" : "Needs Improvement"}
+                  color={companyOverview.averageAttendance >= 90 ? "success" : 
+                         companyOverview.averageAttendance >= 75 ? "info" :
+                         companyOverview.averageAttendance >= 60 ? "warning" : "error"}
+                  size="small"
+                />
+              </Box>
+              <LinearProgress 
+                variant="determinate" 
+                value={companyOverview.averageAttendance} 
+                sx={{ height: 8, borderRadius: 2 }}
+              />
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Punctuality Rate
+              </Typography>
+              <Typography variant="h6">
+                {companyOverview.averagePunctuality}%
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Total Overtime Hours
+              </Typography>
+              <Typography variant="h6">
+                {companyOverview.totalOvertimeHours}h
+              </Typography>
+            </Box>
           </Paper>
         </Grid>
       </Grid>
 
-      {/* Top Performers or All Employees Table */}
+      {/* Employee Table */}
       <Paper sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h6">
-            {hasRole(['HR','ADMIN']) ? 'Top Performers' : 'Employees Attendance'}
+            {hasRole(['HR','ADMIN']) ? 
+              (hasTopPerformers ? 'Top Performers' : 'Employee Overview') : 
+              'Employee Attendance'}
           </Typography>
           <Button 
             variant="contained" 
             color="primary"
             onClick={handleOpenModal}
+            disabled={isLoading || allEmployees.length === 0}
           >
-            View All Employees
+            View All Employees ({allEmployees.length})
           </Button>
         </Box>
+
+        {/* Show message when no top performers exist for HR/ADMIN */}
+        {hasRole(['HR','ADMIN']) && !hasTopPerformers && (
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            No employees currently meet the top performer criteria (95%+ attendance). 
+            Showing all employees instead.
+          </Alert>
+        )}
+
         <TableContainer>
           <Table>
             <TableHead>
@@ -223,39 +334,70 @@ const AttendanceAnalytics = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {displayEmployees.map((employee) => (
-                <TableRow 
-                  key={employee.id}
-                  hover
-                  onClick={() => handleEmployeeClick(employee.id)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Avatar sx={{ mr: 2 }}>{employee.avatar}</Avatar>
-                      {employee.name}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{employee.department}</TableCell>
-                  <TableCell>{employee.attendance}%</TableCell>
-                  <TableCell>
-                    <Box sx={{ 
-                      bgcolor: employee.status === 'Excellent' ? 'success.light' :
-                              employee.status === 'Good' ? 'info.light' :
-                              employee.status === 'Average' ? 'warning.light' : 'error.light',
-                      color: employee.status === 'Excellent' ? 'success.dark' :
-                             employee.status === 'Good' ? 'info.dark' :
-                             employee.status === 'Average' ? 'warning.dark' : 'error.dark',
-                      px: 2,
-                      py: 0.5,
-                      borderRadius: 1,
-                      display: 'inline-block'
-                    }}>
-                      {employee.status}
-                    </Box>
+              {displayEmployees.length > 0 ? (
+                displayEmployees.map((employee) => (
+                  <TableRow 
+                    key={employee.id}
+                    hover
+                    onClick={() => handleEmployeeClick(employee.id)}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar sx={{ mr: 2 }}>{employee.avatar}</Avatar>
+                        {employee.name}
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={employee.department} 
+                        variant="outlined" 
+                        size="small"
+                        color={employee.department === 'No Department' ? 'default' : 'primary'}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="body2" sx={{ mr: 1 }}>
+                          {employee.attendance}%
+                        </Typography>
+                        <LinearProgress 
+                          variant="determinate" 
+                          value={employee.attendance} 
+                          sx={{ 
+                            width: 60, 
+                            height: 6, 
+                            borderRadius: 2,
+                            '& .MuiLinearProgress-bar': {
+                              backgroundColor: employee.attendance >= 95 ? '#4CAF50' :
+                                             employee.attendance >= 75 ? '#2196F3' :
+                                             employee.attendance >= 60 ? '#FFC107' : '#F44336'
+                            }
+                          }}
+                        />
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={employee.status}
+                        size="small"
+                        color={employee.status === 'Excellent' ? 'success' :
+                               employee.status === 'Good' ? 'info' :
+                               employee.status === 'Average' ? 'warning' : 'error'}
+                        variant="filled"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography color="text.secondary">
+                      No employee data available
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -269,7 +411,7 @@ const AttendanceAnalytics = () => {
       >
         <Box sx={modalStyle}>
           <Typography variant="h6" sx={{ mb: 3 }}>
-            All Employees Attendance
+            All Employees Attendance ({allEmployees.length} total)
           </Typography>
           <TextField
             fullWidth
@@ -279,8 +421,15 @@ const AttendanceAnalytics = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{ mb: 3 }}
           />
-          <TableContainer>
-            <Table>
+          
+          {isEmptyAttendanceData && (
+            <Alert severity="info" sx={{ mb: 3 }}>
+              All employees currently show 0% attendance. This may indicate no check-ins have been recorded yet.
+            </Alert>
+          )}
+
+          <TableContainer sx={{ maxHeight: 400 }}>
+            <Table stickyHeader>
               <TableHead>
                 <TableRow>
                   <TableCell>Employee</TableCell>
@@ -290,43 +439,80 @@ const AttendanceAnalytics = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredEmployees.map((employee) => (
-                  <TableRow 
-                    key={employee.id}
-                    hover
-                    onClick={() => handleEmployeeClick(employee.id)}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar sx={{ mr: 2 }}>{employee.avatar}</Avatar>
-                        {employee.name}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{employee.department}</TableCell>
-                    <TableCell>{employee.attendance}%</TableCell>
-                    <TableCell>
-                      <Box sx={{ 
-                        bgcolor: employee.status === 'Excellent' ? 'success.light' :
-                                employee.status === 'Good' ? 'info.light' :
-                                employee.status === 'Average' ? 'warning.light' : 'error.light',
-                        color: employee.status === 'Excellent' ? 'success.dark' :
-                               employee.status === 'Good' ? 'info.dark' :
-                               employee.status === 'Average' ? 'warning.dark' : 'error.dark',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: 1,
-                        display: 'inline-block'
-                      }}>
-                        {employee.status}
-                      </Box>
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map((employee) => (
+                    <TableRow 
+                      key={employee.id}
+                      hover
+                      onClick={() => {
+                        handleEmployeeClick(employee.id);
+                        handleCloseModal();
+                      }}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Avatar sx={{ mr: 2 }}>{employee.avatar}</Avatar>
+                          {employee.name}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={employee.department} 
+                          variant="outlined" 
+                          size="small"
+                          color={employee.department === 'No Department' ? 'default' : 'primary'}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="body2" sx={{ mr: 1 }}>
+                            {employee.attendance}%
+                          </Typography>
+                          <LinearProgress 
+                            variant="determinate" 
+                            value={employee.attendance} 
+                            sx={{ 
+                              width: 60, 
+                              height: 6, 
+                              borderRadius: 2,
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: employee.attendance >= 95 ? '#4CAF50' :
+                                               employee.attendance >= 75 ? '#2196F3' :
+                                               employee.attendance >= 60 ? '#FFC107' : '#F44336'
+                              }
+                            }}
+                          />
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={employee.status}
+                          size="small"
+                          color={employee.status === 'Excellent' ? 'success' :
+                                 employee.status === 'Good' ? 'info' :
+                                 employee.status === 'Average' ? 'warning' : 'error'}
+                          variant="filled"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography color="text.secondary">
+                        {searchTerm ? 'No employees found matching your search.' : 'No employee data available'}
+                      </Typography>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              Showing {filteredEmployees.length} of {allEmployees.length} employees
+            </Typography>
             <Button onClick={handleCloseModal} variant="contained">
               Close
             </Button>
@@ -337,4 +523,4 @@ const AttendanceAnalytics = () => {
   );
 };
 
-export default AttendanceAnalytics; 
+export default AttendanceAnalytics;

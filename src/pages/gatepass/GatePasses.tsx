@@ -19,12 +19,7 @@ const GatePasses = () => {
   
   const { data, isLoading } = useGetGuestPassesQuery({ search: searchTerm });
   console.log(user, 'user');
-  const filteredData = data?.results?.filter(gatepass => {
-    if (hasRole(['EMPLOYEE']) && hasPermission('approve_guest_pass')) {
-      return gatepass.assigned_approver === Number(user.user_id);
-    }
-    return true;
-  }) || [];
+  const filteredData = data?.results
 
   console.log(filteredData, 'filteredData');
 
@@ -60,7 +55,7 @@ const GatePasses = () => {
   };
 
   const handleView = (row: any) => {
-    navigate(`/gate-passes/${row.id}`, { state: { gatepass: row } });
+    navigate(`/reports/gate-passes/${row.id}`);
   };
 
   const handleEdit = (row: any) => {

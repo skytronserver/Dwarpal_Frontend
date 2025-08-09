@@ -1,19 +1,37 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_ENDPOINTS } from "../config/endpoints";
 
 interface GuestPass {
     id?: number;
     name: string;
     photo: string;
-    visit_date: string;
-    visit_start_time: string;
-    visit_end_time: string;
-    department_to_visit: number;
+    mobile_number?: string;
+    email?: string;
+    gender?: string;
+    date_of_birth?: string;
+    address?: string;
+    district?: string;
+    state?: string;
+    pincode?: string;
+    emergency_contact_number?: string;
+    id_proof_no?: string;
+    id_proof_document?: string;
+    guest_setting?: string;
+    access_validity_start?: string;
+    access_validity_end?: string;
+    start_time?: string;
+    end_time?: string;
+    visit_date?: string;
     organization_to_visit: number;
-    person_to_meet: string;
-    assigned_approver: number;
+    department_to_visit: number | number[];
+    person_to_meet: number | string;
+    purpose_of_visit?: string;
+    notes_and_remarks?: string;
     is_approved: boolean;
     approved_by: number | null;
     approved_at: string | null;
+    visit_start_time?: string;
+    visit_end_time?: string;
 }
 interface GuestPassResponse {
     results: GuestPass[];
@@ -85,7 +103,7 @@ export const gatePassApi = createApi({
         }),
         getGuestPassById: builder.query<GuestPass, number>({
             query: (guestPassId) => ({
-                url: `/api/guest-passes/view/${guestPassId}/`,
+            url: API_ENDPOINTS.guestPasses.view(guestPassId),
                 headers: {
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
                 }

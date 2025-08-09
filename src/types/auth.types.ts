@@ -18,6 +18,29 @@ export interface User {
   assigned_permissions?: string[];
 }
 
+export interface RequestPasswordResetResponseTypes {
+  success: boolean;
+  message: string;
+  status_code: number;
+}
+
+export type RequestPasswordResetTypes = {
+  mobile_number: string;
+  email: string;
+}
+
+export type ResetPasswordTypes = {
+  token: string;
+  mobile_number: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponseTypes {
+  success: boolean;
+  message: string;
+  status_code: number;
+}
+
 export interface LoginResponseTypes {
   data: {
     token: string;

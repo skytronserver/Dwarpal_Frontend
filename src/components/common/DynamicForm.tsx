@@ -496,6 +496,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 <MenuItem 
                   key={String(option.value)} 
                   value={option.value}
+                  disabled={(option as any).disabled}
                   sx={{
                     '&:hover': {
                       backgroundColor: 'rgba(255, 131, 97, 0.08)',
@@ -512,6 +513,11 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 </MenuItem>
               ))}
             </Select>
+            {!hasError && field.helperText && (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                {field.helperText}
+              </Typography>
+            )}
             {hasError && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
                 {errorMessage}
@@ -689,11 +695,16 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               )}
             >
               {field.options?.map((option) => (
-                <MenuItem key={String(option.value)} value={option.value}>
+                <MenuItem key={String(option.value)} value={option.value} disabled={(option as any).disabled}>
                   {option.label}
                 </MenuItem>
               ))}
             </Select>
+            {!hasError && field.helperText && (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                {field.helperText}
+              </Typography>
+            )}
             {hasError && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
                 {errorMessage}

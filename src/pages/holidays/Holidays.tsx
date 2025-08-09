@@ -7,7 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useGetHolidaysQuery, useEditHolidayMutation, useApproveHolidayMutation } from "../../services/holidayApi";
 import { enUS } from 'date-fns/locale/en-US';
 import { useState } from 'react';
-import { Box, Typography, Paper, Modal, Button, CircularProgress, ToggleButton, ToggleButtonGroup, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { Box, Typography, Paper, Modal, Button, List, ListItem, CircularProgress, ToggleButton, ToggleButtonGroup, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Chip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -29,58 +29,37 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
-interface Holiday {
+interface HolidayFromApi {
     id: number;
     holiday_name: string;
-    holiday_type: string;
-    date: string;
-    is_approved: boolean;
-    approved_by: number | null;
-    approved_at: string | null;
+    holiday_type?: string;
+    dates?: string[];
+    holiday_from_date?: string;
+    holiday_to_date?: string;
+    is_approved?: boolean;
+    approved_by?: number | null;
+    approved_at?: string | null;
     is_active: boolean;
-    is_deleted: boolean;
-    created_at: string;
-    updated_at: string;
+    is_deleted?: boolean;
+    created_at?: string;
+    updated_at?: string;
     created_by: number;
-    updated_by: number;
+    updated_by?: number;
 }
 
 interface CalendarEvent {
-    id: number;
+    id: string;
+    holidayId: number;
     title: string;
-    allDay: boolean;
     start: Date;
     end: Date;
     is_approved: boolean;
+    is_active: boolean;
     createdBy: number;
     name: string;
-    holidayType: string;
-    approvedBy: number | null;
-    approvedAt: string | null;
-}
-
-interface ApiResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    current_page: number;
-    total_pages: number;
-    page_size: number;
-    results: Array<{
-        id: number;
-        holiday_name: string;
-        holiday_type: string;
-        date: string;
-        is_approved: boolean;
-        approved_by: number | null;
-        approved_at: string | null;
-        is_active: boolean;
-        is_deleted: boolean;
-        created_at: string;
-        updated_at: string;
-        created_by: number;
-        updated_by: number;
-    }>;
+    holidayType?: string;
+    approvedBy?: number | null;
+    approvedAt?: string | null;
 }
 
 const Holidays = () => {
@@ -89,7 +68,7 @@ const Holidays = () => {
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [holidayToApprove, setHolidayToApprove] = useState<number | null>(null);
     const [view, setView] = useState<'calendar' | 'list'>('calendar');
-    const { data, isLoading, error } = useGetHolidaysQuery({ search: '', page: 1, page_size: 10 });
+    const { data, isLoading, error } = useGetHolidaysQuery({ search: '', page: 1, page_size: 100 });
     const [editHoliday] = useEditHolidayMutation();
     const navigate = useNavigate();
     const { hasRole, hasPermission } = useAuth();
@@ -97,28 +76,83 @@ const Holidays = () => {
     const [approveHoliday] = useApproveHolidayMutation();
     const showSuccessToast = useSuccessToast();
     const showErrorToast = useErrorToast();
+    const [editingRowId, setEditingRowId] = useState<number | null>(null);
+    const [rowEditName, setRowEditName] = useState<string>('');
+    const [modalEditName, setModalEditName] = useState<string>('');
+    const events: CalendarEvent[] = (data?.results || []).flatMap((holiday: HolidayFromApi) => {
+        const result: CalendarEvent[] = [];
+        const isApproved = Boolean(holiday.is_approved);
 
-    const events: CalendarEvent[] = ((data as unknown as ApiResponse)?.results || []).map((holiday) => {
-        const eventDate = new Date(holiday.date);
-        eventDate.setHours(0, 0, 0, 0);
-        
-        return {
-            id: holiday.id,
-            title: `${holiday.holiday_name} (${holiday.holiday_type}) ${holiday.is_approved ? '✓' : '⏳'}`,
-            allDay: true,
-            start: eventDate,
-            end: eventDate,
-            is_approved: holiday.is_approved,
-            createdBy: holiday.created_by,
-            name: holiday.holiday_name,
-            holidayType: holiday.holiday_type,
-            approvedBy: holiday.approved_by,
-            approvedAt: holiday.approved_at
-        };
+        // 1) Prefer explicit from/to range if provided
+        if (holiday.holiday_from_date || holiday.holiday_to_date) {
+            const start = new Date(holiday.holiday_from_date || holiday.holiday_to_date!);
+            const end = new Date(holiday.holiday_to_date || holiday.holiday_from_date!);
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+            result.push({
+                id: `${holiday.id}-range`,
+                holidayId: holiday.id,
+                title: holiday.holiday_name,
+                start,
+                end,
+                is_approved: isApproved,
+                is_active: Boolean(holiday.is_active),
+                createdBy: holiday.created_by,
+                name: holiday.holiday_name,
+                holidayType: holiday.holiday_type,
+                approvedBy: holiday.approved_by ?? null,
+                approvedAt: holiday.approved_at ?? null,
+            });
+            return result;
+        }
+
+        // 2) Otherwise map dates[] entries if available
+        if (holiday.dates && holiday.dates.length > 0) {
+            holiday.dates.forEach((dateStr, index) => {
+                const d = new Date(dateStr);
+                d.setHours(0, 0, 0, 0);
+                result.push({
+                    id: `${holiday.id}-${index}`,
+                    holidayId: holiday.id,
+                    title: holiday.holiday_name,
+                    start: d,
+                    end: d,
+                    is_approved: isApproved,
+                    is_active: Boolean(holiday.is_active),
+                    createdBy: holiday.created_by,
+                    name: holiday.holiday_name,
+                    holidayType: holiday.holiday_type,
+                    approvedBy: holiday.approved_by ?? null,
+                    approvedAt: holiday.approved_at ?? null,
+                });
+            });
+            return result;
+        }
+
+        // 3) Fallback: created_at as a single-day event
+        if (holiday.created_at) {
+            const d = new Date(holiday.created_at);
+            d.setHours(0, 0, 0, 0);
+            result.push({
+                id: `${holiday.id}-created`,
+                holidayId: holiday.id,
+                title: holiday.holiday_name,
+                start: d,
+                end: d,
+                is_approved: isApproved,
+                is_active: Boolean(holiday.is_active),
+                createdBy: holiday.created_by,
+                name: holiday.holiday_name,
+                holidayType: holiday.holiday_type,
+                approvedBy: holiday.approved_by ?? null,
+                approvedAt: holiday.approved_at ?? null,
+            });
+        }
+        return result;
     });
-
     const handleEventClick = (event: CalendarEvent) => {
         setSelectedEvent(event);
+        setModalEditName(event.name);
         setIsModalOpen(true);
     };
 
@@ -130,6 +164,45 @@ const Holidays = () => {
     const handleEditClick = (id: number) => {
         navigate(`/holidays/new/${id}`);
         handleCloseModal();
+    };
+
+    const startRowEdit = (e: React.MouseEvent, holidayId: number, currentName: string) => {
+        e.stopPropagation();
+        setEditingRowId(holidayId);
+        setRowEditName(currentName);
+    };
+
+    const cancelRowEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingRowId(null);
+        setRowEditName('');
+    };
+
+    const saveRowEdit = async (e: React.MouseEvent, holidayId: number) => {
+        e.stopPropagation();
+        try {
+            const formData = new FormData();
+            formData.append('holiday_name', rowEditName);
+            await editHoliday({ id: holidayId, data: formData }).unwrap();
+            showSuccessToast('Holiday name updated');
+            setEditingRowId(null);
+            setRowEditName('');
+        } catch (err: any) {
+            showErrorToast(err?.data?.message || 'Failed to update holiday');
+        }
+    };
+
+    const saveModalEdit = async () => {
+        if (!selectedEvent) return;
+        try {
+            const formData = new FormData();
+            formData.append('holiday_name', modalEditName);
+            await editHoliday({ id: selectedEvent.holidayId, data: formData }).unwrap();
+            showSuccessToast('Holiday name updated');
+            setSelectedEvent({ ...selectedEvent, name: modalEditName, title: modalEditName });
+        } catch (err: any) {
+            showErrorToast(err?.data?.message || 'Failed to update holiday');
+        }
     };
 
     const handleViewChange = (
@@ -151,14 +224,14 @@ const Holidays = () => {
             try {
                 await approveHoliday(holidayToApprove).unwrap();
                 showSuccessToast('Holiday approved successfully');
-                setIsApproveModalOpen(false);
-                setHolidayToApprove(null);
-                setApprovalComment('');
             } catch (error: any) {
                 console.error('Error approving holiday:', error);
                 showErrorToast(error?.data?.message || 'Error approving holiday');
             }
         }
+        setIsApproveModalOpen(false);
+        setHolidayToApprove(null);
+        setApprovalComment('');
     };
 
     const handleApproveCancel = () => {
@@ -171,20 +244,19 @@ const Holidays = () => {
         if (holidayToApprove) {
             try {
                 const formData = new FormData();
-                formData.append('is_approved', 'false');
+                formData.append('is_active', 'false');
                 if (approvalComment) {
                     formData.append('comment', approvalComment);
                 }
                 await editHoliday({ id: holidayToApprove, data: formData }).unwrap();
-                showSuccessToast('Holiday rejected successfully');
-                setIsApproveModalOpen(false);
-                setHolidayToApprove(null);
-                setApprovalComment('');
-            } catch (error: any) {
+                window.location.reload();
+            } catch (error) {
                 console.error('Error rejecting holiday:', error);
-                showErrorToast(error?.data?.message || 'Error rejecting holiday');
             }
         }
+        setIsApproveModalOpen(false);
+        setHolidayToApprove(null);
+        setApprovalComment('');
     };
 
     if (isLoading) {
@@ -226,49 +298,40 @@ const Holidays = () => {
 
             {view === 'calendar' ? (
                 <Paper sx={{ height: 600, p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 12, height: 12, bgcolor: '#2e7d32', borderRadius: 0.5 }} />
+                            <Typography variant="caption">Approved</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 12, height: 12, bgcolor: '#f57c00', borderRadius: 0.5 }} />
+                            <Typography variant="caption">Pending</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 12, height: 12, bgcolor: '#9e9e9e', borderRadius: 0.5 }} />
+                            <Typography variant="caption">Inactive</Typography>
+                        </Box>
+                    </Box>
                     <Calendar
                         localizer={localizer}
                         events={events}
                         startAccessor="start"
                         endAccessor="end"
                         style={{ height: '100%' }}
-                        views={['month']}
+                        views={['month', 'week', 'day']}
                         defaultView="month"
                         onSelectEvent={handleEventClick}
-                        eventPropGetter={(event: CalendarEvent) => {
-                            let backgroundColor = '#1976d2';  // blue for public holidays
-                            let textColor = '#fff';
-                            
-                            if (!event.is_approved) {
-                                backgroundColor = '#f57c00';  // orange for pending
-                            }
-                            
-                            return {
+                        eventPropGetter={(event: CalendarEvent) => ({
                                 style: {
-                                    backgroundColor,
-                                    color: textColor,
+                                backgroundColor: !event.is_active ? '#9e9e9e' : (event.is_approved ? '#2e7d32' : '#f57c00'),
+                                color: '#fff',
                                     border: 'none',
                                     borderRadius: '3px',
-                                    padding: '4px 8px',
+                                padding: '2px 4px',
                                     cursor: 'pointer',
-                                    fontWeight: 500,
-                                    fontSize: '0.875rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    textAlign: 'center'
+                                opacity: !event.is_active ? 0.85 : 1,
                                 },
-                            };
-                        }}
-                        formats={{
-                            dateFormat: 'dd',
-                            monthHeaderFormat: 'MMMM yyyy',
-                            dayHeaderFormat: 'EEEE',
-                            dayRangeHeaderFormat: ({ start, end }) => 
-                                `${format(start, 'MMMM dd')} - ${format(end, 'dd, yyyy')}`
-                        }}
-                        popup
-                        selectable={false}
+                        })}
                     />
                 </Paper>
             ) : (
@@ -277,35 +340,42 @@ const Holidays = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Holiday Name</TableCell>
-                                <TableCell>Type</TableCell>
-                                <TableCell>Date</TableCell>
+                                <TableCell>From Date</TableCell>
+                                <TableCell>To Date</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Created By</TableCell>
                                 <TableCell>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {events.map((event) => (
+                            {(events || []).map((event) => (
                                 <TableRow key={event.id}>
-                                    <TableCell>{event.name}</TableCell>
-                                    <TableCell>{event.holidayType}</TableCell>
+                                    <TableCell>
+                                        {editingRowId === event.holidayId ? (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <TextField
+                                                    value={rowEditName}
+                                                    onChange={(e) => setRowEditName(e.target.value)}
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                                <Button size="small" variant="contained" onClick={(e) => saveRowEdit(e, event.holidayId)}>Save</Button>
+                                                <Button size="small" variant="text" onClick={cancelRowEdit}>Cancel</Button>
+                                            </Box>
+                                        ) : (
+                                            <Typography>{event.name}</Typography>
+                                        )}
+                                    </TableCell>
                                     <TableCell>{format(event.start, 'MMMM do, yyyy')}</TableCell>
+                                    <TableCell>{format(event.end, 'MMMM do, yyyy')}</TableCell>
                                     <TableCell>
                                         <Typography
                                             sx={{
-                                                color: event.is_approved ? 'success.main' : 'warning.main',
+                                                color: !event.is_active ? 'text.secondary' : (event.is_approved ? 'success.main' : 'warning.main'),
                                                 fontWeight: 600,
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: 0.5,
-                                                bgcolor: event.is_approved ? 'success.lighter' : 'warning.lighter',
-                                                px: 1,
-                                                py: 0.5,
-                                                borderRadius: 1,
-                                                fontSize: '0.875rem'
                                             }}
                                         >
-                                            {event.is_approved ? '✓ Approved' : '⏳ Pending'}
+                                            {!event.is_active ? 'Inactive' : (event.is_approved ? '✓ Approved' : '⏳ Pending')}
                                         </Typography>
                                     </TableCell>
                                     <TableCell>User {event.createdBy}</TableCell>
@@ -313,15 +383,18 @@ const Holidays = () => {
                                         <Box sx={{ display: 'flex', gap: 1 }}>
                                             <IconButton
                                                 size="small"
-                                                onClick={() => handleEditClick(event.id)}
+                                                onClick={() => handleEventClick(event)}
                                                 color="primary"
                                             >
                                                 <EditIcon />
                                             </IconButton>
+                                            {editingRowId !== event.holidayId && (
+                                                <Button size="small" onClick={(e) => startRowEdit(e, event.holidayId, event.name)}>Rename</Button>
+                                            )}
                                             {hasPermission('approve:approval') && !event.is_approved && (
                                                 <IconButton
                                                     size="small"
-                                                    onClick={() => handleApproveClick(event.id)}
+                                                    onClick={() => handleApproveClick(event.holidayId)}
                                                     color="success"
                                                 >
                                                     <CheckCircleIcon />
@@ -358,124 +431,33 @@ const Holidays = () => {
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             '&:focus': { outline: 'none' }
                         }}>
-                            <Typography
-                                variant="h5"
-                                sx={{
-                                    mb: 3,
-                                    color: 'primary.main',
-                                    fontWeight: 600,
-                                    borderBottom: '2px solid',
-                                    borderColor: 'primary.main',
-                                    pb: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between'
-                                }}
-                            >
-                                {selectedEvent.name}
-                                <Typography
-                                    component="span"
-                                    sx={{
-                                        fontSize: '0.875rem',
-                                        color: selectedEvent.is_approved ? 'success.main' : 'warning.main',
-                                        fontWeight: 500,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 0.5,
-                                        bgcolor: selectedEvent.is_approved ? 'success.lighter' : 'warning.lighter',
-                                        px: 2,
-                                        py: 0.5,
-                                        borderRadius: 1
-                                    }}
-                                >
-                                    {selectedEvent.is_approved ? '✓ Approved' : '⏳ Pending Approval'}
-                                </Typography>
-                            </Typography>
-
                             <Box sx={{ mb: 3 }}>
-                                <Box sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    mb: 2,
-                                    p: 2,
-                                    bgcolor: 'grey.50',
-                                    borderRadius: 1
-                                }}>
-                                    <Typography sx={{ fontWeight: 600, width: 100, color: 'text.secondary' }}>
-                                        Type:
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            color: 'error.main',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {selectedEvent.name}
                                     </Typography>
-                                    <Typography sx={{
-                                        color: 'primary.main',
-                                        fontWeight: 500,
-                                        textTransform: 'capitalize',
-                                        bgcolor: 'primary.lighter',
-                                        px: 2,
-                                        py: 0.5,
-                                        borderRadius: 1
-                                    }}>
-                                        {selectedEvent.holidayType}
-                                    </Typography>
+                                    <Chip
+                                        label={!selectedEvent.is_active ? 'Inactive' : (selectedEvent.is_approved ? 'Approved' : 'Pending')}
+                                        color={!selectedEvent.is_active ? 'default' : (selectedEvent.is_approved ? 'success' : 'warning')}
+                                        size="small"
+                                        sx={{ fontWeight: 600 }}
+                                    />
                                 </Box>
-
-                                <Box sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    mb: 2,
-                                    p: 2,
-                                    bgcolor: 'grey.50',
-                                    borderRadius: 1
-                                }}>
-                                    <Typography sx={{ fontWeight: 600, width: 100, color: 'text.secondary' }}>
-                                        Holiday Date:
-                                    </Typography>
-                                    <Typography sx={{ 
-                                        color: 'text.primary', 
-                                        fontWeight: 500,
-                                        bgcolor: 'primary.lighter',
-                                        px: 2,
-                                        py: 0.5,
-                                        borderRadius: 1
-                                    }}>
-                                        {format(selectedEvent.start, 'EEEE, MMMM do, yyyy')}
-                                    </Typography>
-                                </Box>
-
-                                {selectedEvent.is_approved && selectedEvent.approvedBy && selectedEvent.approvedAt && (
-                                    <Box sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        mb: 2,
-                                        p: 2,
-                                        bgcolor: 'grey.50',
-                                        borderRadius: 1
-                                    }}>
-                                        <Typography sx={{ fontWeight: 600, width: 100, color: 'text.secondary' }}>
-                                            Approved:
-                                        </Typography>
-                                        <Box>
-                                            <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
-                                                By: User {selectedEvent.approvedBy}
-                                            </Typography>
-                                            <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-                                                On: {format(new Date(selectedEvent.approvedAt), 'MMM do, yyyy HH:mm')}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                )}
-
-                                <Box sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    p: 2,
-                                    bgcolor: 'grey.50',
-                                    borderRadius: 1
-                                }}>
-                                    <Typography sx={{ fontWeight: 600, width: 100, color: 'text.secondary' }}>
-                                        Created by:
-                                    </Typography>
-                                    <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
-                                        {`User ${selectedEvent.createdBy}` || 'Unknown'}
-                                    </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                    <TextField
+                                        label="Holiday name"
+                                        size="small"
+                                        value={modalEditName}
+                                        onChange={(e) => setModalEditName(e.target.value)}
+                                        fullWidth
+                                    />
+                                    <Button variant="contained" onClick={saveModalEdit}>Save</Button>
                                 </Box>
                             </Box>
 
@@ -502,7 +484,7 @@ const Holidays = () => {
                                     <>
                                         <Button
                                             variant="contained"
-                                            onClick={() => handleEditClick(selectedEvent.id)}
+                                            onClick={() => handleEditClick(selectedEvent.holidayId)}
                                             sx={{
                                                 borderRadius: 2,
                                                 px: 3
@@ -514,7 +496,7 @@ const Holidays = () => {
                                             <Button     
                                                 variant="contained"
                                                 color="success"
-                                                onClick={() => handleApproveClick(selectedEvent.id)}
+                                                onClick={() => handleApproveClick(selectedEvent.holidayId)}
                                                 sx={{
                                                     borderRadius: 2,
                                                     px: 3,

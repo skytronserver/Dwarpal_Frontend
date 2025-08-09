@@ -14,6 +14,8 @@ import { PrivacyPolicy, TermsAndConditions } from './pages';
 import Home from './pages/Home/Home';
 import OTPVerification from './pages/authentication/OTPVerification';
 import ActivateUser from './pages/ActivateUser';
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
 
 const App = () => {
   return (
@@ -27,6 +29,8 @@ const App = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/activate-user/:token" element={<ActivateUser />} />  
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             {adminRoutes.map((route: RouteConfig) => (

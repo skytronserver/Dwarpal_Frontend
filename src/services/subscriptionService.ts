@@ -12,7 +12,7 @@ export interface SubscriptionFormValues {
     guest_pass_limit_per_month: number;
   }
 
-const subscriptionApi = createApi({
+export const subscriptionApi = createApi({
     reducerPath: 'subscriptionApi',
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
     endpoints: (builder) => ({

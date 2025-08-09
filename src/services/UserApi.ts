@@ -2,24 +2,48 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_ENDPOINTS } from "../config/endpoints";
 import { User, UserResponse } from "../types/user.types";
 
+// interface UserAttendance {
+//   report: Array<{
+//     user: string;
+//     department: string;
+//     date: string;
+//     in_times: string[];
+//     out_times: string[];
+//     official_in_time: string;
+//     official_out_time: string;
+//     break_time: string;
+//     total_work_time: string;
+//     status: string;
+//   }>;
+//   summary: {
+//     total_present: number;
+//     total_late: number;
+//     total_absent: number;
+//   };
+// }
+
 interface UserAttendance {
-  report: Array<{
-    user: string;
-    department: string;
-    date: string;
-    in_times: string[];
-    out_times: string[];
-    official_in_time: string;
-    official_out_time: string;
-    break_time: string;
-    total_work_time: string;
-    status: string;
-  }>;
+  user: string;
+  department: string;
+  attendance: UserAttendanceData[],
   summary: {
-    total_present: number;
-    total_late: number;
-    total_absent: number;
-  };
+      total_present: number,
+      total_late: number,
+      total_absent: number
+  }
+}
+
+interface UserAttendanceData {
+  user: string;
+  department: string;
+  date: string;
+  in_times: string[];
+  out_times: string[];
+  official_in_time: string;
+  official_out_time: string;
+  break_time: string;
+  total_work_time: string;
+  status: string;
 }
 
 export const userApi = createApi({
@@ -95,6 +119,15 @@ export const userApi = createApi({
           'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
         }
       })
+    }),
+    approveUser: builder.mutation<User, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.users.approve(id),
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+        }
+      })
     })
   })
 });
@@ -106,5 +139,6 @@ export const {
   useDeleteUserMutation,
   useGetUserByIdQuery,
   useCreateAdminMutation,
-  useGetUserAttendanceQuery
+  useGetUserAttendanceQuery,
+  useApproveUserMutation
 } = userApi; 

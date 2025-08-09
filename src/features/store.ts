@@ -13,7 +13,7 @@ import dashboardServices from "../services/dashboardServices";
 import { activateUserApi } from "../services/activateUser";
 import { hrApi } from "../services/hrServices";
 import { serviceProviderService } from "../services/serviceProviderService";
-
+import { subscriptionApi } from "../services/subscriptionService";
 const store = configureStore({
     reducer: {
         modal: modalReducer,
@@ -30,6 +30,7 @@ const store = configureStore({
         [activateUserApi.reducerPath]: activateUserApi.reducer,
         [hrApi.reducerPath]: hrApi.reducer,
         [serviceProviderService.reducerPath]: serviceProviderService.reducer,
+        [subscriptionApi.reducerPath]: subscriptionApi.reducer, 
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware().concat(
@@ -46,6 +47,7 @@ const store = configureStore({
             activateUserApi.middleware,
             hrApi.middleware,
             serviceProviderService.middleware,
+            subscriptionApi.middleware,
             ),
     devTools: true,
 })

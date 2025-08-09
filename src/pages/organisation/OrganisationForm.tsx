@@ -23,7 +23,7 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = React.useState('');
-    const { data: orgList, isLoading: isOrgListLoading } = useGetOrganisationsQuery({ search: searchQuery, page: 1, page_size: 10 });
+    const { data: orgList, isLoading: isOrgListLoading } = useGetOrganisationsQuery({ search: searchQuery, page: 1, page_size: 100 });
     const { data, isLoading: isDataLoading } = useGetOrganisationByIdQuery(
         parseInt(id as string),
         { skip: !id }

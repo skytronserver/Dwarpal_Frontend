@@ -187,7 +187,7 @@ const adminRoutes:RouteConfig[] = [
         element: ViewUser,
         title: 'View User',
         icon: Users,
-        allowedRoles: ['SUPERADMIN', 'ADMIN'] as UserRole[],
+        allowedRoles: ['SUPERADMIN', 'ADMIN','HR'] as UserRole[],
         group: 'manage'
     },       
     {
@@ -243,7 +243,7 @@ const adminRoutes:RouteConfig[] = [
         element: ManageUsers,
         title: 'Manage Users',
         icon: Users,
-        allowedRoles: ['HR'] as UserRole[],
+        allowedRoles: ['HR','ADMIN'] as UserRole[],
         group: 'manage'
     },
     {
@@ -339,7 +339,7 @@ const adminRoutes:RouteConfig[] = [
         element: UserAttendence,
         title: 'Attendance',
         icon: Clock,
-        allowedRoles: ['EMPLOYEE'] as UserRole[],
+        allowedRoles: ['EMPLOYEE','HR'] as UserRole[],
         group: 'manage'
     }
 ]
