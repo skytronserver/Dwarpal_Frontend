@@ -13,7 +13,8 @@ export interface Organisation {
     subscription: string,
     valid_upto: string,
     pan_number: string,
-    gst_number: string
+    gst_number: string,
+    date_of_establishment: string
 }
 
 export interface OrganisationResponse {

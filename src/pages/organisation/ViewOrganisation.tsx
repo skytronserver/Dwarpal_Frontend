@@ -41,7 +41,7 @@ const ViewOrganisation = () => {
                                         Organisation Name
                                     </Typography>
                                     <Typography variant="body1">
-                                        {organisation.name}
+                                        {organisation.client_name}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -65,7 +65,7 @@ const ViewOrganisation = () => {
                                         GST Number
                                     </Typography>
                                     <Typography variant="body1">
-                                        {organisation.gst_no}
+                                        {organisation.gst_number}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -74,10 +74,10 @@ const ViewOrganisation = () => {
                                 <GroupIcon sx={{ color: 'text.secondary' }} />
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
-                                        Number of Employees
+                                        Subscription
                                     </Typography>
                                     <Typography variant="body1">
-                                        {organisation?.no_of_employees || 'N/A'}
+                                        {organisation?.subscription || 'N/A'}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -86,10 +86,10 @@ const ViewOrganisation = () => {
                                 <SecurityIcon sx={{ color: 'text.secondary' }} />
                                 <Box>
                                     <Typography variant="caption" color="text.secondary">
-                                        Access Control
+                                        Establishment Date
                                     </Typography>
                                     <Typography variant="body1">
-                                        {organisation.access_control ? "Enabled" : "Disabled"}
+                                        {organisation?.date_of_establishment || 'N/A'}
                                     </Typography>
                                 </Box>
                             </Box>

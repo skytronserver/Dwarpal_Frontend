@@ -84,7 +84,7 @@ const ManageUsers = () => {
 
   const handleView = (row: any) => {
     if (orgId) {
-      navigate(`/client/${orgId}/users/${row.id}`);
+      navigate(`/users/${row.id}`);
     } else {
       navigate(`/users/${row.id}`);
     }

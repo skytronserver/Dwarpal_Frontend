@@ -59,18 +59,6 @@ const ViewDepartment = () => {
                                     </Typography>
                                 </Box>
                             </Box>
-
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <CameraAltIcon sx={{ color: 'text.secondary' }} />
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Integrated with AI camera
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {department.integrate_with_ai_camera ? 'Yes' : 'No'}
-                                    </Typography>
-                                </Box>  
-                            </Box>
                         </Box>
                     </Grid>
                 </Grid>

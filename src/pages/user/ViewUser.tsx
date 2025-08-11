@@ -103,7 +103,17 @@ const ViewUser = () => {
                                     </Typography>
                                 </Box>
                             </Box>
-
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Badge sx={{ color: 'text.secondary' }} />
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Mobile Number
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {user.mobile_number}
+                                    </Typography>
+                                </Box>
+                            </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Work sx={{ color: 'text.secondary' }} />
                                 <Box>

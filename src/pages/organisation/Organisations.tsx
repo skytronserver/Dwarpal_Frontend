@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { openModal } from '../../features/slices/modalSlice';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
-
+import { useGetOrganisationsQuery } from '../../services/OrganisationApi';
 
 const Organisations = () => {
   const navigate = useNavigate();
@@ -14,30 +14,22 @@ const Organisations = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   
-  // Dummy data
-  const dummyData = [
-    { id: 1, name: 'Example Org', address: '123 Main Street', gst_no: 'GST123456789', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT','SALES'], admin: 'John Doe', subscription_plan: 'Premium' },
-    { id: 2, name: 'Example Org1', address: '123 Main Street', gst_no: 'GST123456789', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Jane Smith', subscription_plan: 'Basic' },
-    { id: 3, name: 'Police Org2', address: '123 Main Street', gst_no: 'GST123456789', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Mike Johnson', subscription_plan: 'Premium' },
-    { id: 4, name: 'Skytrack', address: 'Cenikuthi,Guwahati', gst_no: '21323', no_of_employees: '1-10', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Sarah Wilson', subscription_plan: 'Basic' },
-    { id: 5, name: 'Haleluya', address: 'heaven', gst_no: '21323', no_of_employees: '1-10', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Tom Brown', subscription_plan: 'Premium' },
-    { id: 6, name: 'Dwarpal', address: 'bulbul nagar', gst_no: '2134tyu3242', no_of_employees: '11-100', access_control: true, attendance: 'yes', departments: ['HR','IT'], admin: 'Lisa Davis', subscription_plan: 'Basic' }
-  ];
-
-  const filteredData = dummyData.filter(org => 
-    org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const { data: orgList, isLoading: isOrgListLoading } = useGetOrganisationsQuery({ search: searchTerm,page: 1, page_size: 100 });
+  
+  const filteredData = orgList?.results?.filter(org => 
+    org.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     org.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   const paginatedData = filteredData.slice((page - 1) * pageSize, page * pageSize);
 
-  const columns = Object.keys(dummyData[0]).map((key) => ({
+  const columns = paginatedData.length > 0 ? Object.keys(paginatedData[0]).map((key) => ({
     field: key,
     headerName: formatFieldName(key),
     width: 150,
-  }));
+  })) : [];
 
-  const visibleFields = ['id', 'name', 'address', 'gst_no', 'no_of_employees', 'access_control', 'attendance', 'departments', 'admin', 'subscription_plan']; 
+  const visibleFields = ['id', 'client_name', 'address', 'gst_no', 'no_of_employees', 'access_control', 'attendance', 'departments', 'admin', 'subscription_plan']; 
 
   const dispatch = useDispatch();
 

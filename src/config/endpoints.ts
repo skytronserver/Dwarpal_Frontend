@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
    },
    subscription: {
     create: '/api/subscriptions/create/',
+    getSubscription: '/subscriptions/list/'
    },
    hr: {
     create:'/create-hr/',

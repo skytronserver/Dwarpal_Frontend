@@ -11,6 +11,18 @@ export interface SubscriptionFormValues {
     number_of_cameras: number;
     guest_pass_limit_per_month: number;
   }
+  
+// Minimal shape returned by the list endpoint that we need in the UI
+export interface SubscriptionListItem {
+  id: number;
+  title: string;
+  duration: string;
+  price: number | string;
+}
+
+export interface SubscriptionListResponse {
+  results: SubscriptionListItem[];
+}
 
 export const subscriptionApi = createApi({
     reducerPath: 'subscriptionApi',
@@ -25,8 +37,18 @@ export const subscriptionApi = createApi({
                     'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`
                 }
             })
+        }),
+        // The list endpoint returns a paginated list with `results`
+        getSubscription: builder.query<SubscriptionListResponse, void>({
+            query: () => ({
+                url: API_ENDPOINTS.subscription.getSubscription,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`
+                }
+            })
         })
     })
 })
 
-export const { useCreateSubscriptionMutation } = subscriptionApi;   
+export const { useCreateSubscriptionMutation, useGetSubscriptionQuery } = subscriptionApi;

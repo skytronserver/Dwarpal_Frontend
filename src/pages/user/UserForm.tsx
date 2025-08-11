@@ -39,7 +39,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   const [createAdmin, { isLoading: isCreateAdminLoading }] = useCreateAdminMutation();
   const navigate = useNavigate();
 
-  const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({});
+  const { data: organizations, isLoading: isOrgsLoading } = useGetOrganisationsQuery({search: '', page: 1, page_size: 100});
 
   const modifiedInitialData = React.useMemo(() => {
     const initialData = userData || location.state?.userData;

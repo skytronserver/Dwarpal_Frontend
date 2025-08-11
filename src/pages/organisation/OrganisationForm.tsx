@@ -10,6 +10,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useCreateCompanyMutation, ClientFormValues } from '../../services/clientService';
 import { useEditOrganisationMutation, useGetOrganisationsQuery, useGetOrganisationByIdQuery } from '../../services/OrganisationApi';
+import { useGetSubscriptionQuery } from '../../services/subscriptionService';
 interface OrganisationFormProps {
     onSuccess?: () => void;
 }
@@ -28,10 +29,30 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
         parseInt(id as string),
         { skip: !id }
     );
+    const { data: subscriptionData, isLoading: isSubscriptionLoading } = useGetSubscriptionQuery();
+    console.log(subscriptionData,'subscriptionData')
     const isEditMode = Boolean(id && id !== ':id' && !isNaN(parseInt(id)));
     const organisationData = data?.data;
     const [editOrganisation, { isLoading: isEditLoading }] = useEditOrganisationMutation();
     const [createCompany, { isLoading: isCreateLoading }] = useCreateCompanyMutation();
+    // Map subscription API results to select options
+    const subscriptionOptions = React.useMemo(() => {
+      const list = subscriptionData?.results || [];
+      return list.map((s: any) => ({
+        label: s.title,
+        value: s.title
+      }));
+    }, [subscriptionData]);
+
+    // Inject options into the form fields for the 'subscription' select
+    const fieldsWithSubscription = React.useMemo(() => {
+      return OrganisationFormFields.map((f) =>
+        f.name === 'subscription'
+          ? { ...f, options: subscriptionOptions, disabled: isSubscriptionLoading }
+          : f
+      );
+    }, [subscriptionOptions, isSubscriptionLoading]);
+
    const handleSubmit = async (values: OrganisationFormValues) => {
   console.log('Submit triggered with valuess:', values);
 
@@ -78,13 +99,13 @@ const OrganisationForm: React.FC<OrganisationFormProps> = ({ onSuccess }) => {
                     <Typography variant="h5" gutterBottom>
                         {isEditMode ? 'Edit Clients' : 'Create Clients'}
                     </Typography>
-                    {(isEditLoading || isCreateLoading || isDataLoading) ? (
+                    {(isEditLoading || isCreateLoading || isDataLoading || isSubscriptionLoading) ? (
                         <Box display="flex" justifyContent="center" my={4}>
                             <CircularProgress />
                         </Box>
                     ) : (
                         <DynamicForm
-                            fields={OrganisationFormFields}
+                            fields={fieldsWithSubscription}
                             onSubmit={handleSubmit}
                             initialValues={organisationData}
                         />

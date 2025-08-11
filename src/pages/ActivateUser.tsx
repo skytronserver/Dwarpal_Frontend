@@ -3,6 +3,7 @@ import { HiEye, HiEyeOff } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
 import { useActivateUserMutation } from '../services/activateUser';
+import { showSuccessToast, showErrorToast } from '../utils/toast';
 
 const ActivateUser = () => {
   const { token } = useParams();
@@ -21,6 +22,7 @@ const ActivateUser = () => {
     confirmPassword: '',
     id_proof_last4: ''
   });
+  
 
   const validate = () => {
     const newErrors: typeof errors = { mobile: '', password: '', confirmPassword: '', id_proof_last4: '' };
@@ -62,8 +64,9 @@ const ActivateUser = () => {
     setErrors(prev => ({ ...prev, [name]: '' })); // Clear error on change
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   try {
     if (!token) {
       console.error('Token is required');
       return;
@@ -79,7 +82,11 @@ const ActivateUser = () => {
       token: token
     };
     console.log('Form Values:', data);
-    activateUser(data);
+    const response = await activateUser(data).unwrap();
+    showSuccessToast(response?.message || 'User activated successfully');
+   } catch (error: any) {
+    showErrorToast(error?.data?.message || 'Failed to activate user');
+   }
   };
 
   const fadeIn = {

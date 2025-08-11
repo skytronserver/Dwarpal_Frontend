@@ -70,11 +70,7 @@ export const OrganisationFormFields: Field[] = [
     label: "Subscription",
     type: "select",
     required: true,
-    options: [
-      { label: "Plan 1", value: "Standard Plan" },
-      { label: "Plan 2", value: "plan_2" },
-      { label: "Plan 3", value: "plan_3" },
-    ],
+    options: [],
     validation: Yup.string().required('Subscription is required')
   },
   {

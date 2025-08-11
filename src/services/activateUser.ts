@@ -8,13 +8,16 @@ interface ActivateUserTypes {
     id_proof_last4: string;
     token: string;
 }
-
+interface ActivateUserResponse {
+    message: string;
+    errors?: Record<string, string>;
+}
 export const activateUserApi = createApi({
     reducerPath: 'activateUserApi',
     baseQuery: fetchBaseQuery({ baseUrl: `${import.meta.env.VITE_BASE_URL}` }),
     endpoints: (builder) => ({
         // Send multipart/form-data by constructing FormData from the payload
-        activateUser: builder.mutation<unknown, ActivateUserTypes>({
+        activateUser: builder.mutation<ActivateUserResponse, ActivateUserTypes>({
             query: (data) => {
                 const formData = new FormData();
                 formData.append('mobile_number', data.mobile_number);
