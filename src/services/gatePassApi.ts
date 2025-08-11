@@ -121,6 +121,16 @@ export const gatePassApi = createApi({
             }),
             invalidatesTags: ['guestPassSettings'],
         }),
+        approveGuestPassSettings: builder.mutation<void, number>({
+            query: (guestPassId) => ({
+                url: `/guest-pass-settings/${guestPassId}/approve/`,
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')}`,
+                }
+            }),
+            invalidatesTags: ['guestPassSettings'],
+        }),
     })
 });
 
@@ -130,7 +140,8 @@ export const {
     useApproveGuestPassMutation,
     useGetGuestPassByIdQuery,
     useViewGuestPassSettingsQuery,
-    useGuestPassSettingsMutation
+    useGuestPassSettingsMutation,
+    useApproveGuestPassSettingsMutation
 } = gatePassApi;
 
 

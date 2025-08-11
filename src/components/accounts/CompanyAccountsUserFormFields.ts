@@ -43,7 +43,7 @@ export const CompanyAccountsUserFormFields: Field[] = [
     validation: Yup.string().required('Department is required')
   },
   {
-    name: 'phone_number',
+    name: 'mobile_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,

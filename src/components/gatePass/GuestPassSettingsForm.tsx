@@ -10,28 +10,28 @@ const PREDEFINED_SETTINGS = {
         guest_category: 'regular',
         visitor_hours_start: '09:00',
         visitor_hours_end: '17:00',
-        visiting_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        visiting_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         holiday_restrictions: false
     },
     vip_visitor: {
         guest_category: 'vip',
         visitor_hours_start: '08:00',
         visitor_hours_end: '20:00',
-        visiting_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+        visiting_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         holiday_restrictions: true
     },
     contractor: {
         guest_category: 'contractor',
         visitor_hours_start: '08:00',
         visitor_hours_end: '18:00',
-        visiting_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        visiting_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         holiday_restrictions: false
     },
     service_provider: {
         guest_category: 'service_provider',
         visitor_hours_start: '10:00',
         visitor_hours_end: '16:00',
-        visiting_days: ['monday', 'wednesday', 'friday'],
+        visiting_days: ['Monday', 'Wednesday', 'Friday'],
         holiday_restrictions: false
     }
 };
@@ -78,13 +78,13 @@ const GuestPassSettingsFormFields: Field[] = [
         required: true,
         validation: Yup.array().min(1, 'Select at least one day').required('Visiting days are required'),
         options: [
-            { label: 'Monday', value: 'monday' },
-            { label: 'Tuesday', value: 'tuesday' },
-            { label: 'Wednesday', value: 'wednesday' },
-            { label: 'Thursday', value: 'thursday' },
-            { label: 'Friday', value: 'friday' },
-            { label: 'Saturday', value: 'saturday' },
-            { label: 'Sunday', value: 'sunday' }
+            { label: 'Monday', value: 'Monday' },
+            { label: 'Tuesday', value: 'Tuesday' },
+            { label: 'Wednesday', value: 'Wednesday' },
+            { label: 'Thursday', value: 'Thursday' },
+            { label: 'Friday', value: 'Friday' },
+            { label: 'Saturday', value: 'Saturday' },
+            { label: 'Sunday', value: 'Sunday' }
         ]
     },
     {

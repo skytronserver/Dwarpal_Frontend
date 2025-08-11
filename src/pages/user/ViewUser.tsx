@@ -29,7 +29,7 @@ const ViewUser = () => {
                     <Person sx={{ fontSize: 35 }} />
                     User Details
                 </Typography>
-                {hasPermission('approve:user') && (
+                {hasPermission('approve:user') && user.is_approved === false && (
                 <Button
                     variant="contained"
                     color="primary"
@@ -87,7 +87,7 @@ const ViewUser = () => {
                                         Department
                                     </Typography>
                                     <Typography variant="body1">
-                                        {user.department?.name || 'Not Assigned'}
+                                        {user.department || 'Not Assigned'}
                                     </Typography>
                                 </Box>
                             </Box>

@@ -402,12 +402,6 @@ export const useNavigation = () => {
       show: hasPermission("manage:gate-passes") || hasPermission("approve_guest_pass") || hasPermission("view:guest-pass"),
     },
     {
-      segment: "gate-passes/:id",
-      title: "View Gate Pass",
-      icon: <FileText />,
-      show: hasPermission("view_guest_pass"),
-    },
-    {
       segment: "attendance/analytics",
       title: "Attendance Analytics",
       icon: <LineChart />,

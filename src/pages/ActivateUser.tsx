@@ -3,7 +3,7 @@ import { HiEye, HiEyeOff } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
 import { useActivateUserMutation } from '../services/activateUser';
-import { showSuccessToast, showErrorToast } from '../utils/toast';
+import { useSuccessToast, useErrorToast } from '../components/Toast';
 
 const ActivateUser = () => {
   const { token } = useParams();
@@ -22,7 +22,8 @@ const ActivateUser = () => {
     confirmPassword: '',
     id_proof_last4: ''
   });
-  
+  const showSuccessToast = useSuccessToast();
+  const showErrorToast = useErrorToast();
 
   const validate = () => {
     const newErrors: typeof errors = { mobile: '', password: '', confirmPassword: '', id_proof_last4: '' };
@@ -85,7 +86,8 @@ const ActivateUser = () => {
     const response = await activateUser(data).unwrap();
     showSuccessToast(response?.message || 'User activated successfully');
    } catch (error: any) {
-    showErrorToast(error?.data?.message || 'Failed to activate user');
+    console.log(error,'error');
+      showErrorToast(error?.data?.detail || error?.detail || 'Failed to activate user');
    }
   };
 

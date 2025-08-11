@@ -19,13 +19,13 @@ import {
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
-import { useViewGuestPassSettingsQuery, useApproveGuestPassMutation } from '../../services/gatePassApi';
+import { useViewGuestPassSettingsQuery, useApproveGuestPassSettingsMutation } from '../../services/gatePassApi';
 import { useSuccessToast, useErrorToast } from '../../components/Toast';
 import { useAuth } from '../../hooks/useAuth';
 
 const ViewGuestPassSettings: React.FC = () => {
   const { data: guestPassSettings, isLoading, error } = useViewGuestPassSettingsQuery();
-  const [approveGuestPass] = useApproveGuestPassMutation();
+  const [approveGuestPassSettings] = useApproveGuestPassSettingsMutation();
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [settingToApprove, setSettingToApprove] = useState<number | null>(null);
   const [approvalComment, setApprovalComment] = useState('');
@@ -57,7 +57,7 @@ const ViewGuestPassSettings: React.FC = () => {
   const handleApproveConfirm = async () => {
     if (settingToApprove) {
       try {
-        await approveGuestPass(settingToApprove).unwrap();
+        await approveGuestPassSettings(settingToApprove).unwrap();
         showSuccessToast('Guest pass setting approved successfully');
         setIsApproveModalOpen(false);
         setSettingToApprove(null);

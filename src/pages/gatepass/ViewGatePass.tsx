@@ -7,7 +7,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { useApproveGuestPassMutation, useGetGuestPassByIdQuery } from "../../services/gatePassApi";
 import { useSuccessToast, useErrorToast } from "../../components/Toast";
 import { useLocation } from "react-router-dom";
-import { cleanDigitSectionValue } from "@mui/x-date-pickers/internals/hooks/useField/useField.utils";
 
 
 const ViewGatePass = () => {
