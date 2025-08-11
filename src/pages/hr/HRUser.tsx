@@ -55,23 +55,23 @@ const HRUser: React.FC<HRFormProps> = ({ onSuccess }) => {
   const { data: shifts, isLoading: isShiftsLoading } = useGetShiftsQuery({});
 
   const organizationOptions = organizations?.results?.map((org: any) => ({
-    label: org.name,
+    label: org.client_name,
     value: org.id
   })) || [];
 
   const modifiedInitialData = React.useMemo(() => {
     const initialData = userData || location.state?.userData;
     if (!initialData) {
-      return { 
+      return {
         role: 'HR & Accounts', 
-        department: 'HR',
+        department: 'HR & Accounts Department',
         organization: user?.organization 
       };
     }
     return {
       ...initialData,
       organization: initialData.organization?.id || initialData.organization || initialData.organization_id || user?.organization,
-      department: 'HR',
+      department: 'HR & Accounts Department',
       shift: initialData.shift?.id || initialData.shift,
       role: 'HR & Accounts'
     };
@@ -101,8 +101,8 @@ const HRUser: React.FC<HRFormProps> = ({ onSuccess }) => {
       if (field.name === 'department') {
         return {
           ...field,
-          value: 'HR',
-          defaultValue: 'HR'
+          value: 'HR & Accounts Department',
+          defaultValue: 'HR & Accounts Department'
         };
       }
       return field;
@@ -120,7 +120,7 @@ const HRUser: React.FC<HRFormProps> = ({ onSuccess }) => {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined && key !== 'role') {
-          if (key === 'photo' || key === 'kyc_document' || key === 'pan_upload' || key === 'id_proof_document' && value instanceof File) {
+          if (key === 'photo' || key === 'kyc_document' || key === 'pan_document' || key === 'id_proof_document' && value instanceof File) {
             formData.append(key, value);
           } else {
             formData.append(key, value.toString());
@@ -141,7 +141,7 @@ const HRUser: React.FC<HRFormProps> = ({ onSuccess }) => {
       } else {
         const response = await createHrAccounts(formData).unwrap();
         showSuccessToast(response?.message || '');
-        navigate('/users');
+        navigate('/reports/users');
       }
     } catch (error: any) {
       console.error('Error handling HR & Accounts:', error);

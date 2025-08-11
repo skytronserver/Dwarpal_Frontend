@@ -39,11 +39,11 @@ export const HRUserFormFields: Field[] = [
     type: 'select',
     disabled: true,
     required: true,
-    options: [{ label: 'HR', value: 'HR' }],
+    options: [{ label: 'HR & Accounts Department', value: 'HR & Accounts Department' }],
     validation: Yup.string().required('Department is required')
   },
   {
-    name: 'phone_number',
+    name: 'mobile_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,
@@ -117,7 +117,7 @@ export const HRUserFormFields: Field[] = [
     validation: Yup.date().required('Valid until date is required')
   },
   {
-    name: 'pan',
+    name: 'pan_number',
     label: 'PAN Number',
     type: 'text',
     required: true,
@@ -126,14 +126,14 @@ export const HRUserFormFields: Field[] = [
       .required('PAN number is required')
   },
   {
-    name: 'pan_upload',
+    name: 'pan_document',
     label: 'PAN Document',
     type: 'file',
     required: false,
     validation: Yup.mixed().optional()
   },
   {
-    name: 'id_proof_no',
+    name: 'id_proof_number',
     label: 'ID Proof Number (Voter Id,Passport,Driving lisense or any Govt Id)',
     type: 'text',
     required: true,
