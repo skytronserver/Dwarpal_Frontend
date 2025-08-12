@@ -18,7 +18,12 @@ const formatMonthYear = (dateString: string) => {
 };
 
 const formatTime = (timestamp: string) => {
-  return new Date(timestamp).toLocaleTimeString('en-US', {
+  const date = new Date(timestamp);
+  // Check if it's midnight (00:00:00) - our dummy time
+  if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
+    return '00:00:00';
+  }
+  return date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -41,30 +46,73 @@ const UserAttendence = () => {
   console.log(data, 'data');
 
   if (isLoading) return <div>Loading...</div>;
+  
   if (error) {
     const errorMessage = (error as FetchBaseQueryError).status 
-      ? 'Server error' 
-      : (error as SerializedError).message || 'Unknown error';
-    return <div>Error: {errorMessage}</div>;
+      ? `Server error: ${(error as FetchBaseQueryError).status}` 
+      : (error as SerializedError).message || 'Unknown error occurred';
+    return (
+      <Box sx={{ p: 3, textAlign: 'center' }}>
+        <Typography variant="h6" color="error">
+          Error loading attendance data
+        </Typography>
+        <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
+          {errorMessage}
+        </Typography>
+      </Box>
+    );
   }
+  // Create default attendance record when attendance array is empty
+  const createDefaultAttendanceRecord = () => {
+    const today = new Date();
+    const dummyDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(),0, 0, 0, 0);
+    
+    return {
+      date: today.toISOString().split('T')[0],
+      official_in_time: dummyDateTime.toISOString(),
+      official_out_time: dummyDateTime.toISOString(),
+      in_times: [],
+      out_times: [],
+      total_work_time: '0h 0m',
+      status: 'No Data'
+    };
+  };
 
-  if (!data?.attendance?.length) {
-    return <div>No attendance data available</div>;
-  }
+  // Use actual data with fallback for empty attendance
+  const attendanceData = data ? {
+    ...data,
+    attendance: data.attendance && data.attendance.length > 0 
+      ? data.attendance 
+      : [createDefaultAttendanceRecord()]
+  } : {
+    user: 'Unknown User',
+    department: 'Unknown Department',
+    attendance: [createDefaultAttendanceRecord()],
+    summary: {
+      total_present: 0,
+      total_late: 0,
+      total_absent: 0
+    }
+  };
+
+  const hasRealData = data && data.attendance && data.attendance.length > 0;
 
   // Transform API data for the UI
-  const workHoursTrend = data.attendance.map(record => ({
+  const workHoursTrend = attendanceData.attendance.map(record => ({
     date: record.date,
     hours: record.total_work_time ? parseFloat(record.total_work_time.split('h')[0]) || 0 : 0
   }));
 
   // Create check-in/out activity data for visualization
-  const activityData = data.attendance[0] ? [
-    { type: 'Check-ins', count: data.attendance[0].in_times.length, color: '#4caf50' },
-    { type: 'Check-outs', count: data.attendance[0].out_times.length, color: '#f44336' }
-  ] : [];
+  const activityData = attendanceData.attendance[0] ? [
+    { type: 'Check-ins', count: attendanceData.attendance[0].in_times?.length || 0, color: '#4caf50' },
+    { type: 'Check-outs', count: attendanceData.attendance[0].out_times?.length || 0, color: '#f44336' }
+  ] : [
+    { type: 'Check-ins', count: 0, color: '#4caf50' },
+    { type: 'Check-outs', count: 0, color: '#f44336' }
+  ];
 
-  console.log(data, 'data');
+  console.log(attendanceData, 'attendanceData');
 
   return (
     <Box sx={{ p: 3 }}>
@@ -78,25 +126,25 @@ const UserAttendence = () => {
         <Grid container spacing={3} alignItems="center">
           <Grid item xs={12} md={2}>
             <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', fontSize: '2rem' }}>
-              {data.user.split(' ').map(n => n[0]).join('')}
+              {attendanceData.user.split(' ').map(n => n[0]).join('')}
             </Avatar>
           </Grid>
           <Grid item xs={12} md={6}>
             <Typography variant="h4" sx={{ mb: 1, fontWeight: 'bold' }}>
-              {data.user}
+              {attendanceData.user}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
               <BusinessIcon sx={{ mr: 1 }} />
-              <Typography variant="h6">{data.department}</Typography>
+              <Typography variant="h6">{attendanceData.department}</Typography>
             </Box>
             <Typography variant="body1" sx={{ opacity: 0.9 }}>
-              {formatDate(data.attendance[0].date)}
+              {formatDate(attendanceData.attendance[0].date)}
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
             <Box sx={{ textAlign: 'right' }}>
               <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
-                {data.attendance[0].total_work_time}
+                {attendanceData.attendance[0].total_work_time}
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
                 Total Work Time
@@ -116,7 +164,7 @@ const UserAttendence = () => {
                 <Typography variant="h6">Present Days</Typography>
               </Box>
               <Typography variant="h3" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                {data?.summary.total_present || 0}
+                {attendanceData?.summary.total_present || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -130,7 +178,7 @@ const UserAttendence = () => {
                 <Typography variant="h6">Late Days</Typography>
               </Box>
               <Typography variant="h3" sx={{ fontWeight: 'bold', color: 'warning.main' }}>
-                {data?.summary.total_late || 0}
+                {attendanceData?.summary.total_late || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -144,7 +192,7 @@ const UserAttendence = () => {
                 <Typography variant="h6">Absent Days</Typography>
               </Box>
               <Typography variant="h3" sx={{ fontWeight: 'bold', color: 'error.main' }}>
-                {data?.summary.total_absent || 0}
+                {attendanceData?.summary.total_absent || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -158,7 +206,7 @@ const UserAttendence = () => {
                 <Typography variant="h6">Activity Count</Typography>
               </Box>
               <Typography variant="h3" sx={{ fontWeight: 'bold', color: 'info.main' }}>
-                {data.attendance[0] ? data.attendance[0].in_times.length + data.attendance[0].out_times.length : 0}
+                {attendanceData.attendance[0] ? (attendanceData.attendance[0].in_times?.length || 0) + (attendanceData.attendance[0].out_times?.length || 0) : 0}
               </Typography>
             </CardContent>
           </Card>
@@ -198,7 +246,7 @@ const UserAttendence = () => {
                 <Box>
                   <Typography variant="body2" color="textSecondary">Official Check-in</Typography>
                   <Typography variant="h6">
-                    {formatTime(data.attendance[0].official_in_time)}
+                    {formatTime(attendanceData.attendance[0].official_in_time)}
                   </Typography>
                 </Box>
               </Box>
@@ -207,7 +255,7 @@ const UserAttendence = () => {
                 <Box>
                   <Typography variant="body2" color="textSecondary">Official Check-out</Typography>
                   <Typography variant="h6">
-                    {formatTime(data.attendance[0].official_out_time)}
+                    {formatTime(attendanceData.attendance[0].official_out_time)}
                   </Typography>
                 </Box>
               </Box>
@@ -215,9 +263,9 @@ const UserAttendence = () => {
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'grey.100', borderRadius: 2 }}>
                 <Typography variant="body2" color="textSecondary">Status</Typography>
                 <Chip 
-                  label={data.attendance[0].status} 
-                  color={data.attendance[0].status === 'Present' ? 'success' : 
-                         data.attendance[0].status === 'Late' ? 'warning' : 'error'}
+                  label={attendanceData.attendance[0].status} 
+                  color={attendanceData.attendance[0].status === 'Present' ? 'success' : 
+                         attendanceData.attendance[0].status === 'Late' ? 'warning' : 'error'}
                   size="medium"
                   sx={{ mt: 1, fontWeight: 'bold' }}
                 />
@@ -233,10 +281,10 @@ const UserAttendence = () => {
           <Paper sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', color: 'success.main' }}>
               <LoginIcon sx={{ mr: 1 }} />
-              Check-in Times ({data.attendance[0].in_times.length})
+              Check-in Times ({attendanceData.attendance[0].in_times?.length || 0})
             </Typography>
             <List sx={{ maxHeight: 400, overflow: 'auto' }}>
-              {data.attendance[0].in_times.map((time, index) => (
+              {(attendanceData.attendance[0].in_times || []).map((time, index) => (
                 <ListItem key={index} sx={{ py: 1 }}>
                   <ListItemIcon>
                     <LoginIcon sx={{ color: 'success.main' }} />
@@ -255,10 +303,10 @@ const UserAttendence = () => {
           <Paper sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', color: 'error.main' }}>
               <LogoutIcon sx={{ mr: 1 }} />
-              Check-out Times ({data.attendance[0].out_times.length})
+              Check-out Times ({attendanceData.attendance[0].out_times?.length || 0})
             </Typography>
             <List sx={{ maxHeight: 400, overflow: 'auto' }}>
-              {data.attendance[0].out_times.map((time, index) => (
+              {(attendanceData.attendance[0].out_times || []).map((time, index) => (
                 <ListItem key={index} sx={{ py: 1 }}>
                   <ListItemIcon>
                     <LogoutIcon sx={{ color: 'error.main' }} />
@@ -291,7 +339,7 @@ const UserAttendence = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.attendance.map((record) => (
+              {attendanceData?.attendance.map((record) => (
                 <TableRow key={record.date}>
                   <TableCell>
                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
@@ -301,10 +349,10 @@ const UserAttendence = () => {
                   <TableCell>{formatTime(record.official_in_time)}</TableCell>
                   <TableCell>{formatTime(record.official_out_time)}</TableCell>
                   <TableCell>
-                    <Chip label={record.in_times.length} color="success" size="small" />
+                    <Chip label={record.in_times?.length || 0} color="success" size="small" />
                   </TableCell>
                   <TableCell>
-                    <Chip label={record.out_times.length} color="error" size="small" />
+                    <Chip label={record.out_times?.length || 0} color="error" size="small" />
                   </TableCell>
                   <TableCell>
                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
