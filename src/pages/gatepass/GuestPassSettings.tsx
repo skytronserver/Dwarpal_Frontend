@@ -14,7 +14,7 @@ const GuestPassSettings: React.FC = () => {
             const response = await guestPassSettings(values).unwrap();
             console.log('Guest pass settings saved successfully:', response);
             showSuccessToast(response?.message || '');
-            navigate('/gate-passes');
+            navigate('/reports/guest-pass');
         } catch (error: any) {
             console.error('Error saving settings:', error);
             showErrorToast(error?.data?.detail || '');
@@ -22,7 +22,7 @@ const GuestPassSettings: React.FC = () => {
     };
 
     const handleCancel = () => {
-        navigate('/gate-passes');
+        navigate('/reports/guest-pass');
     };
 
     return (

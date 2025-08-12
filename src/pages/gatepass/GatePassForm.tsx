@@ -178,7 +178,6 @@ const GatePassForm: React.FC<GatePassFormProps> = ({ onSuccess }) => {
 
             await createGatePass(formData).unwrap();
             navigate('/reports/gate-passes');
-            onSuccess?.();
         } catch (error) {
             console.error('Failed to create gate pass:', error);
         }
