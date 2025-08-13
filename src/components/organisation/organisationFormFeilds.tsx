@@ -85,7 +85,9 @@ export const OrganisationFormFields: Field[] = [
     label:'Pan Number',
     type:'text',
     required:true,
-    validation:Yup.string().required('Pan number is required')
+     validation: Yup.string()
+        .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number')
+        .required('PAN number is required')
   },
   {
     name:'pan_file',

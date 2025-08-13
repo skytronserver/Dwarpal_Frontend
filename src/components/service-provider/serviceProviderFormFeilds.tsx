@@ -121,7 +121,9 @@ export const ServiceProviderFormFields: Field[] = [
     label: 'PAN Number',
     type: 'text',
     required: true,
-    validation: Yup.string().required('PAN is required')
+    validation: Yup.string()
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number format')
+      .required('PAN is required')
   },
   {
     name: 'pan_file',
@@ -136,7 +138,9 @@ export const ServiceProviderFormFields: Field[] = [
     label: 'GST Number',
     type: 'text',
     required: true,
-    validation: Yup.string().required('GST number is required')
+    validation: Yup.string()
+      .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GST number format')
+      .required('GST number is required')
   },
   {
     name: 'gst_file',
