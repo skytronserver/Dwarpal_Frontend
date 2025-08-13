@@ -128,7 +128,9 @@ export const EmployeeFormFields: Field[] = [
     label: 'PAN Number',
     type: 'text',
     required: true,
-    validation: Yup.string().required('PAN is required')
+    validation: Yup.string()
+    .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number format')
+    .required('PAN number is required')
   },
   {
     name: 'pan_upload',

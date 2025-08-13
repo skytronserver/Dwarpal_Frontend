@@ -39,7 +39,9 @@ export const individualServiceProviderFormFields: Field[] = [
     label: 'Emergency Contact',
     type: 'text',
     required: true,
-    validation: Yup.string().required('Emergency contact is required')
+    validation: Yup.string()
+      .matches(/^\d{10}$/, 'Phone number must be exactly 10 digits')
+      .required('Emergency contact is required')
   },
   {
     name: 'date_of_birth',
@@ -115,7 +117,9 @@ export const individualServiceProviderFormFields: Field[] = [
     label: 'PAN Number',
     type: 'text',
     required: true,
-    validation: Yup.string().required('PAN is required')
+    validation: Yup.string()
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number format')
+      .required('PAN is required')
   },  
   {
     name: 'pan_file',

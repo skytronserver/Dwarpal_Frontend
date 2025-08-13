@@ -65,16 +65,17 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const muiTheme = useTheme();
 
+
   // Create validation schema from fields
   const createValidationSchema = () => {
     const schemaObject: Record<string, any> = {};
-    
+
     fields.forEach(field => {
       if (field.validation) {
         schemaObject[field.name] = field.validation;
       }
     });
-    
+
     return Yup.object().shape(schemaObject);
   };
 
@@ -127,13 +128,35 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
     return null;
   };
 
+  // Allow only digits, max 10, update form data
+  const handlePhoneNumberInput = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    fieldName: string
+  ) => {
+    let value = e.target.value;
+
+    // Keep only digits
+    value = value.replace(/\D/g, '');
+
+    // Truncate to 10 digits max
+    if (value.length > 10) {
+      value = value.slice(0, 10);
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+  };
+
+
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): Promise<void> => {
     const { name, value, type } = e.target;
     setFileError(null); // Reset file error on new input
-    
+
     // Mark field as touched
     setTouchedFields(prev => ({ ...prev, [name]: true }));
-    
+
     if (type === "file") {
       const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
@@ -141,7 +164,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
         // Get the field object to access the label
         const field = fields.find(f => f.name === name);
         const error = validateFile(file, name, field?.label || '');
-        
+
         if (error) {
           setFileError(error);
           // Reset the file input
@@ -168,7 +191,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
     const newValue = type === "checkbox" || type === "switch"
       ? (e.target as HTMLInputElement).checked
       : value;
-    
+
     setFormData(prev => {
       const newData = {
         ...prev,
@@ -188,10 +211,10 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
 
   const handleSelectChange = async (e: SelectChangeEvent<any>) => {
     const { name, value } = e.target;
-    
+
     // Mark field as touched
     setTouchedFields(prev => ({ ...prev, [name]: true }));
-    
+
     setFormData(prev => {
       const newData = {
         ...prev,
@@ -211,22 +234,22 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Mark all fields as touched
     const allTouched: Record<string, boolean> = {};
     fields.forEach(field => {
       allTouched[field.name] = true;
     });
     setTouchedFields(allTouched);
-    
+
     // Validate all fields
     const { isValid, errors } = await validateAllFields(formData);
-    
+
     if (!isValid) {
       setFieldErrors(errors);
       return;
     }
-    
+
     // Clear errors if validation passes
     setFieldErrors({});
     onSubmit(formData);
@@ -281,26 +304,26 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
     setFormData(prev => {
       // Parse the field path
       const [arrayName, , fieldKey] = fieldName.split('.');
-      
+
       // Get the current array
       const currentArray = [...(prev[arrayName] || [])];
-      
+
       // Ensure the object at the index exists
       if (!currentArray[index]) {
         currentArray[index] = {};
       }
-      
+
       // Update the specific field in the array item
       currentArray[index] = {
         ...currentArray[index],
         [fieldKey]: Object.values(value)[0]
       };
-      
+
       const newData = {
         ...prev,
         [arrayName]: currentArray
       };
-      
+
       console.log('Updated Form Data:', newData);
       if (onChange) onChange(newData);
       return newData;
@@ -312,7 +335,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
     const hasError = touchedFields[field.name] && fieldErrors[field.name];
     const errorMessage = fieldErrors[field.name];
     console.log('Rendering Array Field:', { fieldName: field.name, value: arrayValue });
-    
+
     return (
       <Box sx={{ mb: 2 }}>
         {arrayValue.map((item: any, index: number) => (
@@ -330,8 +353,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               ))}
             </Box>
             {arrayValue.length > 1 && (
-              <Button 
-                color="error" 
+              <Button
+                color="error"
                 onClick={() => handleArrayFieldRemove(field.name, index)}
                 sx={{ mt: 1 }}
                 size="small"
@@ -344,8 +367,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
         ))}
         {arrayValue.length < 5 && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               onClick={() => handleArrayFieldAdd(field.name)}
               sx={{ mt: 1 }}
               size="small"
@@ -371,7 +394,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
     const isPhotoField = field.name === 'photo' || field.label.toLowerCase() === 'photo';
     const hasError = touchedFields[field.name] && fieldErrors[field.name];
     const errorMessage = fieldErrors[field.name];
-    
+
     return (
       <Box>
         {!formData[field.name] ? (
@@ -397,7 +420,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               </Alert>
             )}
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, ml: 1 }}>
-              {isPhotoField ? 
+              {isPhotoField ?
                 'Accepted file types: PNG, JPG' :
                 'Accepted file types: PDF, PNG, JPG (256KB to 400KB)'}
             </Typography>
@@ -465,7 +488,31 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
   const renderField = (field: Field) => {
     const hasError = touchedFields[field.name] && fieldErrors[field.name];
     const errorMessage = fieldErrors[field.name];
-    
+
+    if (
+      field.type === "text" &&
+      (field.name.includes("phone") ||
+        field.name.includes("mobile") ||
+        field.name.includes("contact") ||
+        field.name.includes("emergency"))
+    ) {
+      return (
+        <TextField
+          name={field.name}
+          label={field.label}
+          value={formData[field.name] || ''}
+          onChange={(e) => handlePhoneNumberInput(e, field.name)}
+          required={field.required}
+          error={!!(touchedFields[field.name] && fieldErrors[field.name])}
+          helperText={touchedFields[field.name] && fieldErrors[field.name] ? fieldErrors[field.name] : field.helperText}
+          fullWidth
+          disabled={field.disabled}
+        />
+
+      );
+    }
+
+
     switch (field.type) {
       case "array":
         return renderArrayField(field);
@@ -493,8 +540,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               }}
             >
               {field.options?.map((option) => (
-                <MenuItem 
-                  key={String(option.value)} 
+                <MenuItem
+                  key={String(option.value)}
                   value={option.value}
                   disabled={(option as any).disabled}
                   sx={{
@@ -525,7 +572,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
             )}
           </FormControl>
         );
-      
+
       case "checkbox":
         return (
           <Box>
@@ -561,9 +608,9 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                 />
               }
               label={field.label}
-              sx={{ 
-                transition: 'all 0.3s ease', 
-                '&:hover': { transform: 'scale(1.05)' } 
+              sx={{
+                transition: 'all 0.3s ease',
+                '&:hover': { transform: 'scale(1.05)' }
               }}
             />
             {hasError && (
@@ -573,7 +620,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
             )}
           </Box>
         );
-      
+
       case "radio":
         return (
           <FormControl component="fieldset" error={!!hasError}>
@@ -588,7 +635,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                   key={String(option.value)}
                   value={option.value}
                   control={
-                    <Radio 
+                    <Radio
                       sx={{
                         color: muiTheme.palette.primary.main,
                         '&.Mui-checked': {
@@ -611,7 +658,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
             )}
           </FormControl>
         );
-      
+
       case "switch":
         return (
           <Box>
@@ -643,7 +690,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
             )}
           </Box>
         );
-      
+
       case "file":
         return renderFileInput(field);
 
@@ -742,21 +789,44 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
       case "photo-upload":
         return (
           <Box>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setActivePhotoField(field.name);
-                setOpenModal(true);
-              }}
-              sx={{ mb: 1 }}
-            >
-              {formData[field.name] ? "Change Photo" : "Upload Photo"}
-            </Button>
-            {formData[field.name] && (
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="body2" color="textSecondary">
-                  Photo selected: {formData[field.name]?.name}
+            {!formData[field.name] ? (
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setActivePhotoField(field.name);
+                  setOpenModal(true);
+                }}
+                sx={{ mb: 1 }}
+              >
+                Upload Photo
+              </Button>
+            ) : (
+              // Photo field UI with preview
+              <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <img
+                  src={URL.createObjectURL(formData[field.name])}
+                  alt="Preview"
+                  style={{
+                    maxWidth: '200px',
+                    maxHeight: '200px',
+                    objectFit: 'contain',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  {formData[field.name].name}
                 </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={() => {
+                    setActivePhotoField(field.name);
+                    setOpenModal(true);
+                  }}
+                >
+                  {formData[field.name].name === "webcam-photo.jpg" ? "Retake" : "Change Photo"}
+                </Button>
               </Box>
             )}
             {hasError && (
@@ -802,7 +872,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                       const newDates = currentDates.includes(dateStr)
                         ? currentDates.filter((date: string) => date !== dateStr)
                         : [...currentDates, dateStr];
-                      
+
                       setFormData(prev => {
                         const newData = {
                           ...prev,
@@ -817,10 +887,10 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
                     day: (dayProps) => {
                       const dateStr = dayjs(dayProps.day).format('YYYY-MM-DD');
                       const isSelected = (formData[field.name] || []).includes(dateStr);
-                      
+
                       return (
-                        <PickersDay 
-                          {...dayProps} 
+                        <PickersDay
+                          {...dayProps}
                           selected={isSelected}
                           sx={{
                             '&.Mui-selected': {
@@ -936,9 +1006,9 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
 
   return (
     <ThemeProvider theme={theme}>
-      <Paper 
-        elevation={0} 
-        sx={{ 
+      <Paper
+        elevation={0}
+        sx={{
           borderRadius: '16px',
           p: { xs: 2, sm: 3, md: 4 },
           backgroundColor: muiTheme.palette.background.paper,
@@ -979,8 +1049,8 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
         </form>
 
         {switchFields.length > 0 && (
-          <Dialog 
-            open={openModal} 
+          <Dialog
+            open={openModal}
             onClose={handleModalClose}
             PaperProps={{
               sx: {
@@ -991,7 +1061,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               }
             }}
           >
-            <DialogTitle sx={{ 
+            <DialogTitle sx={{
               pb: 1,
               pt: 2.5,
               px: 3,
@@ -1002,15 +1072,15 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               Privileges
             </DialogTitle>
             <DialogContent sx={{ px: 3 }}>
-              <Box sx={{ 
+              <Box sx={{
                 py: 2,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1.5,
               }}>
                 {switchFields.map((field) => (
-                  <Box 
-                    key={field.name} 
+                  <Box
+                    key={field.name}
                     sx={{
                       p: 2,
                       borderRadius: '8px',
@@ -1028,7 +1098,7 @@ const DynamicForm = ({ fields, onSubmit, initialValues, onChange }: DynamicFormP
               </Box>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2.5 }}>
-              <Button 
+              <Button
                 onClick={handleModalClose}
                 variant="contained"
                 sx={{

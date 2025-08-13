@@ -43,7 +43,7 @@ export const CompanyAccountsUserFormFields: Field[] = [
     validation: Yup.string().required('Department is required')
   },
   {
-    name: 'mobile_number',
+    name: 'phone_number',
     label: 'Mobile Number',
     type: 'text',
     required: true,
@@ -122,8 +122,8 @@ export const CompanyAccountsUserFormFields: Field[] = [
     type: 'text',
     required: true,
     validation: Yup.string()
-      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number')
-      .required('PAN number is required')
+    .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN number')
+    .required('PAN number is required')
   },
   {
     name: 'pan_upload',
